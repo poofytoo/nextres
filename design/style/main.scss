@@ -1,6 +1,8 @@
 body {
 	font-family: sans-serif;
+	min-width: 720px;
 }
+
 .header {
 	background-color: #f8f8f8;
 	height: 50px;
@@ -8,10 +10,19 @@ body {
 	
 	.appname {
 		font-size: 18px; 
-		font-weight: 200;
+		font-weight: 400;
 		color: #333;
 		padding: 16px;
+		margin-left: 12px;
 		display: inline-block;
+		
+		.highlight {
+			background-color: #47A9C4;
+			display: inline;
+			padding: 3px 5px;
+			border-radius: 2px;
+			color: #fff;
+		}
 	}
 	
 	ul.topnav {
@@ -50,5 +61,101 @@ body {
 				}
 			}
 		}
+	}
+}
+
+.sidenav {
+	font-weight: 200;
+	font-size: 14px;
+	width: 240px;
+	margin: 25px;
+	float: left;
+	
+	ul {
+		margin-bottom: 10px;
+		border: 1px solid #eee;
+		
+		li {
+			border-bottom: 1px solid #ddd;
+			
+			a {
+				padding: 10px;
+				display: block;
+				
+				&:hover, &:active {
+					color: #FFAC00;
+				}
+			}
+			
+			&.item-header {
+				border: none;
+				background-color: #eee;
+				padding: 5px 10px;
+				color: #666;
+			}
+			
+			&.spacer {
+				height: 10px;
+			}
+		}
+	}
+}
+
+.content {
+	margin-left: 290px;
+	padding: 25px;
+	height: 300px;
+	font-weight: 200;
+	
+	h1 {
+		font-size: 30px;
+		font-weight: 400; 
+		margin-bottom: 5px;
+	}
+	
+	h2 {
+		margin-bottom: 20px;
+	}
+	
+	p {
+		font-size: 14px;
+		line-height: normal;
+		margin-bottom: 20px;
+	}
+	input {
+		display: block;
+		width: 160px;
+		margin-top: 5px;
+		margin-right: 10px;
+	}
+	table {
+		text-align: left;
+	}
+}
+
+input[type="text"] {
+	border: 1px solid #ccc;
+	padding: 5px;
+	outline: none;
+	
+	&:focus {
+		border: 1px solid #FFAC00;
+	}
+}
+
+button {
+	font-family: sans-serif;
+	font-weight: 200;
+	font-size: 14px;
+	padding: 7px;
+	color: #fff;
+	background-color: #A4D654;
+	width: 80px;
+	border: none;
+	border-radius: 5px;	
+
+	&:hover {
+		background-color: #94C447;
+		cursor: pointer;
 	}
 }
