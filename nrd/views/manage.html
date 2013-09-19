@@ -1,0 +1,72 @@
+<html>
+  <head>
+    <title>Next Resident Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/reset.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+  </head>
+  <body>
+    <div class="header">
+      <span class="circle">N</span>
+      <div class="appname">
+        Next Resident Dashboard
+      </div>
+      <ul class="topnav">
+        <li class="greeting">{{ user.firstName }} {{ user.lastName }}</li>
+        <li><a href="">Help</a></li>
+        {{#if user}}
+        <li><a href="logout">Logout</a></li>
+        {{else}}
+        <li><a href="login">Login</a></li>
+        {{/if}}
+      </ul>
+      <div class="prettybar"></div>
+    </div>
+    <div class="main">
+      <div class="sidenav">
+        <ul>
+          <li class="item-header">Deskworker</li>
+          <li><a href="">Search and View Guestlists</a></li>
+        </ul>
+        <ul>
+          <li class="item-header">Front Desk</li>
+          <li><a href="manage">Manage Your Guestlist</a></li>
+        </ul>
+        <ul>
+          <li class="item-header">Account</li>
+          <li><a href="">Next Mailing Lists</a></li>
+          <li><a href="">Change Password</a></li>
+        </ul>
+        <ul>
+          <li class="item-header">Admin</li>
+          <li><a href="">Manage Users</a></li>
+        </ul>
+      </div>
+      <div class="content">
+        {{#if user}}
+        <h1>Manage Your Guestlist</h1>
+        <p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="">MIT security policies</a></p>
+        <form action='manage' method='post'>
+        <p>
+          <table>
+            <tr>
+              <th>Full Name</th><th>Kerberos</th>
+            </tr>
+            {{#each guests}}
+            <tr>
+              <td><input type='text' name='guest{{@index}}Name' value='{{ this.name }}' /></td>
+              <td><input type='text' name='guest{{@index}}Kerberos' value='{{ this.kerberos }}'/></td>
+            </tr>
+            {{/each}}
+          </table>
+        </p>
+        <p>
+          <input type='submit' value='Save'>
+        </p>
+        </form>
+        {{else}}
+        <h1>Log in to see interesting things</h1>
+        {{/if}}
+      </div>
+    </div>
+  </body>
+</html>
