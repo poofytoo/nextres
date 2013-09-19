@@ -13,17 +13,23 @@ var Consolidate = require('consolidate');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var Model = require('./model');
+var hbs = require('hbs');
+var fs = require('fs');
 
 var model = new Model();
 
 var app = express();
 
 // all environments
+
+
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
-app.engine('.html', Consolidate.handlebars);
-app.set('view engine', 'handlebars');
+app.set('view engine', 'html');
+app.engine('html', require('hbs').__express);
 app.set('view options', {layout: false});
+
+hbs.registerPartials(__dirname + '/views/partials');
 
 app.use(express.favicon());
 app.use(express.cookieParser());
@@ -36,6 +42,12 @@ app.use(express.session({ secret: 'SECRET' }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
+
+function registerContent(content) {
+  var contentDir = __dirname + '/views/partials/' + content + '.html';
+  var content = fs.readFileSync(contentDir, 'utf8');
+  hbs.registerPartial('content', content);
+}
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -67,7 +79,7 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', 
-	passport.authenticate('local', { successRedirect: '/index.html',
+	passport.authenticate('local', { successRedirect: '/base.html',
                                               failureRedirect: '/login' }));
 app.post('/login',
   passport.authenticate('local'),
@@ -75,7 +87,8 @@ app.post('/login',
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
     console.log('login success: ' + req.user.username);
-    res.render('index.html', {user: req.user});
+    registerContent('guestlist');
+    res.render('base.html', {user: req.user});
   }
 );
 
@@ -105,7 +118,8 @@ app.get('/manage', function(req, res) {
                 kerberos: result['guest' + i + 'Kerberos']};
         guests.push(info);
       }
-      res.render('manage.html', {user: req.user, guests: guests});
+      registerContent('manage');
+      res.render('base.html', {user: req.user, guests: guests});
     });
   } else {
   	res.redirect('/login');
@@ -130,7 +144,7 @@ app.post('/manage', function(req, res) {
                   kerberos: result['guest' + i + 'Kerberos']};
           guests.push(info);
         }
-        res.render('manage.html', {user: req.user, guests: guests});
+        res.render('base.html', {user: req.user, guests: guests});
       });
     });
   } else {
@@ -145,7 +159,7 @@ app.post('/signup', function(req, res) {
                           req.body.lastName,
                           req.body.kerberos,
                           hash);
-      res.render('index.html');
+      res.render('base.html');
     });
   });
 });
