@@ -49,8 +49,9 @@ body {
 		float: right;
 		display: inline-block;
 		color: #666;
-		margin-right: 10px;
-		position: relative;
+		right: 10px;
+		top: 0;
+		position: absolute;
 		
 		li {
 			font-weight: 200;
@@ -166,7 +167,7 @@ input[type="text"] {
 	}
 }
 
-button {
+input[type=submit] {
 	font-family: sans-serif;
 	font-weight: 200;
 	font-size: 14px;

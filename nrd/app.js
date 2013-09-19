@@ -67,7 +67,7 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', function(req, res){
-  res.render('index.html');
+  res.render('index.html', {user: req.user});
 });
 
 app.post('/login',
@@ -90,6 +90,47 @@ app.get('/logout', function(req, res) {
     req.logout();
   res.redirect('/');
   });
+});
+
+app.get('/manage', function(req, res) {
+  if (req.user !== undefined) {
+    console.log(req.user);
+    model.getGuests(req.user.id, function(error, result) {
+      guests =[]
+      for (var i = 1; i <= 10; i++) {
+        info = {name: result['guest' + i + 'Name'],
+                kerberos: result['guest' + i + 'Kerberos']};
+        guests.push(info);
+      }
+      res.render('manage.html', {user: req.user, guests: guests});
+    });
+  } else {
+    res.render('manage.html');
+  }
+});
+
+app.post('/manage', function(req, res) {
+  console.log(req.user);
+  if (req.user !== undefined) {
+    guests = [];
+    for (var i = 0; i < 10; i++) {
+      info = {name: req.body['guest' + i + 'Name'],
+              kerberos: req.body['guest' + i + 'Kerberos']};
+      guests.push(info);
+    }
+    var id = req.user.id;
+    model.addGuests(id, guests, function(error, result) {
+      model.getGuests(id, function(error, result) {
+        guests =[];
+        for (var i = 1; i <= 10; i++) {
+          info = {name: result['guest' + i + 'Name'],
+                  kerberos: result['guest' + i + 'Kerberos']};
+          guests.push(info);
+        }
+        res.render('manage.html', {user: req.user, guests: guests});
+      });
+    });
+  }
 });
 
 app.post('/signup', function(req, res) {
