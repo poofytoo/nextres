@@ -11,6 +11,8 @@
     "consolidate": "*",
     "passport": "*",
     "passport-local": "*",
-    "handlebars": "*"
+    "handlebars": "*",
+    "bcrypt": "*",
+    "mysql2": "*"
   }
 }

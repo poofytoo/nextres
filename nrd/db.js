@@ -1,34 +1,73 @@
-var mysql = require('node-db-mysql');
+var mysql = require('mysql2');
 
-
-function Database() {
-  this.db = new mysql.Database({
-      hostname: 'sql.mit.edu',
-      user: 'next',
-      password: '645cf777',
-      database: 'next+nextres'
-  });
+function Query() {
+  this.queryString = '';
 }
 
-Database.prototype.login = function(kerberos, passwordHash) {
-  this.db.connect(function(error) {
-      if (error) {
-          return console.log('CONNECTION error: ' + error);
-      }
-      this.query().
-        select(['firstName', 'lastName']).
-        from('next-users').
-        where('password = ?', [ passwordHash ]).
-        limit(1).
-        execute(function(error, rows, cols) {
-            if (error) {
-              console.log('ERROR: ' + error);
-              return false;
-            } else {
-              return rows
-            }
-        });
-  });
+Query.prototype.select = function(arr) {
+  this.queryString += 'SELECT ';
+  for (var i = 0; i < arr.length - 1; i++) {
+    this.queryString += arr[i] + ', ';
+  }
+  this.queryString += arr[arr.length-1] + ' ';
+  return this;
+}
+
+Query.prototype.from = function(table) {
+  this.queryString += 'FROM `' + table + '` ';
+  return this;
+}
+
+Query.prototype.where = function(rules, arr) {
+  var where = 'WHERE ';
+  var idx = 0;
+  while (rules.indexOf('?') >= 0) {
+    var temp = rules.substring(0, rules.indexOf('?') + 1);
+    temp = temp.replace('?', '\'' + arr[idx] + '\'');
+    where += temp;
+    idx ++;
+    rules = rules.substring(rules.indexOf('?') + 1);
+  }
+  this.queryString += where + ' ';
+  return this;
+}
+
+Query.prototype.limit = function(limit) {
+  this.queryString += 'LIMIT ' + limit + ' ';
+  return this;
+}
+
+Query.prototype.insert = function(table, columns, values) {
+  this.queryString += 'INSERT INTO `' + table + '` ';
+  this.queryString += '(' + columns.join() + ') ';
+  for (var i = 0; i < values.length; i++) {
+    values[i] = '\'' + values[i] + '\'';
+  }
+  this.queryString += 'VALUES (' + values.join() + ') ';
+  return this;
+}
+
+Query.prototype.isDefined = function() {
+  return this.queryString !== undefined && this.queryString.length > 0;
+}
+
+function Database() {
+  this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
+}
+
+Database.prototype.query = function () {
+  this.queryString = new Query();
+  return this.queryString;
+}
+
+Database.prototype.execute = function(callback) {
+  if (this.queryString !== undefined && this.queryString.isDefined) {
+    this.connection.connect();
+    this.connection.query(this.queryString.queryString, function(err, rows, fields) {
+      callback(err, rows, fields);
+    });
+    this.queryString = undefined;
+  }
 }
 
 module.exports = Database
