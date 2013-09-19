@@ -3,6 +3,7 @@
 		<title>Next Resident Dashboard</title>
 		<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/login.css">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	</head>
 	<body>
 	<form  method="post" action="/login">
@@ -15,7 +16,7 @@
 				<table>
 					<tr>
 						<td>kerberos</td>
-						<td><input type="text" name="username"></td>
+						<td><input type="text" class="username" name="username"></td>
 					</tr>
 					<tr>
 						<td>password</td>
@@ -29,5 +30,8 @@
 			</div>
 		</div>
 		</form>
+		<script>
+			$(".username").focus();
+		</script>
 	</body>
 </html>

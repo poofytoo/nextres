@@ -93,7 +93,7 @@ app.post('/login',
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
     console.log('login success: ' + req.user.username);
-    registerContent('guestlist');
+    registerContent('home');
     res.render('base.html', {user: req.user});
   }
 );
@@ -112,6 +112,11 @@ app.get('/logout', function(req, res) {
     req.logout();
   res.redirect('/');
   });
+});
+
+app.get('/home', function(req, res) {
+	registerContent('home');
+	res.render('base.html', {user: req.user});
 });
 
 app.get('/manage', function(req, res) {

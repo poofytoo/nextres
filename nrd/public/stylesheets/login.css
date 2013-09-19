@@ -22,7 +22,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
   width: 300px;
   height: 300px;
   margin: -150px 0 0 -150px;
@@ -42,7 +42,7 @@ body {
     font-weight: 100;
     margin-top: 20px;
     font-size: 12px;
-    color: #ccc; }
+    color: #aaa; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
