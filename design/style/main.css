@@ -1,0 +1,41 @@
+body {
+  font-family: sans-serif; }
+
+.header {
+  background-color: #f8f8f8;
+  height: 50px;
+  font-weight: 200; }
+  .header .appname {
+    font-size: 18px;
+    font-weight: 200;
+    color: #333;
+    padding: 16px;
+    display: inline-block; }
+  .header ul.topnav {
+    float: right;
+    display: inline-block;
+    color: #666;
+    margin-right: 10px; }
+    .header ul.topnav li {
+      font-weight: 200;
+      font-size: 14px;
+      line-height: 18px;
+      vertical-align: center;
+      display: inline-block;
+      margin-right: 8px; }
+      .header ul.topnav li.greeting {
+        margin-right: 20px; }
+      .header ul.topnav li a {
+        font-weight: 100;
+        width: 60px;
+        text-align: center;
+        text-decoration: none;
+        padding: 15px 10px 11px;
+        display: block;
+        background-color: #666;
+        border-bottom: 6px solid #333;
+        color: #fff; }
+        .header ul.topnav li a:active, .header ul.topnav li a:hover {
+          color: #eee;
+          border-bottom: 6px solid #FFAC00;
+          background-color: #777; }
