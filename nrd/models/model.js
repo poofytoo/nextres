@@ -47,6 +47,17 @@ Model.prototype.getGuests = function(id, callback) {
   });
 }
 
+Model.prototype.listGuests = function(id, callback) {
+  this.db.query().raw("SELECT *" + 
+					  "FROM  `next-users`" + 
+					  "RIGHT JOIN  `next-guestlist` ON  `next-users`.id =  `next-guestlist`.nextUser");
+  var db = this.db;
+  this.db.execute(function(error, result) {
+    console.log(error);
+  	callback(error, result)
+  })
+}
+
 // Finds a user with the given id, then calls the callback function
 
 Model.prototype.findUser = function(id, callback) {

@@ -71,6 +71,11 @@ Query.prototype.isDefined = function() {
   return this.queryString !== undefined && this.queryString.length > 0;
 }
 
+Query.prototype.raw = function(query) {
+  this.queryString = query;
+  return this.queryString
+}
+
 function Database() {
   this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
 }

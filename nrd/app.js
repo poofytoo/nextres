@@ -12,7 +12,7 @@ var bcrypt = require('bcrypt');
 var Consolidate = require('consolidate');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var Model = require('./model');
+var Model = require('./models/model');
 var hbs = require('hbs');
 var fs = require('fs');
 
@@ -161,6 +161,17 @@ app.post('/manage', function(req, res) {
   } else {
   	res.redirect('/login');
   }
+});
+
+app.get('/allguests', function(req, res) {
+  var id = req.user.id;
+  console.log(id);
+  
+  model.listGuests(id, function(error, result) {
+  	console.log(result);
+    registerContent('allguests');
+  	res.render('base.html', {user: req.user, result: result});
+  })
 });
 
 app.post('/signup', function(req, res) {
