@@ -4,6 +4,8 @@ function Model() {
   this.db = new Database();
 }
 
+// Finds a user with the given id, then calls the callback function
+
 Model.prototype.findUser = function(id, callback) {
   this.db.query().
     select(['firstName', 'lastName', 'kerberos']).
@@ -14,6 +16,10 @@ Model.prototype.findUser = function(id, callback) {
     callback(error, result[0]);
   })
 }
+
+// Finds the user with the given kerberos, to compare the password hash to
+// Probs not that secure
+
 Model.prototype.login = function(kerberos, callback) {
   console.log('kerberos: ' + kerberos);
   this.db.query().
@@ -26,6 +32,7 @@ Model.prototype.login = function(kerberos, callback) {
   });
 }
 
+// Creates a new user
 
 Model.prototype.createUser = function(firstName, lastName, kerberos, passwordHash) {
   console.log(firstName + ' ' + lastName + ' ' + kerberos);

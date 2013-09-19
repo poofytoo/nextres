@@ -1,5 +1,16 @@
 var mysql = require('mysql2');
 
+// All these functions return the Query object back
+// so you can chain the functinos together like
+// queryObject.select([ values])
+//            .from(table)
+//            .where("something=?", [value])
+//            .limit(1)
+
+// To execute sql query, construct the query
+// then call db.execute(callback)
+// see model.js for examples
+
 function Query() {
   this.queryString = '';
 }

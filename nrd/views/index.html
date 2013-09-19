@@ -59,7 +59,64 @@ password: <input type='password' name='password' />
         </ul>
       </div>
       <div class="content">
+        {{#if user}}
+        <h1>Search and View Guestlists</h1>
+        <p>
+          <input type="text" placeholder="kerberos or full name"/>
+        </p>
+        <p>
+          <table class="displaytable">
+            <tr>
+              <th width="240">Resident</th>
+              <th>Guest 1</th>
+              <th>Guest 2</th>
+              <th>Guest 3</th>
+            </tr>
+            <tr>
+              <td>Victor Hung (vhung)</td>
+              <td>Bob</td>
+              <td class="empty">(empty)</td>
+              <td class="empty">(empty)</td>
+            </tr>
+            <tr>
+              <td>Victor Hung (vhung)</td>
+              <td>Bob</td>
+              <td class="empty">(empty)</td>
+              <td class="empty">(empty)</td>
+            </tr>
+            <tr>
+              <td>Victor Hung (vhung)</td>
+              <td>Bob</td>
+              <td class="empty">(empty)</td>
+              <td class="empty">(empty)</td>
+            </tr>
+          </table>
+        </p>
+
+        <h1>Manage Your Guestlist</h1>
+        <p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="">MIT security policies</a></p>
+        <p>
+          <table>
+            <tr>
+              <th>Full Name</th><th>Kerberos</th>
+            </tr>
+            <tr>
+              <td><input type="text" /></td><td><input type="text" /></td>
+            </tr>
+            <tr>
+              <td><input type="text" /></td><td><input type="text" /></td>
+            </tr>
+            <tr>
+              <td><input type="text" /></td><td><input type="text" /></td>
+            </tr>
+          </table>
+        </p>
+        <p>
+          <button>Save</button>
+        </p>
+        {{else}}
         <h1>Log in to see interesting things</h1>
+        {{/if}}
       </div>
     </div>
   </body>
