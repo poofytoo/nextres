@@ -52,14 +52,20 @@ function registerContent(content) {
 passport.use(new LocalStrategy(
   function(username, password, done) {
     model.login(username, function(error, res) {
-      if (error !== null) { return done(null, false); }
-      bcrypt.compare(password, res.password, function(err, authenticated) {
-        if (!authenticated) {
-          return done(null, false);
-        } else {
-          return done(null, {id: res.id.toString(), username: res.kerberos, firstName: res.firstName, lastName: res.lastName});
-        }
-      });
+      if (error !== null) { 
+      	return done(null, false); 
+      }
+      if (res !== undefined) {
+	      bcrypt.compare(password, res.password, function(err, authenticated) {
+	        if (!authenticated) {
+	          return done(null, false);
+	        } else {
+	          return done(null, {id: res.id.toString(), username: res.kerberos, firstName: res.firstName, lastName: res.lastName});
+	        }
+	      });
+      } else {
+      	return done(null, false);
+      }
     });
   })
 );
@@ -82,7 +88,7 @@ app.get('/',
 	passport.authenticate('local', { successRedirect: '/base.html',
                                               failureRedirect: '/login' }));
 app.post('/login',
-  passport.authenticate('local'),
+  passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.

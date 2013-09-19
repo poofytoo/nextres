@@ -1,0 +1,68 @@
+body {
+  font-family: sans-serif; }
+
+.header {
+  text-align: center;
+  padding: 18px;
+  background-image: url("http://next.mit.edu/images/NextEntrance.jpg");
+  background-position: 0 -80px; }
+  .header .circle {
+    background-color: #47A9C4;
+    display: inline-block;
+    width: 52px;
+    line-height: 50px;
+    height: 50px;
+    font-size: 28px;
+    padding-top: 2px;
+    text-align: center;
+    border-radius: 50%;
+    color: #fff; }
+
+.container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 1px solid #eee;
+  width: 300px;
+  height: 300px;
+  margin: -150px 0 0 -150px;
+  text-align: center; }
+  .container h1 {
+    font-weight: 100;
+    margin: 15px 0;
+    color: #ccc;
+    font-size: 15px;
+    text-align: center; }
+  .container table {
+    font-weight: 100;
+    margin: 20px 0 0 20px; }
+    .container table td {
+      padding-left: 10px; }
+  .container p {
+    font-weight: 100;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #ccc; }
+
+input[type="text"], input[type="password"] {
+  border: 1px solid #ccc;
+  padding: 5px;
+  outline: none;
+  width: 150px; }
+  input[type="text"]:focus, input[type="password"]:focus {
+    border: 1px solid #FFAC00; }
+
+input[type="submit"] {
+  font-family: sans-serif;
+  font-weight: 200;
+  font-size: 14px;
+  padding: 7px;
+  color: #fff;
+  background-color: #A4D654;
+  width: 80px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px; }
+  input[type="submit"]:hover {
+    background-color: #94C447;
+    cursor: pointer; }

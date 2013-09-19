@@ -1,8 +1,33 @@
 <html>
-login, baby <br />
-<form method="post" action="login">
-username: <input type="text" name='username' /><br />
-password: <input type="password" name='password' />
-<input type="submit">
-</form>
+	<head>
+		<title>Next Resident Dashboard</title>
+		<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
+		<link rel="stylesheet" type="text/css" href="stylesheets/login.css">
+	</head>
+	<body>
+	<form  method="post" action="/login">
+		<div class="container">
+			<div class="header"><span class="circle">N</span></div>
+			<div class="loginform">
+				<h1>
+					Next Resident Dashboard
+				</h1>
+				<table>
+					<tr>
+						<td>kerberos</td>
+						<td><input type="text" name="username"></td>
+					</tr>
+					<tr>
+						<td>password</td>
+					 	<td><input type="password" name="password"></td>
+					</tr>
+				</table>
+				<input type="submit" value="login">
+				<p>
+					contact: vhung@mit.edu
+				</p>
+			</div>
+		</div>
+		</form>
+	</body>
 </html>
