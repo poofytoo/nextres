@@ -66,10 +66,9 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', function(req, res){
-  res.render('index.html', {user: req.user});
-});
-
+app.get('/', 
+	passport.authenticate('local', { successRedirect: '/index.html',
+                                              failureRedirect: '/login' }));
 app.post('/login',
   passport.authenticate('local'),
   function(req, res) {
@@ -81,7 +80,11 @@ app.post('/login',
 );
 
 app.get('/login', function(req, res) {
-  res.render('login.html');
+  if (req.user !== undefined) {
+  	res.redirect('/manage');
+  } else {
+  	res.render('login.html');
+  }
 });
 
 app.get('/logout', function(req, res) {
@@ -97,7 +100,7 @@ app.get('/manage', function(req, res) {
     console.log(req.user);
     model.getGuests(req.user.id, function(error, result) {
       guests =[]
-      for (var i = 1; i <= 10; i++) {
+      for (var i = 1; i <= 3; i++) {
         info = {name: result['guest' + i + 'Name'],
                 kerberos: result['guest' + i + 'Kerberos']};
         guests.push(info);
@@ -105,7 +108,7 @@ app.get('/manage', function(req, res) {
       res.render('manage.html', {user: req.user, guests: guests});
     });
   } else {
-    res.render('manage.html');
+  	res.redirect('/login');
   }
 });
 
@@ -113,7 +116,7 @@ app.post('/manage', function(req, res) {
   console.log(req.user);
   if (req.user !== undefined) {
     guests = [];
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 3; i++) {
       info = {name: req.body['guest' + i + 'Name'],
               kerberos: req.body['guest' + i + 'Kerberos']};
       guests.push(info);
@@ -130,6 +133,8 @@ app.post('/manage', function(req, res) {
         res.render('manage.html', {user: req.user, guests: guests});
       });
     });
+  } else {
+  	res.redirect('/login');
   }
 });
 
