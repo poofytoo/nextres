@@ -11,6 +11,8 @@ var path = require('path');
 var Consolidate = require('consolidate');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var Database = require('./db');
+
 
 var app = express();
 
