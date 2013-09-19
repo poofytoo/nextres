@@ -4,6 +4,16 @@ function Model() {
   this.db = new Database();
 }
 
+Model.prototype.findUser = function(id, callback) {
+  this.db.query().
+    select(['firstName', 'lastName', 'kerberos']).
+    from('next-users').
+    where('id = ?', [ id ]).
+    limit(1);
+  this.db.execute(function(error, result) {
+    callback(error, result[0]);
+  })
+}
 Model.prototype.login = function(kerberos, callback) {
   console.log('kerberos: ' + kerberos);
   this.db.query().
@@ -12,8 +22,6 @@ Model.prototype.login = function(kerberos, callback) {
       where('kerberos = ?', [ kerberos ]).
       limit(1);
   this.db.execute(function(error, result) {
-    console.log(result);
-    console.log(error);
     callback(error, result[0]);
   });
 }

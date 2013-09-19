@@ -21,8 +21,9 @@ var app = express();
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
-app.engine('html', Consolidate.handlebars);
-app.set('view engine', 'html');
+app.engine('.html', Consolidate.handlebars);
+app.set('view engine', 'handlebars');
+app.set('view options', {layout: false});
 
 app.use(express.favicon());
 app.use(express.cookieParser());
@@ -37,26 +38,27 @@ app.use(passport.session());
 app.use(app.router);
 
 passport.use(new LocalStrategy(
-function(username, password, done) {
-  model.login(username, function(error, res) {
-    if (error !== null) { return done(null, false); }
-    bcrypt.compare(password, res.password, function(err, authenticated) {
-      if (!authenticated) {
-        return done(null, false);
-      } else {
-        return done(null, {id: res.id.toString(), username: res.kerberos, firstName: res.firstName, lastName: res.lastName});
-      }
+  function(username, password, done) {
+    model.login(username, function(error, res) {
+      if (error !== null) { return done(null, false); }
+      bcrypt.compare(password, res.password, function(err, authenticated) {
+        if (!authenticated) {
+          return done(null, false);
+        } else {
+          return done(null, {id: res.id.toString(), username: res.kerberos, firstName: res.firstName, lastName: res.lastName});
+        }
+      });
     });
-  });
-}));
+  })
+);
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-  User.findOne(id, function(err, user) {
-    done(err, user.kerberos);
+  model.findUser(id, function(error, user) {
+    return done(null, user);
   });
 });
 // development only
@@ -74,8 +76,21 @@ app.post('/login',
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
     console.log('login success: ' + req.user.username);
-    res.render('index.html');
+    res.render('index.html', {user: req.user});
+  }
+);
+
+app.get('/login', function(req, res) {
+  res.render('login.html');
+});
+
+app.get('/logout', function(req, res) {
+  req.session.regenerate(function() {
+
+    req.logout();
+  res.redirect('/');
   });
+});
 
 app.post('/signup', function(req, res) {
   bcrypt.genSalt(10, function(err, salt) {
