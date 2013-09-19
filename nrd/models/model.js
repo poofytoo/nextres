@@ -71,6 +71,15 @@ Model.prototype.findUser = function(id, callback) {
   })
 }
 
+Model.prototype.listUsers = function(id, callback) {
+	this.db.query().
+	select(["*"]).
+	from('next-users')
+	this.db.execute(function(error, result) {
+		callback(error, result)
+	})
+}
+
 // Finds the user with the given kerberos, to compare the password hash to
 // Probs not that secure
 

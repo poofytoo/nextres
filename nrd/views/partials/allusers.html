@@ -1,0 +1,28 @@
+<h1>All Residents</h1>
+<p>
+	Mass Add: One kerberos per line
+	<textarea></textarea>
+</p>
+<p>
+	Add Single User: <input type="text">
+</p>
+<p>
+  <table class="displaytable">
+    <tr>
+      <th width="240">Resident Name</th>
+      <th>Kerberos</th>
+      <th>Role</th>
+      <th>Remove</th>
+    </tr>
+    {{#each result}}
+	<tr>
+	  <td>{{this.firstName}} {{this.lastName}}</td>
+	  <td>{{this.kerberos}}</td>
+	  <td></td>
+	  <td>x</td>
+	</tr>
+  	{{/each}}
+  </table>
+</p>
+
+{{results}}

@@ -174,6 +174,17 @@ app.get('/allguests', function(req, res) {
   })
 });
 
+app.get('/allusers', function(req, res) {
+  var id = req.user.id;
+  console.log(id);
+  
+  model.listUsers(id, function(error, result) {
+  	console.log(result);
+    registerContent('allusers');
+  	res.render('base.html', {user: req.user, result: result});
+  })
+});
+
 app.post('/signup', function(req, res) {
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, hash) {
