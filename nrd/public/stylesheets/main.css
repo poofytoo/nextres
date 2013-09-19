@@ -137,6 +137,9 @@ input[type=submit] {
     background-color: #94C447;
     cursor: pointer; }
 
+table tr td {
+  vertical-align: top; }
+
 .displaytable tr {
   background-color: #E4F4F5; }
   .displaytable tr:nth-child(even) {

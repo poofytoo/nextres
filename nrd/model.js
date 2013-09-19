@@ -7,7 +7,7 @@ function Model() {
 Model.prototype.addGuests = function(id, guests, callback) {
   columns = [];
   guestValues = [];
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 3; i++) {
     columns.push('guest' + (i + 1) + 'Name');
     columns.push('guest' + (i + 1) + 'Kerberos');
     guestValues.push(guests[i].name);

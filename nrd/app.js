@@ -125,7 +125,7 @@ app.post('/manage', function(req, res) {
     model.addGuests(id, guests, function(error, result) {
       model.getGuests(id, function(error, result) {
         guests =[];
-        for (var i = 1; i <= 10; i++) {
+        for (var i = 1; i <= 3; i++) {
           info = {name: result['guest' + i + 'Name'],
                   kerberos: result['guest' + i + 'Kerberos']};
           guests.push(info);
