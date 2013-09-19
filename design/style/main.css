@@ -5,32 +5,52 @@ body {
 .header {
   background-color: #f8f8f8;
   height: 50px;
-  font-weight: 200; }
+  font-weight: 200;
+  position: relative;
+  overflow: visible; }
   .header .appname {
     font-size: 18px;
     font-weight: 400;
     color: #333;
     padding: 16px;
-    margin-left: 12px;
+    margin-left: 50px;
     display: inline-block; }
-    .header .appname .highlight {
-      background-color: #47A9C4;
-      display: inline;
-      padding: 3px 5px;
-      border-radius: 2px;
-      color: #fff; }
+  .header .circle {
+    background-color: #47A9C4;
+    display: block;
+    width: 32px;
+    line-height: 30px;
+    height: 30px;
+    font-size: 18px;
+    padding-top: 2px;
+    text-align: center;
+    border-radius: 50%;
+    color: #fff;
+    position: absolute;
+    top: 7px;
+    left: 24px; }
+  .header .prettybar {
+    height: 6px;
+    background-color: #f3f3f3;
+    position: absolute;
+    bottom: 0px;
+    z-index: 1;
+    width: 100%; }
   .header ul.topnav {
     float: right;
     display: inline-block;
     color: #666;
-    margin-right: 10px; }
+    margin-right: 10px;
+    position: relative; }
     .header ul.topnav li {
       font-weight: 200;
       font-size: 14px;
       line-height: 18px;
       vertical-align: center;
       display: inline-block;
-      margin-right: 8px; }
+      margin-right: 8px;
+      position: relative;
+      z-index: 200; }
       .header ul.topnav li.greeting {
         margin-right: 20px; }
       .header ul.topnav li a {
@@ -115,3 +135,19 @@ button {
   button:hover {
     background-color: #94C447;
     cursor: pointer; }
+
+.displaytable tr {
+  background-color: #E4F4F5; }
+  .displaytable tr:nth-child(even) {
+    background-color: #fff; }
+  .displaytable tr td {
+    padding: 5px 20px 5px 5px;
+    min-width: 100px; }
+    .displaytable tr td.empty {
+      opacity: 0.2; }
+  .displaytable tr th {
+    background-color: #333;
+    color: #ccc;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-weight: 500; }
