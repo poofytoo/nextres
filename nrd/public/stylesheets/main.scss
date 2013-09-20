@@ -1,3 +1,5 @@
+$teal: #47A9C4;
+
 body {
 	font-family: sans-serif;
 	min-width: 720px;
@@ -21,7 +23,7 @@ body {
 	}
 	
 	.circle {
-		background-color: #47A9C4;
+		background-color: $teal;
 		display: block;
 		width: 32px;
 		line-height: 30px;
@@ -145,6 +147,10 @@ body {
 		font-size: 14px;
 		line-height: normal;
 		margin-bottom: 20px;
+		
+		a {
+			color: $teal;
+		}
 	}
 	input {
 		display: block;
@@ -157,11 +163,10 @@ body {
 	}
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
 	border: 1px solid #ccc;
 	padding: 5px;
 	outline: none;
-	
 	&:focus {
 		border: 1px solid #FFAC00;
 	}
@@ -187,7 +192,8 @@ input[type="submit"] {
 table {
 	tr {
 		td {
-			vertical-align: top;
+			vertical-align: middle;
+			padding-right: 10px;
 		}
 	}
 }

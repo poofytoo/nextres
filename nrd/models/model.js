@@ -137,6 +137,26 @@ Model.prototype.login = function(kerberos, callback) {
   });
 }
 
+Model.prototype.changePassword = function(id, oldPassword, newPassword, callback) {
+  this.db.query().
+    update('next-users', ['password'], [newPassword]).
+    where(['id = ?'] , [ id ]);
+  console.log(this.db.queryString);
+  this.db.execute(function(error, result) {
+    console.log(error);
+    console.log(result[0]);
+    callback(error, result[0]);
+  })
+}
+
+/*
+    update('next-guestlist',
+           columns,
+           guestValues).
+    where('nextUser = ?', [ id ]);
+*/
+    
+    
 // Creates a new user
 
 Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
@@ -150,31 +170,23 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
     );
     
   var userCreated = false;
+  var db = this.db;
   this.db.execute(function (error, result) {
     if (error) {
       console.log('Error:' + error);
     } else {
       // success
       console.log ('Created user: ' + kerberos);
-      userCreated = true;
-    }
-
-    console.log(userCreated)
-  
-
-    // If the user was created successfully, create a guestlist row for him & send an email
-    // TODO: problem: this is executed before the above finishes running. Sadness
-    if (userCreated) {
-      this.db.query().
+      db.query().
         select(['*']).
         from('next-users').
         where('kerberos = ?', [ kerberos ]).
         limit(1);
-      this.db.execute(function(error, result) {
+      db.execute(function(error, result) {
         var nextUserId = result[0].id;
-        this.db.query().
+        db.query().
           insert('next-guestlist', ['nextUser'], [nextUserId]);
-        this.db.execute(function (error, result) {
+        db.execute(function (error, result) {
           if (error) {
             console.log ('Error:' + error)
           } else {
@@ -191,8 +203,8 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
             
             htmlEmail = "Hello!<br /><br />" + 
 			   "Your Next resident dashboard account has been created. Please login with your Kerberos " +
-			   "ID and the following password: " + passwordRaw +
-			   ". Once you have logged in, please change your password.<br /><br />" +
+			   "ID and the following password: <b>" + passwordRaw +
+			   "</b>. Once you have logged in, please change your password.<br /><br />" +
 			   "If you have any questions, feel free to contact nextexec@mit.edu <br /><br />" +
 			   "Cheers,<br />" +
 			   "Sparky, the Next House Mailbot";
@@ -217,6 +229,15 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
           }
         });
       });
+    }
+
+    console.log(userCreated)
+  
+
+    // If the user was created successfully, create a guestlist row for him & send an email
+    // TODO: problem: this is executed before the above finishes running. Sadness
+    if (userCreated) {
+      
     }
   });
 

@@ -82,6 +82,7 @@ passport.deserializeUser(function(id, done) {
     return done(null, user);
   });
 });
+
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
@@ -130,7 +131,9 @@ app.get('/logout', function(req, res) {
 
 app.get('/home', function(req, res) {
 	registerContent('home');
-	res.render('base.html', pageData(req.user, {user: req.user}));
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
 });
 
 app.get('/manage', function(req, res) {
@@ -219,6 +222,73 @@ app.get('/allusers', function(req, res) {
     res.redirect('/login');
   }
 });
+
+app.get('/changepassword', function(req, res) {
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    console.log(id);
+    
+    registerContent('changepassword');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/changepassword', function(req, res) {
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    var oldPassword = req.body.oldpassword;
+    var newPassword = req.body.newpassword;
+    bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.hash(oldPassword, salt, function(err, oP) {
+      	var oldPassword = oldPassword;
+      	bcrypt.hash(newPassword, salt, function(err, nP) {
+      	  console.log(id)
+		  model.changePassword(id, oldPassword, newPassword, function(error, result) {
+		    console.log(error);	
+		  });
+      	});
+      });
+    });
+    registerContent('changepassword');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
+  } else {
+    res.redirect('/login');
+  }
+})
+
+
+/*
+
+    guests = [];
+    for (var i = 0; i < 3; i++) {
+      info = {name: req.body['guest' + i + 'Name'],
+              kerberos: req.body['guest' + i + 'Kerberos']};
+      guests.push(info);
+    }
+    var id = req.user.id;
+    model.addGuests(id, guests, function(error, result) {
+      model.getGuests(id, function(error, result) {
+        guests =[];
+        for (var i = 1; i <= 3; i++) {
+          info = {name: result['guest' + i + 'Name'],
+                  kerberos: result['guest' + i + 'Kerberos']};
+          guests.push(info);
+        }
+        registerContent('manage');
+        model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {'user': req.user,
+                                   'permissions': permissions,
+                                   'guests': guests});
+        });
+      });
+    });
+    */
 
 var randomPassword = function()
 {

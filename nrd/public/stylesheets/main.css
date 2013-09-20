@@ -16,7 +16,7 @@ body {
     margin-left: 50px;
     display: inline-block; }
   .header .circle {
-    background-color: #47A9C4;
+    background-color: #47a9c4;
     display: block;
     width: 32px;
     line-height: 30px;
@@ -108,6 +108,8 @@ body {
     font-size: 14px;
     line-height: normal;
     margin-bottom: 20px; }
+    .content p a {
+      color: #47a9c4; }
   .content input {
     display: block;
     width: 160px;
@@ -116,11 +118,11 @@ body {
   .content table {
     text-align: left; }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
   padding: 5px;
   outline: none; }
-  input[type="text"]:focus {
+  input[type="text"]:focus, input[type="password"]:focus {
     border: 1px solid #FFAC00; }
 
 input[type="submit"] {
@@ -138,7 +140,8 @@ input[type="submit"] {
     cursor: pointer; }
 
 table tr td {
-  vertical-align: top; }
+  vertical-align: middle;
+  padding-right: 10px; }
 
 .displaytable tr {
   background-color: #E4F4F5; }
