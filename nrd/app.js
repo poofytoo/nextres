@@ -187,25 +187,37 @@ app.post('/manage', function(req, res) {
 });
 
 app.get('/allguests', function(req, res) {
-  var id = req.user.id;
-  console.log(id);
-  
-  model.listGuests(id, function(error, result) {
-  	console.log(result);
-    registerContent('allguests');
-  	res.render('base.html', {user: req.user, result: result});
-  })
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    console.log(id);
+    
+    model.listGuests(id, function(error, result) {
+    	console.log(result);
+      registerContent('allguests');
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {user: req.user, result: result, permissions: permissions});
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/allusers', function(req, res) {
-  var id = req.user.id;
-  console.log(id);
-  
-  model.listUsers(id, function(error, result) {
-  	console.log(result);
-    registerContent('allusers');
-  	res.render('base.html', {user: req.user, result: result});
-  })
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    console.log(id);
+    
+    model.listUsers(id, function(error, result) {
+    	console.log(result);
+      registerContent('allusers');
+      model.getPermissions(req.user.id, function(permissions) {
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.post('/signup', function(req, res) {
