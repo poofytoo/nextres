@@ -1,4 +1,5 @@
 var Database = require('./db');
+var nodemailer = require('../node_modules/nodemailer');
 
 function Model() {
   this.db = new Database();
@@ -137,20 +138,76 @@ Model.prototype.login = function(kerberos, callback) {
 
 // Creates a new user
 
-Model.prototype.createUser = function(firstName, lastName, kerberos, passwordHash) {
-  console.log(firstName + ' ' + lastName + ' ' + kerberos);
+Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
+  
+  // Creates a user 
+  // TODO: check if user is already in the database. If so, return error and don't do anything
   this.db.query().
     insert('next-users',
-             ['firstName', 'lastName', 'kerberos', 'email', 'password'],
-             [firstName, lastName, kerberos, kerberos + '@mit.edu', passwordHash]
-      );
-
+             ['kerberos', 'email', 'password'],
+             [kerberos, kerberos + '@mit.edu', passwordHash]
+    );
+    
+  var userCreated = false;
   this.db.execute(function (error, result) {
     if (error) {
       console.log('Error:' + error);
+    } else {
+      // success
+      console.log ('Created user: ' + kerberos);
+      userCreated = true;
     }
-    console.log('Created user ' + kerberos);
-  });
+  })
+  
+  console.log(userCreated)
+  
+  // If the user was created successfully, create a guestlist row for him & send an email
+  // TODO: problem: this is executed before the above finishes running. Sadness
+  if (userCreated) {
+    this.db.query().
+      select(['*']).
+      from('next-users').
+      where('kerberos = ?', [ kerberos ]).
+      limit(1);
+	this.db.execute(function(error, result) {
+	  var nextUserId = result[0].id;
+	});   
+	  
+    this.db.query().
+      insert('next-guestlist', ['nextUser'], [nextUserId]);
+    this.db.execute(function (error, result) {
+      if (error) {
+        console.log ('Error:' + error)
+      } else {
+      	console.log ('User Properties Created: ' + kerberos);
+      		
+      	//contacting user
+      	var smtpTransport = nodemailer.createTransport("SMTP",{
+		  service: "Gmail",
+		  auth: {
+		    user: "sparkyroombot@gmail.com",
+		    pass: "pencilpencil"
+		  }
+		});
+			
+		var mailOptions = {
+		  from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
+		  to: kerberos + "@mit.edu", // list of receivers
+		  subject: "Your Next Resident Dashboard Account", // Subject line
+		  text: "pw: " + passwordRaw, // plaintext body
+		  html: "pw:" + passwordRaw // html body
+		}
+			
+		smtpTransport.sendMail(mailOptions, function(error, response){
+		  if(error){
+		    console.log(error);
+		  } else {
+		    console.log("Message sent: " + response.message);
+		  }
+		});
+      }
+    })
+  }
 }
 
 module.exports = Model

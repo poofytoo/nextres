@@ -4,20 +4,22 @@
 	<textarea></textarea>
 </p>
 <p>
-	Add Single User: <input type="text">
+	<form method="post" action="signup">
+		Add Single User: <input type="text" name="kerberos"> <input type="submit">
+	</form>
 </p>
 <p>
   <table class="displaytable">
     <tr>
-      <th width="240">Resident Name</th>
       <th>Kerberos</th>
+      <th width="240">Resident Name</th>
       <th>Role</th>
       <th>Remove</th>
     </tr>
     {{#each result}}
 	<tr>
-	  <td>{{this.firstName}} {{this.lastName}}</td>
 	  <td>{{this.kerberos}}</td>
+	  <td>{{this.firstName}} {{this.lastName}}</td>
 	  <td></td>
 	  <td>x</td>
 	</tr>

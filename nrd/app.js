@@ -15,13 +15,13 @@ var LocalStrategy = require('passport-local').Strategy;
 var Model = require('./models/model');
 var hbs = require('hbs');
 var fs = require('fs');
+var nodemailer = require('nodemailer');
 
 var model = new Model();
 
 var app = express();
 
 // all environments
-
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
@@ -220,19 +220,30 @@ app.get('/allusers', function(req, res) {
   }
 });
 
+var randomPassword = function()
+{
+  var text = "";
+  var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i=0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text;
+}
+
 app.post('/signup', function(req, res) {
   bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(req.body.password, salt, function(err, hash) {
-      model.createUser(req.body.firstName,
-                          req.body.lastName,
-                          req.body.kerberos,
-                          hash);
+  	pw = randomPassword();
+    bcrypt.hash(pw, salt, function(err, hash) {
+      model.createUser(req.body.kerberos,
+                          hash, pw);
+      
       res.render('base.html');
     });
   });
 });
 
 app.get('/users', user.list);
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
