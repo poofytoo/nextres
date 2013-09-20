@@ -88,10 +88,11 @@ Model.prototype.getGuests = function(id, callback) {
 }
 
 Model.prototype.listGuests = function(id, callback) {
-  this.db.query().raw("SELECT *" + 
-					  "FROM  `next-users`" + 
-					  "RIGHT JOIN  `next-guestlist` ON  `next-users`.id =  `next-guestlist`.nextUser");
-  var db = this.db;
+  this.db.query()
+    .select(["*"])
+    .from("next-users")
+    .rightJoin("next-guestlist")
+    .on([["`next-users`.id", "`next-guestlist`.nextUser"]]);
   this.db.execute(function(error, result) {
     console.log(error);
   	callback(error, result)
@@ -114,7 +115,7 @@ Model.prototype.findUser = function(id, callback) {
 Model.prototype.listUsers = function(id, callback) {
 	this.db.query().
 	select(["*"]).
-	from('next-users')
+	from('next-users');
 	this.db.execute(function(error, result) {
 		callback(error, result)
 	})

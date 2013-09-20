@@ -75,6 +75,24 @@ Query.prototype.update = function(table, columns, values) {
   return this;
 }
 
+Query.prototype.rightJoin = function(table) {
+  this.queryString += "RIGHT JOIN `" + table + "` ";
+  return this;
+}
+
+Query.prototype.leftJoin = function(table) {
+  this.queryString += "LEFT JOIN `" + table + "` ";
+}
+
+Query.prototype.on = function(conditions) {
+  this.queryString += "ON ";
+  for (var i = 0; i < conditions.length - 1; i++) {
+    this.queryString += conditions[i][0] + ' = ' + conditions[i][1] + ' AND ';
+  }
+  this.queryString += conditions[conditions.length - 1][0] + ' = ' + conditions[conditions.length - 1][1] + ' ';
+  return this;
+}
+
 Query.prototype.isDefined = function() {
   return this.queryString !== undefined && this.queryString.length > 0;
 }
