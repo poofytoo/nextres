@@ -137,11 +137,10 @@ Model.prototype.login = function(kerberos, callback) {
   });
 }
 
-Model.prototype.changePassword = function(id, oldPassword, newPassword, callback) {
+Model.prototype.changePassword = function(id, newPassword, callback) {
   this.db.query().
     update('next-users', ['password'], [newPassword]).
-    where(['id = ?'] , [ id ]);
-  console.log(this.db.queryString);
+    where('id = ?', [ id ]);
   this.db.execute(function(error, result) {
     console.log(error);
     console.log(result[0]);

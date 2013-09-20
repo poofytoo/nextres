@@ -242,21 +242,42 @@ app.post('/changepassword', function(req, res) {
     var id = req.user.id;
     var oldPassword = req.body.oldpassword;
     var newPassword = req.body.newpassword;
-    bcrypt.genSalt(10, function(err, salt) {
-      bcrypt.hash(oldPassword, salt, function(err, oP) {
-      	var oldPassword = oldPassword;
-      	bcrypt.hash(newPassword, salt, function(err, nP) {
-      	  console.log(id)
-		  model.changePassword(id, oldPassword, newPassword, function(error, result) {
-		    console.log(error);	
-		  });
-      	});
-      });
+
+    model.login(req.user.kerberos, function(error, result) {
+      if (result !== undefined) {
+        bcrypt.compare(oldPassword, result.password, function(err, authenticated) {
+          if (!authenticated) {
+            registerContent('changepassword');
+            model.getPermissions(req.user.id, function(permissions) {
+              res.render('base.html', {'user': req.user, 'permissions': permissions});
+            });
+          } else {
+            console.log('correct password');
+            bcrypt.genSalt(10, function(err, salt) {
+              bcrypt.hash(newPassword, salt, function(err, hash) {
+                model.changePassword(id, hash, function(error, result) {
+                  registerContent('changepassword');
+                  model.getPermissions(req.user.id, function(permissions) {
+                    res.render('base.html', {'user': req.user, 'permissions': permissions});
+                  });
+                });
+              });
+            })
+          }
+        });
+      }
     });
-    registerContent('changepassword');
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {'user': req.user, 'permissions': permissions});
-    });
+    // bcrypt.genSalt(10, function(err, salt) {
+    //   bcrypt.hash(oldPassword, salt, function(err, oP) {
+    //   	var oldPassword = oldPassword;
+    //   	bcrypt.hash(newPassword, salt, function(err, nP) {
+    //   	  console.log(id)
+		  // model.changePassword(id, oldPassword, newPassword, function(error, result) {
+		  //   console.log(error);	
+		  // });
+    //   	});
+    //   });
+    // });
   } else {
     res.redirect('/login');
   }

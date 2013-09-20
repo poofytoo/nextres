@@ -69,9 +69,9 @@ Query.prototype.insert = function(table, columns, values) {
 Query.prototype.update = function(table, columns, values) {
   this.queryString += "UPDATE `" + table + "` SET ";
   for (var i = 0; i < columns.length - 1; i++) {
-    this.queryString += columns[i] + "=\'" + values[i] + "\', ";
+    this.queryString += columns[i] + "='" + values[i] + "', ";
   }
-  this.queryString += columns[columns.length-1] + "=\'" + values[columns.length-1] + "\' ";
+  this.queryString += columns[columns.length-1] + "='" + values[columns.length-1] + "' ";
   return this;
 }
 
