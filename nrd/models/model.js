@@ -158,57 +158,55 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
       console.log ('Created user: ' + kerberos);
       userCreated = true;
     }
-  })
+
+    console.log(userCreated)
   
-  console.log(userCreated)
-  
-  // If the user was created successfully, create a guestlist row for him & send an email
-  // TODO: problem: this is executed before the above finishes running. Sadness
-  if (userCreated) {
-    this.db.query().
-      select(['*']).
-      from('next-users').
-      where('kerberos = ?', [ kerberos ]).
-      limit(1);
-	this.db.execute(function(error, result) {
-	  var nextUserId = result[0].id;
-	});   
-	  
-    this.db.query().
-      insert('next-guestlist', ['nextUser'], [nextUserId]);
-    this.db.execute(function (error, result) {
-      if (error) {
-        console.log ('Error:' + error)
-      } else {
-      	console.log ('User Properties Created: ' + kerberos);
-      		
-      	//contacting user
-      	var smtpTransport = nodemailer.createTransport("SMTP",{
-		  service: "Gmail",
-		  auth: {
-		    user: "sparkyroombot@gmail.com",
-		    pass: "pencilpencil"
-		  }
-		});
-			
-		var mailOptions = {
-		  from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-		  to: kerberos + "@mit.edu", // list of receivers
-		  subject: "Your Next Resident Dashboard Account", // Subject line
-		  text: "pw: " + passwordRaw, // plaintext body
-		  html: "pw:" + passwordRaw // html body
-		}
-			
-		smtpTransport.sendMail(mailOptions, function(error, response){
-		  if(error){
-		    console.log(error);
-		  } else {
-		    console.log("Message sent: " + response.message);
-		  }
-		});
-      }
-    })
-  }
+    // If the user was created successfully, create a guestlist row for him & send an email
+    // TODO: problem: this is executed before the above finishes running. Sadness
+    if (userCreated) {
+      this.db.query().
+        select(['*']).
+        from('next-users').
+        where('kerberos = ?', [ kerberos ]).
+        limit(1);
+      this.db.execute(function(error, result) {
+        var nextUserId = result[0].id;
+        this.db.query().
+          insert('next-guestlist', ['nextUser'], [nextUserId]);
+        this.db.execute(function (error, result) {
+          if (error) {
+            console.log ('Error:' + error)
+          } else {
+            console.log ('User Properties Created: ' + kerberos);
+              
+            //contacting user
+            var smtpTransport = nodemailer.createTransport("SMTP",{
+              service: "Gmail",
+              auth: {
+                user: "sparkyroombot@gmail.com",
+                pass: "pencilpencil"
+              }
+            });
+            var mailOptions = {
+              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Your Next Resident Dashboard Account", // Subject line
+              text: "pw: " + passwordRaw, // plaintext body
+              html: "pw:" + passwordRaw // html body
+            };
+              
+            smtpTransport.sendMail(mailOptions, function(error, response){
+              if(error){
+                console.log(error);
+              } else {
+                console.log("Message sent: " + response.message);
+              }
+            });
+          }
+        });
+      });
+    }
+  });
 }
 
 module.exports = Model
