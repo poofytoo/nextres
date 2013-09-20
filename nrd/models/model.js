@@ -161,7 +161,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
 
     console.log(userCreated)
   
-<<<<<<< HEAD
+
     // If the user was created successfully, create a guestlist row for him & send an email
     // TODO: problem: this is executed before the above finishes running. Sadness
     if (userCreated) {
