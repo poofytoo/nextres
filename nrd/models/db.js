@@ -18,9 +18,17 @@ function Query() {
 Query.prototype.select = function(arr) {
   this.queryString += 'SELECT ';
   for (var i = 0; i < arr.length - 1; i++) {
-    this.queryString += arr[i] + ', ';
+    if (arr[i] !== '*') {
+      this.queryString += '`' + arr[i] + '`, ';
+    } else {
+      this.queryString += arr[i] + ', ';
+    }
   }
-  this.queryString += arr[arr.length-1] + ' ';
+  if (arr[arr.length - 1] !== '*') {
+    this.queryString += '`' + arr[arr.length-1] + '` ';
+  } else {
+    this.queryString += arr[arr.length - 1] + ' ' ;
+  }
   return this;
 }
 

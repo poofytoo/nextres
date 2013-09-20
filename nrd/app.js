@@ -60,7 +60,10 @@ passport.use(new LocalStrategy(
 	        if (!authenticated) {
 	          return done(null, false);
 	        } else {
-	          return done(null, {id: res.id.toString(), username: res.kerberos, firstName: res.firstName, lastName: res.lastName});
+	          return done(null, {id: res.id.toString(),
+                             username: res.kerberos,
+                             firstName: res.firstName,
+                             lastName: res.lastName});
 	        }
 	      });
       } else {
@@ -86,7 +89,15 @@ if ('development' == app.get('env')) {
 
 app.get('/', 
 	passport.authenticate('local', { successRedirect: '/base.html',
-                                              failureRedirect: '/login' }));
+                                   failureRedirect: '/login' }),
+  function(req, res) {
+    registerContent('home');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
+  }
+);
+
 app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
@@ -94,7 +105,9 @@ app.post('/login',
     // `req.user` contains the authenticated user.
     console.log('login success: ' + req.user.username);
     registerContent('home');
-    res.render('base.html', {user: req.user});
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
   }
 );
 
@@ -110,13 +123,14 @@ app.get('/logout', function(req, res) {
   req.session.regenerate(function() {
 
     req.logout();
+  registerContent('home');
   res.redirect('/');
   });
 });
 
 app.get('/home', function(req, res) {
 	registerContent('home');
-	res.render('base.html', {user: req.user});
+	res.render('base.html', pageData(req.user, {user: req.user}));
 });
 
 app.get('/manage', function(req, res) {
@@ -130,7 +144,11 @@ app.get('/manage', function(req, res) {
         guests.push(info);
       }
       registerContent('manage');
-      res.render('base.html', {user: req.user, guests: guests});
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {'user': req.user,
+                                 'permissions': permissions,
+                                 'guests': guests});
+      });
     });
   } else {
   	res.redirect('/login');
@@ -155,7 +173,12 @@ app.post('/manage', function(req, res) {
                   kerberos: result['guest' + i + 'Kerberos']};
           guests.push(info);
         }
-        res.render('base.html', {user: req.user, guests: guests});
+        registerContent('manage');
+        model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {'user': req.user,
+                                   'permissions': permissions,
+                                   'guests': guests});
+        });
       });
     });
   } else {
