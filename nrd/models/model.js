@@ -161,6 +161,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
 
     console.log(userCreated)
   
+<<<<<<< HEAD
     // If the user was created successfully, create a guestlist row for him & send an email
     // TODO: problem: this is executed before the above finishes running. Sadness
     if (userCreated) {
@@ -187,12 +188,23 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
                 pass: "pencilpencil"
               }
             });
+            
+            htmlEmail = "Hello!<br /><br />" + 
+			   "Your Next resident dashboard account has been created. Please login with your Kerberos " +
+			   "ID and the following password: " + passwordRaw +
+			   ". Once you have logged in, please change your password.<br /><br />" +
+			   "If you have any questions, feel free to contact nextexec@mit.edu <br /><br />" +
+			   "Cheers,<br />" +
+			   "Sparky, the Next House Mailbot";
+			   
+			textEmail = "Hello! Your Next resident dashboard account has been created. Please login with your Kerberos ID and the following password: " + passwordRaw + ". Once you have logged in, please change your password. If you have any questions, feel free to contact nextexec@mit.edu. Cheers! Sparky, the Next House Mailbot";
+		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: kerberos + "@mit.edu", // list of receivers
               subject: "Your Next Resident Dashboard Account", // Subject line
-              text: "pw: " + passwordRaw, // plaintext body
-              html: "pw:" + passwordRaw // html body
+              text: textEmail, // plaintext body
+              html: htmlEmail // html body
             };
               
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -207,6 +219,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
       });
     }
   });
+
 }
 
 module.exports = Model
