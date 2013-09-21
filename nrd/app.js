@@ -99,7 +99,16 @@ app.get('/',
   }
 );
 
+//TODO: fix this to actually use FailureFlash
+
+app.get('/loginfail', function(req, res) {
+    res.render('login.html', {'error': true});
+});
+
 app.post('/login',
+  passport.authenticate('local', {
+  	failureRedirect: '/loginfail'
+  }),
   function(req, res) {
   	if (req.user.id) {
     // If this function gets called, authentication was successful.
@@ -109,12 +118,7 @@ app.post('/login',
       model.getPermissions(req.user.id, function(permissions) {
         res.render('base.html', {'user': req.user, 'permissions': permissions});
       });
-    } else {
-      registerContent('home');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user, 'permissions': permissions, 'error': true});
-      });
-    }
+  	}
   }
 );
 
@@ -398,7 +402,7 @@ app.post('/changepassword', function(req, res) {
 var randomPassword = function()
 {
   var text = "";
-  var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+  var possible = "abcdefghjkmnpqrstuvwxyz23456789";
   for (var i=0; i < 5; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   return text;

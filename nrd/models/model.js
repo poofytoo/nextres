@@ -130,9 +130,11 @@ Model.prototype.findUser = function(id, callback) {
 }
 
 Model.prototype.listUsers = function(id, callback) {
-	this.db.query().
-	select(["*"]).
-	from('next-users');
+	this.db.query()
+	.select(["*"])
+	.from('next-users')
+	.rightJoin("next-groups")
+	.on([["`next-users`.group", "`next-groups`.id"]]);;
 	this.db.execute(function(error, result) {
 		callback(error, result)
 	})

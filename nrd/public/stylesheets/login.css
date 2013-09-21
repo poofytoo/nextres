@@ -33,6 +33,8 @@ body {
     color: #ccc;
     font-size: 15px;
     text-align: center; }
+    .container h1.error {
+      color: #C94F4F; }
   .container table {
     font-weight: 100;
     margin: 20px 0 0 20px; }

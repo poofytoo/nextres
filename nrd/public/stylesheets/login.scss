@@ -37,6 +37,10 @@ body {
 		color: #ccc;
 		font-size: 15px;
 		text-align: center;
+		
+		&.error {
+			color: #C94F4F;
+		}
 	}
 	
 	table {
