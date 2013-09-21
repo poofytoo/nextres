@@ -1,0 +1,35 @@
+{{#if success}}
+  <div class="success-msg">{{success}}</div>
+{{/if}}
+
+<h1>Residence Info</h1>
+<p>Please update your information</p>
+<form method="post" action="residentinfo">
+<table>
+	<tr>
+		<td>
+			First Name
+		</td>
+		<td>
+			<input type="text" name="firstname" value="{{info.firstName}}">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Last Name
+		</td>
+		<td>
+			<input type="text" name="lastname" value="{{info.lastName}}">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Room Number
+		</td>
+		<td>
+			<input type="text" name="roomnumber" value="{{info.roomNumber}}">
+		</td>
+	</tr>
+</table>
+<input type="submit" value="save"/> 
+</form>

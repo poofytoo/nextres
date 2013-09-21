@@ -1,7 +1,11 @@
 <h1>Search and View Guestlists</h1>
 <p>
-	<input type="text" placeholder="kerberos or full name"/>
+	Resident lookup: <input type="text" placeholder="kerberos or full name" class="searchname" />
 </p>
+  <div class="error-msg" style="display: none">
+  No records found.
+  <p>Suggest updating the resident's records, or verifying the resident's last name.</p>
+  </div>
 <p>
   <table class="displaytable">
     <tr>
@@ -12,13 +16,60 @@
     </tr>
     {{#each result}}
 	<tr>
-	  <td>{{this.firstName}} {{this.lastName}} ({{this.kerberos}})</td>
-	  <td>{{this.guest1Name}} ({{this.guest1Kerberos}})</td>
-	  <td>{{this.guest2Name}} ({{this.guest2Kerberos}})</td>
-	  <td>{{this.guest3Name}} ({{this.guest3Kerberos}})</td>
+	  <td>
+	  	{{this.kerberos}} 
+	  	{{#if this.firstName}}
+	  		({{this.firstName}} {{this.lastName}})
+	  	{{/if}}
+	  </td>
+	  <td>
+	    {{#if this.guest1Kerberos}} 
+	  	  {{this.guest1Name}} ({{this.guest1Kerberos}}) 		
+	   	{{else}}
+	   	  <span class="empty">empty</span>
+	   	{{/if}}
+	  </td>
+	  <td>
+	    {{#if this.guest2Kerberos}} 
+	  	  {{this.guest2Name}} ({{this.guest2Kerberos}}) 		
+	   	{{else}}
+	   	  <span class="empty">empty</span>
+	   	{{/if}}
+	  </td>
+	  <td>
+	    {{#if this.guest3Kerberos}} 
+	  	  {{this.guest3Name}} ({{this.guest3Kerberos}}) 		
+	   	{{else}}
+	   	  <span class="empty">empty</span>
+	   	{{/if}}
+	  </td>
 	</tr>
   	{{/each}}
   </table>
 </p>
 
-{{results}}
+<script type="text/javascript">
+$('.searchname').focus();
+$('.searchname').on('input', function(){
+  console.log($(this).val())
+  searchname = $(this).val()
+  $.get("searchguestlist", { search: "resident", value: searchname })
+    .done(function( data ) {
+      // TODO: Refactor to use handlebar client, error last time tried.
+      if (data) {
+        $('.error-msg').hide();
+        $('.displaytable').show();
+        header = '<tr><th width="240">Resident</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
+        $('.displaytable').html(header + data);
+      } else {
+        $('.displaytable').hide();
+        $('.error-msg').show();
+      }
+    })
+    .fail(function(){
+        $('.error-msg').show();
+        $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');
+   
+    });
+})
+</script>

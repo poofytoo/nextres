@@ -100,15 +100,21 @@ app.get('/',
 );
 
 app.post('/login',
-  passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
+  	if (req.user.id) {
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
-    console.log('login success: ' + req.user.username);
-    registerContent('home');
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {'user': req.user, 'permissions': permissions});
-    });
+      console.log('login success: ' + req.user.username);
+      registerContent('home');
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {'user': req.user, 'permissions': permissions});
+      });
+    } else {
+      registerContent('home');
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {'user': req.user, 'permissions': permissions, 'error': true});
+      });
+    }
   }
 );
 
@@ -178,9 +184,11 @@ app.post('/manage', function(req, res) {
         }
         registerContent('manage');
         model.getPermissions(req.user.id, function(permissions) {
+          var success = 'Your guest list has been updated.';
           res.render('base.html', {'user': req.user,
                                    'permissions': permissions,
-                                   'guests': guests});
+                                   'guests': guests,
+                                   'success': success});
         });
       });
     });
@@ -191,10 +199,10 @@ app.post('/manage', function(req, res) {
 
 app.get('/allguests', function(req, res) {
   if (req.user !== undefined) {
-    var id = req.user.id;
     console.log(id);
-    
-    model.listGuests(id, function(error, result) {
+    params = {};
+    var id = req.user.id
+    model.listGuests(id, params, function(error, result) {
     	console.log(result);
       registerContent('allguests');
       model.getPermissions(req.user.id, function(permissions) {
@@ -212,7 +220,6 @@ app.get('/allusers', function(req, res) {
     console.log(id);
     
     model.listUsers(id, function(error, result) {
-    	console.log(result);
       registerContent('allusers');
       model.getPermissions(req.user.id, function(permissions) {
       	res.render('base.html', {user: req.user, result: result, permissions: permissions});
@@ -222,6 +229,79 @@ app.get('/allusers', function(req, res) {
     res.redirect('/login');
   }
 });
+
+app.get('/residentinfo', function(req, res) {
+  if (req.user !== undefined) {
+    
+    model.getUser(req.user.id, function(error, result) {
+      var info = result;
+      registerContent('residentinfo');
+      console.log(info);
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info});
+      });
+    });
+  } else {
+  	res.redirect('/login');
+  }
+});
+
+app.post('/residentinfo', function(req, res) {
+  if (req.user !== undefined) {
+  	info = {};
+  	info.firstName = req.body.firstname;
+  	info.lastName = req.body.lastname;
+  	info.roomNumber = req.body.roomnumber;
+  	
+    model.updateUser(req.user.id, info, function(error, result) {
+	    model.getUser(req.user.id, function(error, result) {
+	      var info = result;
+	      registerContent('residentinfo');
+	      console.log(info);
+	      model.getPermissions(req.user.id, function(permissions) {
+	      	var success = "Your residence info has been updated."
+	        res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info, 'success': success});
+	      });
+	    });
+    });
+  } else {
+  	res.redirect('/login');
+  }
+});
+
+app.get('/searchguestlist', function(req, res) {
+  var id = req.user.id;
+	model.listGuests(id, req.query, function(error, result) {
+	  if (result !== undefined){
+	    console.log("this works");
+	    // Lol, I'm just going to render the HTML here.
+	    // TODO: CONVERT TO CLIENT SIDE HANDLEBAR PARSING
+	    html = ""
+	    for (key in result) {
+	      var entry = result[key];
+	      html += '<tr><td>';
+	      html += entry.kerberos;
+	      if (entry.firstName) {
+	      	html += ' (' + entry.firstName + ' ' + entry.lastName + ')';
+	      }
+	      html += '</td>';
+	    	for (i = 1; i <= 3; i ++) {
+	    		html += '<td>';
+	    		if (entry['guest' + i + 'Kerberos']){
+	    			html += entry['guest' + i + 'Kerberos'] + " (" + entry['guest' + i + 'Name'] + ")";
+	    		} else {
+	    			html += '<span class="empty">empty</span>';
+	    		}
+	    		html += '</td>';
+	    	}
+	    	html += '</tr>';
+	    }
+	  	res.end(html);
+	  } else {
+	  	res.end("None");
+	  }
+	}); 
+})
 
 app.get('/changepassword', function(req, res) {
   if (req.user !== undefined) {
@@ -249,16 +329,20 @@ app.post('/changepassword', function(req, res) {
           if (!authenticated) {
             registerContent('changepassword');
             model.getPermissions(req.user.id, function(permissions) {
-              res.render('base.html', {'user': req.user, 'permissions': permissions});
+              var error = "Your current password is incorrect!";
+              res.render('base.html', {'user': req.user, 'permissions': permissions, 'error' : error});
             });
           } else {
+          
+          	// THIS HERE IS A CALLBACK TREE. GOOD LUCK, FUTURE DEVS.
             console.log('correct password');
             bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
                 model.changePassword(id, hash, function(error, result) {
                   registerContent('changepassword');
                   model.getPermissions(req.user.id, function(permissions) {
-                    res.render('base.html', {'user': req.user, 'permissions': permissions});
+                  	var success = "Your password has been changed!";
+                    res.render('base.html', {'user': req.user, 'permissions': permissions, 'success' : success});
                   });
                 });
               });
@@ -320,17 +404,87 @@ var randomPassword = function()
   return text;
 }
 
+
+// TODO: remove individual signup
+/*
 app.post('/signup', function(req, res) {
+  var errorLog = "";
+  bcrypt.genSalt(10, function(err, salt) {
+  	pw = randomPassword();
+    bcrypt.hash(pw, salt, function(err, hash) {
+      model.createUser(req.body.kerberos,
+                          hash, pw, function(error, result) {
+                          	errorLog += error;
+                          });
+      model.getPermissions(req.user.id, function(permissions) {
+      
+        registerContent('allusers');
+        res.render('base.html', {'user': req.user, 'permissions': permissions, 'error' : errorLog});
+      });
+    });
+  });
+});
+*/
+
+
+// TODO: client sends individual POST request for each person, and as each response is returned the page updates live
+ 
+app.post('/allusers', function(req, res) {
+users = req.body.massadd.split("\r\n");
+console.log(users);
+var errorLog = "";
+  var counter = users.length;
+  for (key in users) {
+    var user = users[key].replace(/ /g,'');
+    console.log(user);
+    (function(u) {
+	  bcrypt.genSalt(10, function(err, salt) {
+	  	var pw = randomPassword();
+	  	
+	  		bcrypt.hash(pw, salt, function(err, hash) {
+		      console.log("ATTEMPTING TO CREATE USER FOR: " + u);
+		      model.createUser(u, hash, pw, function(error, result) {
+		        errorLog += error;
+		        counter --;
+		        if (counter <= 0) {
+		          renderComplete();
+		        }
+		        
+		      });
+		    });
+		  });
+	  })(user);
+
+    
+  }
+/*
   bcrypt.genSalt(10, function(err, salt) {
   	pw = randomPassword();
     bcrypt.hash(pw, salt, function(err, hash) {
       model.createUser(req.body.kerberos,
                           hash, pw);
-      
       res.render('base.html');
     });
   });
+  */
+  // TODO: duplicate code, refactor
+  var renderComplete = function(){
+	  if (req.user !== undefined) {
+	    var id = req.user.id;
+	    console.log(id);
+	    
+	    model.listUsers(id, function(error, result) {
+	      registerContent('allusers');
+	      model.getPermissions(req.user.id, function(permissions) {
+	      	res.render('base.html', {user: req.user, result: result, permissions: permissions, error: errorLog});
+	      });
+	    });
+	  } else {
+	    res.redirect('/login');
+	  }
+  }
 });
+
 
 app.get('/users', user.list);
 

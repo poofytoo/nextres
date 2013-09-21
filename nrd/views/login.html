@@ -10,9 +10,15 @@
 		<div class="container">
 			<div class="header"><span class="circle">N</span></div>
 			<div class="loginform">
+			{{#if error}}
+				<h1 class="error">
+					Invalid login
+				</h1>
+			{{else}}
 				<h1>
 					Next Resident Dashboard
 				</h1>
+			{{/if}}
 				<table>
 					<tr>
 						<td>kerberos</td>

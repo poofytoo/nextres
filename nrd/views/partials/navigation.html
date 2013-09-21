@@ -1,10 +1,4 @@
 <div class="sidenav">
-  {{#if permissions.VIEWALLGUESTLISTS}}
-  <ul>
-    <li class="item-header">Deskworker</li>
-    <li><a href="allguests">Search and View Guestlists</a></li>
-  </ul>
-  {{/if}}
   <ul>
     <li class="item-header">Front Desk</li>
     <li><a href="manage">Manage Your Guestlist</a></li>
@@ -14,11 +8,18 @@
     <!-- <li><a href="">Reserve a Room</a></li> -->
     <!-- <li><a href="">Request Small Group Project Funding</a></li> -->
     <!-- <li><a href="">Next Mailing Lists</a></li> -->
+    <li><a href="residentinfo">Residence Info</a></li>
     <li><a href="changepassword">Change Password</a></li>
   </ul>
+  {{#if permissions.VIEWALLGUESTLISTS}}
+  <ul>
+    <li class="item-header deskworker">Deskworker</li>
+    <li><a href="allguests">Search and View Guestlists</a></li>
+  </ul>
+  {{/if}}
   {{#if permissions.CREATEUSER}}
   <ul>
-    <li class="item-header">Admin</li>
+    <li class="item-header nextexec">Next Exec</li>
     <li><a href="allusers">Manage Users</a></li>
   </ul>
   {{/if}}

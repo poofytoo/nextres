@@ -87,16 +87,33 @@ Model.prototype.getGuests = function(id, callback) {
   });
 }
 
-Model.prototype.listGuests = function(id, callback) {
-  this.db.query()
-    .select(["*"])
-    .from("next-users")
-    .rightJoin("next-guestlist")
-    .on([["`next-users`.id", "`next-guestlist`.nextUser"]]);
-  this.db.execute(function(error, result) {
-    console.log(error);
-  	callback(error, result)
-  })
+Model.prototype.listGuests = function(id, params, callback) {
+  if (params.search !== undefined){
+  	console.log('searching');
+  	var s = "%" + params.value + "%";
+  	this.db.query()
+  	  .select(["*"])
+  	  .from("next-users")
+  	  .rightJoin("next-guestlist")
+	    .on([["`next-users`.id", "`next-guestlist`.nextUser"]])
+	    .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s]);
+	   
+	  console.log(this.db.queryString);
+	  this.db.execute(function(error, result) {
+	  	callback(error, result)
+	  })
+	  
+  } else {
+	  this.db.query()
+	    .select(["*"])
+	    .from("next-users")
+	    .rightJoin("next-guestlist")
+	    .on([["`next-users`.id", "`next-guestlist`.nextUser"]]);
+	  this.db.execute(function(error, result) {
+	    console.log(error);
+	  	callback(error, result)
+	  });
+	}
 }
 
 // Finds a user with the given id, then calls the callback function
@@ -155,10 +172,29 @@ Model.prototype.changePassword = function(id, newPassword, callback) {
     where('nextUser = ?', [ id ]);
 */
     
-    
+Model.prototype.getUser = function(id, callback) {
+  this.db.query().
+    select(['*']).
+    from('next-users').
+    where('id = ?', [ id ]).
+    limit(1);
+  this.db.execute(function(error, result) {
+    callback(error, result[0]);
+  })
+}
+
+Model.prototype.updateUser = function(id, info, callback) {
+  this.db.query().
+    update('next-users', ['firstName','lastName','roomNumber'], [info.firstName, info.lastName, info.roomNumber]).
+    where('id = ?', [ id ]);
+  this.db.execute(function(error, result) {
+    callback(error, result[0]);
+  })
+}
+  
 // Creates a new user
 
-Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
+Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callback) {
   
   // Creates a user 
   // TODO: check if user is already in the database. If so, return error and don't do anything
@@ -170,9 +206,12 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
     
   var userCreated = false;
   var db = this.db;
+  var returnError = "";
+  
   this.db.execute(function (error, result) {
     if (error) {
-      console.log('Error:' + error);
+      console.log('INSERT ERROR: ' + error);
+      returnError += error + "\n";
     } else {
       // success
       console.log ('Created user: ' + kerberos);
@@ -187,6 +226,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
           insert('next-guestlist', ['nextUser'], [nextUserId]);
         db.execute(function (error, result) {
           if (error) {
+      		  returnError += error + "\n";
             console.log ('Error:' + error)
           } else {
             console.log ('User Properties Created: ' + kerberos);
@@ -220,24 +260,20 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw) {
               
             smtpTransport.sendMail(mailOptions, function(error, response){
               if(error){
+      		      returnError += error + "\n";
                 console.log(error);
               } else {
                 console.log("Message sent: " + response.message);
               }
             });
+            
           }
         });
       });
     }
-
+    
+    callback(returnError, "");
     console.log(userCreated)
-  
-
-    // If the user was created successfully, create a guestlist row for him & send an email
-    // TODO: problem: this is executed before the above finishes running. Sadness
-    if (userCreated) {
-      
-    }
   });
 
 }

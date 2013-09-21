@@ -1,4 +1,7 @@
 $teal: #47A9C4;
+$alertred: #C94F4F;
+$successgreen: #A4D654;
+$buttongreen: #A4D654;
 
 body {
 	font-family: sans-serif;
@@ -120,6 +123,12 @@ body {
 				color: #666;
 			}
 			
+			&.nextexec {
+				background-color: #F0E7D1;
+			}
+			&.deskworker {
+				background-color: #E3F0D1;
+			}
 			&.spacer {
 				height: 10px;
 			}
@@ -130,7 +139,6 @@ body {
 .content {
 	margin-left: 290px;
 	padding: 25px;
-	height: 300px;
 	font-weight: 200;
 	
 	h1 {
@@ -150,6 +158,21 @@ body {
 		
 		a {
 			color: $teal;
+		}
+	}
+	.todo {
+		background-color: #FFECDE;
+		color: #222;
+		padding: 10px;
+		border-radius: 3px;
+		font-weight: 200;
+		font-size: 14px;
+		display: inline-block;
+		line-height: normal;
+		margin-bottom: 20px;
+		
+		em {
+			font-weight: 600;
 		}
 	}
 	input {
@@ -178,7 +201,7 @@ input[type="submit"] {
 	font-size: 14px;
 	padding: 7px;
 	color: #fff;
-	background-color: #A4D654;
+	background-color: $buttongreen;
 	width: 80px;
 	border: none;
 	border-radius: 5px;	
@@ -194,23 +217,39 @@ table {
 		td {
 			vertical-align: middle;
 			padding-right: 10px;
+			font-size: 14px;
 		}
 	}
 }
 
+.alerttext {
+	margin-top: 10px;
+	color: $alertred;
+}
+
+.error-msg {
+	font-size: 14;
+	line-height: normal;
+	color: $alertred;
+	margin-bottom: 10px;
+}
+
+.success-msg {
+	color: $successgreen;
+	margin-bottom: 10px;
+}
+
 .displaytable {
 	tr {
-		background-color: #E4F4F5;
+	    background-color: #fff;
+	    
 		&:nth-child(even) {
-			background-color: #fff;
+		background-color: #E4F4F5;
 		}
 		td {
 			padding: 5px 20px 5px 5px;
 			min-width: 100px;
 			
-			&.empty {
-				opacity: 0.2;
-			}
 		}
 		th {
 			background-color: #333;
@@ -219,5 +258,9 @@ table {
 			font-size: 12px;
 			font-weight: 500;
 		}
+		
+			.empty {
+				opacity: 0.2;
+			}
 	}
 }

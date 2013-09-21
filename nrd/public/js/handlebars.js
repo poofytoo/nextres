@@ -2169,6 +2169,7 @@ Handlebars.compile = function(input, options) {
     if (!compiled) {
       compiled = compile();
     }
+    console.log(context)
     return compiled.call(this, context, options);
   };
 };

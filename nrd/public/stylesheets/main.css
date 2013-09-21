@@ -90,13 +90,16 @@ body {
         background-color: #eee;
         padding: 5px 10px;
         color: #666; }
+      .sidenav ul li.nextexec {
+        background-color: #F0E7D1; }
+      .sidenav ul li.deskworker {
+        background-color: #E3F0D1; }
       .sidenav ul li.spacer {
         height: 10px; }
 
 .content {
   margin-left: 290px;
   padding: 25px;
-  height: 300px;
   font-weight: 200; }
   .content h1 {
     font-size: 30px;
@@ -110,6 +113,18 @@ body {
     margin-bottom: 20px; }
     .content p a {
       color: #47a9c4; }
+  .content .todo {
+    background-color: #FFECDE;
+    color: #222;
+    padding: 10px;
+    border-radius: 3px;
+    font-weight: 200;
+    font-size: 14px;
+    display: inline-block;
+    line-height: normal;
+    margin-bottom: 20px; }
+    .content .todo em {
+      font-weight: 600; }
   .content input {
     display: block;
     width: 160px;
@@ -131,7 +146,7 @@ input[type="submit"] {
   font-size: 14px;
   padding: 7px;
   color: #fff;
-  background-color: #A4D654;
+  background-color: #a4d654;
   width: 80px;
   border: none;
   border-radius: 5px; }
@@ -141,20 +156,35 @@ input[type="submit"] {
 
 table tr td {
   vertical-align: middle;
-  padding-right: 10px; }
+  padding-right: 10px;
+  font-size: 14px; }
+
+.alerttext {
+  margin-top: 10px;
+  color: #c94f4f; }
+
+.error-msg {
+  font-size: 14;
+  line-height: normal;
+  color: #c94f4f;
+  margin-bottom: 10px; }
+
+.success-msg {
+  color: #a4d654;
+  margin-bottom: 10px; }
 
 .displaytable tr {
-  background-color: #E4F4F5; }
+  background-color: #fff; }
   .displaytable tr:nth-child(even) {
-    background-color: #fff; }
+    background-color: #E4F4F5; }
   .displaytable tr td {
     padding: 5px 20px 5px 5px;
     min-width: 100px; }
-    .displaytable tr td.empty {
-      opacity: 0.2; }
   .displaytable tr th {
     background-color: #333;
     color: #ccc;
     padding: 3px 6px;
     font-size: 12px;
     font-weight: 500; }
+  .displaytable tr .empty {
+    opacity: 0.2; }
