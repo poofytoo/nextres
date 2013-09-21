@@ -205,6 +205,21 @@ app.post('/manage', function(req, res) {
   }
 });
 
+app.post('/remove', function(req, res) {
+  console.log(req.body);
+  if (req.user !== undefined) {
+    model.removeUser(req.body.kerberos, function (error) {
+      if (error) {
+        res.json({okay:false});
+      } else {
+        res.json({okay:true});
+      }
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.get('/allguests', function(req, res) {
   if (req.user !== undefined) {
     console.log(id);

@@ -30,15 +30,32 @@
       <th>Remove</th>
     </tr>
     {{#each result}}
-	<tr>
+	<tr id="{{this.kerberos}}-tr">
 	  <td>{{this.kerberos}}</td>
 	  <td>{{this.firstName}} {{this.lastName}}</td>
 	  <td>{{this.roomNumber}}</td>
 	  <td>{{this.name}}</td>
-	  <td>x</td>
+	  <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
 	</tr>
   	{{/each}}
   </table>
 </p>
+
+<script type="text/javascript">
+  $('.remove').on('click', function(e) {
+    var yes = $('<a>').html('yes').on('click',
+      function(e2) {
+        kerberos = e.target.id;
+        kerberos = kerberos.substring(0,kerberos.length-'-remove'.length);
+        $.ajax('/remove',{data:{kerberos:kerberos}, type:"POST"});
+        $('#'+kerberos+'-tr').remove();
+      }
+    );
+    var no = $('<a>').html('no').on('click',
+      function(e2) { $(e.target).html('X'); }
+    );
+    $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+  });
+</script>
 
 {{results}}

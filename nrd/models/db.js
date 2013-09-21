@@ -32,6 +32,11 @@ Query.prototype.select = function(arr) {
   return this;
 }
 
+Query.prototype.deleteFrom = function(table) {
+  this.queryString += 'DELETE ';
+  return this.from(table);
+}
+
 Query.prototype.from = function(table) {
   this.queryString += 'FROM `' + table + '` ';
   return this;

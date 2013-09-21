@@ -281,4 +281,46 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
 
 }
 
+Model.prototype.removeUser = function(kerberos, callback) {
+  var returnError = "";
+  var db = this.db;
+
+  this.db.query().
+    select(['*']).
+    from('next-users').
+    where('kerberos = ?', [ kerberos ]).
+    limit(1);
+  db.execute(function(error, result) {
+    if (error) {
+      returnError += error + "\n";
+      console.log('Error: ' + error);
+      callback(returnError);
+    } else {
+      var nextUserId = result[0].id;
+      db.query().
+        deleteFrom('next-users').
+        where('kerberos = ?', [ kerberos ]).
+        limit(1);
+      db.execute(function(error, result) {
+        if (error) {
+          returnError += error + "\n";
+          console.log('Error: ' + error);
+        } else {
+          console.log('User Removed: ' + kerberos);
+        }
+      callback(returnError);
+      });
+      db.query().
+        deleteFrom('next-guestlist').
+        where('nextUser = ?', [nextUserId]).
+        limit(1);
+      db.execute(function(error, result) {
+        if (error) {
+          console.log('Error: ' + error);
+        }
+      });
+    }
+  });
+}
+
 module.exports = Model
