@@ -242,15 +242,16 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
               }
             });
             
+            var url = "http://mplcr.mit.edu";
             htmlEmail = "Hello!<br /><br />" + 
-			   "Your Next resident dashboard account has been created. Please login with your Kerberos " +
+			   "Your Next resident dashboard account has been created. Please login to "+ url +" with your Kerberos " +
 			   "ID and the following password: <b>" + passwordRaw +
 			   "</b>. Once you have logged in, please change your password.<br /><br />" +
 			   "If you have any questions, feel free to contact nextexec@mit.edu <br /><br />" +
 			   "Cheers,<br />" +
 			   "Sparky, the Next House Mailbot";
 			   
-			textEmail = "Hello! Your Next resident dashboard account has been created. Please login with your Kerberos ID and the following password: " + passwordRaw + ". Once you have logged in, please change your password. If you have any questions, feel free to contact nextexec@mit.edu. Cheers! Sparky, the Next House Mailbot";
+			textEmail = "Hello! Your Next resident dashboard account has been created. Please login to "+ url +" with your Kerberos ID and the following password: " + passwordRaw + ". Once you have logged in, please change your password. If you have any questions, feel free to contact nextexec@mit.edu. Cheers! Sparky, the Next House Mailbot";
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
