@@ -159,6 +159,9 @@ body {
 		a {
 			color: $teal;
 		}
+		em {
+			font-weight: 500;
+		}
 	}
 	.todo {
 		background-color: #FFECDE;
@@ -208,6 +211,36 @@ input[type="submit"] {
 
 	&:hover {
 		background-color: #94C447;
+		cursor: pointer;
+	}
+}
+
+input[type="button"] {
+	font-family: sans-serif;
+	font-weight: 200;
+	font-size: 14px;
+	padding: 5px 12px;
+	color: #333;
+	background-color: #eee;
+	width: 100px;
+	border: none;
+	display: inline;
+	border-radius: 5px;	
+    margin-right: 5px;
+    
+    &.slim {
+    	font-size: 13px;
+    }
+    
+    &.active {
+    	background-color: #E3F0D1;
+		&:hover {
+    		background-color: #E3F0D1;
+		}
+    }
+    
+	&:hover {
+		background-color: #ddd;
 		cursor: pointer;
 	}
 }

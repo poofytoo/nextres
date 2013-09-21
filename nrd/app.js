@@ -302,12 +302,9 @@ app.get('/searchguestlist', function(req, res) {
 	    html = ""
 	    for (key in result) {
 	      var entry = result[key];
-	      html += '<tr><td>';
-	      html += entry.kerberos;
-	      if (entry.firstName) {
-	      	html += ' (' + entry.firstName + ' ' + entry.lastName + ')';
-	      }
-	      html += '</td>';
+	      html += '<tr>';
+	      html += '<td>' + entry.kerberos + '</td>';
+	      html += '<td>' + entry.firstName + ' ' + entry.lastName + '</td>';
 	    	for (i = 1; i <= 3; i ++) {
 	    		html += '<td>';
 	    		if (entry['guest' + i + 'Kerberos']){

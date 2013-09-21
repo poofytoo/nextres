@@ -87,6 +87,12 @@ Query.prototype.rightJoin = function(table) {
 
 Query.prototype.leftJoin = function(table) {
   this.queryString += "LEFT JOIN `" + table + "` ";
+  return this;
+}
+
+//TODO - make this function less lame
+Query.prototype.orderBy = function(column) {
+  this.queryString += 'ORDER BY ' + column + ' ';
 }
 
 Query.prototype.on = function(conditions) {

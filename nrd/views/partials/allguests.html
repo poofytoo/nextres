@@ -1,6 +1,20 @@
 <h1>Search and View Guestlists</h1>
+<p>Search currently sorts by <em>residents only</em></p>
 <p>
-	Resident lookup: <input type="text" placeholder="kerberos or full name" class="searchname" />
+	<table>
+		<tr>
+			<td>Resident Lookup:</td>
+			<td>Sort by:</td>
+		</tr>
+		<tr>
+			<td><input type="text" placeholder="kerberos or full name" class="searchname" /></td>
+			<td>
+			  <input id="firstName" class="slim sort" type="button" value="First Name">
+			  <input id="lastName" class="slim sort" type="button" value="Last Name">
+			  <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+			</td>
+		</tr>
+	</table>
 </p>
   <div class="error-msg" style="display: none">
   No records found.
@@ -9,7 +23,8 @@
 <p>
   <table class="displaytable">
     <tr>
-      <th width="240">Resident</th>
+      <th width="100">Resident Kerb</th>
+      <th>Name</th>
       <th>Guest 1 </th>
       <th>Guest 2</th>
       <th>Guest 3</th>
@@ -18,10 +33,9 @@
 	<tr>
 	  <td>
 	  	{{this.kerberos}} 
-	  	{{#if this.firstName}}
-	  		({{this.firstName}} {{this.lastName}})
-	  	{{/if}}
 	  </td>
+	  <td>
+	    {{this.firstName}} {{this.lastName}}
 	  <td>
 	    {{#if this.guest1Kerberos}} 
 	  	  {{this.guest1Name}} ({{this.guest1Kerberos}}) 		
@@ -49,27 +63,42 @@
 </p>
 
 <script type="text/javascript">
+var sortBy = "kerberos";
+
 $('.searchname').focus();
+
+$('.sort').on('click', function(){
+  $('.sort').attr('class', 'slim sort');
+  $(this).attr('class', 'slim sort active');
+  sortBy = $(this).attr('id');
+  searchname = $('.searchname').val();
+  
+  updateList({ search: "resident", value: searchname, sort: sortBy });
+  
+});
+
 $('.searchname').on('input', function(){
-  console.log($(this).val())
-  searchname = $(this).val()
-  $.get("searchguestlist", { search: "resident", value: searchname })
-    .done(function( data ) {
-      // TODO: Refactor to use handlebar client, error last time tried.
-      if (data) {
-        $('.error-msg').hide();
-        $('.displaytable').show();
-        header = '<tr><th width="240">Resident</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
-        $('.displaytable').html(header + data);
-      } else {
-        $('.displaytable').hide();
-        $('.error-msg').show();
-      }
-    })
-    .fail(function(){
-        $('.error-msg').show();
-        $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');
-   
-    });
+  searchname = $(this).val();
+  updateList({ search: "resident", value: searchname, sort: sortBy });
 })
+
+var updateList = function(query){
+	$.get("searchguestlist", query)
+		.done(function( data ) {
+		  // TODO: Refactor to use handlebar client, error last time tried.
+		  if (data) {
+		    $('.error-msg').hide();
+		    $('.displaytable').show();
+		    header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
+		    $('.displaytable').html(header + data);
+		  } else {
+		    $('.displaytable').hide();
+		    $('.error-msg').show();
+		  }
+		})
+		.fail(function(){
+		    $('.error-msg').show();
+		    $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');	
+	});
+}
 </script>

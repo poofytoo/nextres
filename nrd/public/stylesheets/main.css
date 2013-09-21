@@ -113,6 +113,8 @@ body {
     margin-bottom: 20px; }
     .content p a {
       color: #47a9c4; }
+    .content p em {
+      font-weight: 500; }
   .content .todo {
     background-color: #FFECDE;
     color: #222;
@@ -152,6 +154,28 @@ input[type="submit"] {
   border-radius: 5px; }
   input[type="submit"]:hover {
     background-color: #94C447;
+    cursor: pointer; }
+
+input[type="button"] {
+  font-family: sans-serif;
+  font-weight: 200;
+  font-size: 14px;
+  padding: 5px 12px;
+  color: #333;
+  background-color: #eee;
+  width: 100px;
+  border: none;
+  display: inline;
+  border-radius: 5px;
+  margin-right: 5px; }
+  input[type="button"].slim {
+    font-size: 13px; }
+  input[type="button"].active {
+    background-color: #E3F0D1; }
+    input[type="button"].active:hover {
+      background-color: #E3F0D1; }
+  input[type="button"]:hover {
+    background-color: #ddd;
     cursor: pointer; }
 
 table tr td {

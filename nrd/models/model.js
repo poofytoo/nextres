@@ -95,9 +95,10 @@ Model.prototype.listGuests = function(id, params, callback) {
   	  .select(["*"])
   	  .from("next-users")
   	  .rightJoin("next-guestlist")
-	    .on([["`next-users`.id", "`next-guestlist`.nextUser"]])
-	    .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s]);
-	   
+	  .on([["`next-users`.id", "`next-guestlist`.nextUser"]])
+	  .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s])
+	  .orderBy(params.sort);
+	  
 	  console.log(this.db.queryString);
 	  this.db.execute(function(error, result) {
 	  	callback(error, result)
