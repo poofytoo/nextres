@@ -50,8 +50,8 @@ Model.prototype.addGuests = function(id, guests, callback) {
   for (var i = 0; i < 3; i++) {
     columns.push('guest' + (i + 1) + 'Name');
     columns.push('guest' + (i + 1) + 'Kerberos');
-    guestValues.push(guests[i].name);
-    guestValues.push(guests[i].kerberos);
+    guestValues.push(guests[i].name.replace(/[^a-zA-Z ]/g, ""));
+    guestValues.push(guests[i].kerberos.replace(/[^a-zA-Z ]/g, ""));
   }
   this.db.query().
     update('next-guestlist',
@@ -187,7 +187,7 @@ Model.prototype.getUser = function(id, callback) {
 
 Model.prototype.updateUser = function(id, info, callback) {
   this.db.query().
-    update('next-users', ['firstName','lastName','roomNumber'], [info.firstName, info.lastName, info.roomNumber]).
+    update('next-users', ['firstName','lastName','roomNumber'], [info.firstName.replace(/[^a-zA-Z ]/g, ""), info.lastName.replace(/[^a-zA-Z ]/g, ""), info.roomNumber.replace(/[^a-zA-Z ]/g, "")]).
     where('id = ?', [ id ]);
   this.db.execute(function(error, result) {
     callback(error, result[0]);
