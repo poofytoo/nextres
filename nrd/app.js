@@ -140,10 +140,14 @@ app.get('/logout', function(req, res) {
 });
 
 app.get('/home', function(req, res) {
+  if (req.user !== undefined) {
 	registerContent('home');
     model.getPermissions(req.user.id, function(permissions) {
       res.render('base.html', {'user': req.user, 'permissions': permissions});
     });
+  } else {
+  	res.render('login.html');
+  }
 });
 
 app.get('/manage', function(req, res) {
