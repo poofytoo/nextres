@@ -108,7 +108,8 @@ Query.prototype.raw = function(query) {
 }
 
 function Database() {
-  this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
+
+  //this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
 }
 
 Database.prototype.query = function () {
@@ -118,12 +119,14 @@ Database.prototype.query = function () {
 
 Database.prototype.execute = function(callback) {
   if (this.queryString !== undefined && this.queryString.isDefined) {
+    this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
     this.connection.connect();
     console.log(this.queryString.queryString);
     this.connection.query(this.queryString.queryString, function(err, rows, fields) {
       this.queryString = undefined;
       callback(err, rows, fields);
     });
+    this.connection.end();
   }
 }
 
