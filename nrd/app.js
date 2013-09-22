@@ -181,24 +181,28 @@ app.post('/manage', function(req, res) {
               kerberos: req.body['guest' + i + 'Kerberos']};
       guests.push(info);
     }
-    var id = req.user.id;
-    model.addGuests(id, guests, function(error, result) {
-      model.getGuests(id, function(error, result) {
-        guests =[];
-        for (var i = 1; i <= 3; i++) {
-          info = {name: result['guest' + i + 'Name'],
-                  kerberos: result['guest' + i + 'Kerberos']};
-          guests.push(info);
-        }
-        registerContent('manage');
-        model.getPermissions(req.user.id, function(permissions) {
-          var success = 'Your guest list has been updated.';
-          res.render('base.html', {'user': req.user,
-                                   'permissions': permissions,
-                                   'guests': guests,
-                                   'success': success});
+    model.validateKerberos(guests, function(invalids) {
+      var id = req.user.id;
+      if (invalids.length == 0) {
+        model.addGuests(id, guests, function(error, result) {
+          registerContent('manage');
+          model.getPermissions(id, function(permissions) {
+            var success = 'Your guest list has been updated.';
+            res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'guests': guests,
+              'success': success});
+          });
         });
-      });
+      } else {
+        model.getPermissions(id, function(permissions) {
+          var error = 'Invalid kerberos: ' + invalids.join(', ');
+          res.render('base.html', {'user': req.user,
+            'permissions': permissions,
+            'guests': guests,
+            'error': error});
+        });
+      }
     });
   } else {
   	res.redirect('/login');

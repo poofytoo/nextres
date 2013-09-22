@@ -1,5 +1,6 @@
 var Database = require('./db');
 var nodemailer = require('../node_modules/nodemailer');
+var exec = require('child_process').exec;
 
 function Model() {
   this.db = new Database();
@@ -42,6 +43,32 @@ Model.prototype.getPermissions = function(id, callback) {
       });
     });
   });
+}
+
+// Very dirty kerberos validation
+// Takes a list of guests and an empty invalids list.
+// Puts invalid guests into invalids list.
+Model.prototype.validateKerberos = function(guests, callback) {
+  var count = guests.length;
+  var invalids = [];
+  for (var i = 0; i < guests.length; i++) {
+    var kerberos = guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
+    if (kerberos === '') {
+      count--;
+    } else {
+      (function(kerberos) {
+        exec('finger ' + kerberos + '@athena.dialup.mit.edu',
+            function(error, stdout, stderr) {
+              if (stdout.indexOf('no such user.') != -1) {
+                invalids.push(kerberos);
+              }
+              if (--count == 0) {
+                callback(invalids);
+              }
+            });
+      })(kerberos);
+    }
+  }
 }
 
 Model.prototype.addGuests = function(id, guests, callback) {
