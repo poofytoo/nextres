@@ -75,6 +75,9 @@ body {
   width: 240px;
   margin: 25px;
   float: left; }
+  .sidenav .contact-msg {
+    font-size: 13px;
+    color: #666; }
   .sidenav ul {
     margin-bottom: 10px;
     border: 1px solid #eee; }
