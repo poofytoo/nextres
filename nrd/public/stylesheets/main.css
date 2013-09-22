@@ -200,6 +200,10 @@ table tr td {
   color: #a4d654;
   margin-bottom: 10px; }
 
+.invalid {
+  color: #E0BABA;
+  opacity: 0.6; }
+
 .displaytable tr {
   background-color: #fff; }
   .displaytable tr:nth-child(even) {
@@ -213,5 +217,8 @@ table tr td {
     padding: 3px 6px;
     font-size: 12px;
     font-weight: 500; }
+  .displaytable tr .invalid-blur {
+    color: transparent;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
   .displaytable tr .empty {
     opacity: 0.2; }

@@ -1,3 +1,6 @@
+{{#unless user.firstName}}
+<div class="todo">Please update your <em>residence info</em>. Your guestlist will not work unless your information is valid.</div>
+{{/unless}}
 {{#if success}}
   <div class="success-msg">{{success}}</div>
 {{/if}}

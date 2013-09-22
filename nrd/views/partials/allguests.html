@@ -18,7 +18,9 @@
 </p>
   <div class="error-msg" style="display: none">
   No records found.
-  <p>Suggest updating the resident's records, or verifying the resident's last name.</p>
+  <p>
+  	Suggest updating the resident's records, or verifying the resident's last name. <br />
+  </p>
   </div>
 <p>
   <table class="displaytable">
@@ -35,7 +37,12 @@
 	  	{{this.kerberos}} 
 	  </td>
 	  <td>
-	    {{this.firstName}} {{this.lastName}}
+	    {{#if this.firstName}} 
+	      {{this.firstName}} {{this.lastName}}
+	    {{else}}
+	      <span class="invalid">guestlist invalid</span>
+	   	{{/if}}
+	  </td>
 	  <td>
 	    {{#if this.guest1Kerberos}} 
 	  	  {{this.guest1Name}} ({{this.guest1Kerberos}}) 		
@@ -101,4 +108,8 @@ var updateList = function(query){
 		    $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');	
 	});
 }
+
+// this is me trolling a little, yuta is putting in a fake name, so I'm invalidating his guestlists manually. we should put in a serious thing for this sometime.
+$( "td:contains('Mike Trout')" ).parent().html('<td>dorayuta</td><td><span class="invalid">guestlist invalid</span></td><td>invalid</td><td>invalid</td><td>invalid</td>');
+
 </script>

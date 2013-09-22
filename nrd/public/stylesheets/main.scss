@@ -277,6 +277,11 @@ table {
 	margin-bottom: 10px;
 }
 
+.invalid {
+	color: #E0BABA;
+	opacity: 0.6;
+}
+
 .displaytable {
 	tr {
 	    background-color: #fff;
@@ -296,9 +301,12 @@ table {
 			font-size: 12px;
 			font-weight: 500;
 		}
-		
-			.empty {
-				opacity: 0.2;
-			}
+		.invalid-blur {
+			color: transparent;
+			text-shadow: 0 0 5px rgba(0,0,0,0.5);
+		}
+		.empty {
+			opacity: 0.2;
+		}
 	}
 }
