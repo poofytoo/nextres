@@ -155,7 +155,7 @@ app.get('/manage', function(req, res) {
     console.log(req.user);
     model.getGuests(req.user.id, function(error, result) {
       guests =[]
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i <= 2; i++) {
         info = {name: result['guest' + i + 'Name'],
                 kerberos: result['guest' + i + 'Kerberos']};
         guests.push(info);
