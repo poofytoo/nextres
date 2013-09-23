@@ -237,6 +237,17 @@ app.get('/allguests', function(req, res) {
   }
 });
 
+app.get('/roomreservations', function(req, res) {
+  if (req.user !== undefined) {
+  	registerContent('roomreservations');
+    model.getPermissions(req.user.id, function(permissions) {
+  	  res.render('base.html', {user: req.user, permissions: permissions});
+  	});
+  } else {
+  	res.redirect('/login');
+  }
+});
+
 app.get('/allusers', function(req, res) {
   if (req.user !== undefined) {
     var id = req.user.id;
