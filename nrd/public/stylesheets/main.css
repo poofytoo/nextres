@@ -200,6 +200,10 @@ table tr td {
   color: #a4d654;
   margin-bottom: 10px; }
 
+.warning-msg {
+  color: #CC9900;
+  margin-bottom: 10px; }
+
 .invalid {
   color: #E0BABA;
   opacity: 0.6; }

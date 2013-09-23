@@ -186,12 +186,15 @@ app.post('/manage', function(req, res) {
       if (invalids.length == 0) {
         model.addGuests(id, guests, function(error, result) {
           registerContent('manage');
-          model.getPermissions(id, function(permissions) {
-            var success = 'Your guest list has been updated.';
-            res.render('base.html', {'user': req.user,
-              'permissions': permissions,
-              'guests': guests,
-              'success': success});
+          model.onGuestList(id, guests, function(onGuestLists) {
+            model.getPermissions(id, function(permissions) {
+              var success = 'Your guest list has been updated.';
+              res.render('base.html', {'user': req.user,
+                'permissions': permissions,
+                'guests': guests,
+                'success': success,
+                'alreadyHere': onGuestLists});
+            });
           });
         });
       } else {
