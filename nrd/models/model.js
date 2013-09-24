@@ -48,15 +48,16 @@ Model.prototype.getPermissions = function(id, callback) {
 Model.prototype.submitApp = function(id, responseFields, callback) {
   columns = ['nextUser','groupMembers','projectDescription', 'reasonForFunding', 
              'communityBenefit', 'peopleInvolved', 'requestedAmount', 
-             'costBreakdown'/*, 'Date/Time'*/];
+             'costBreakdown', 'Status', 'dateTime'];
   responses = [id];
   for (var i = 0; i < 7; i++) {
     responses.push(responseFields[i]);
   }
- /* d = new Date(); 
-  var dateTime = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear()+' '
+  responses.push('Pending'); // Set 'Status' to 'Pending'
+  d = new Date(); 
+  var dateTime = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear()+'_'
                 +d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
-  responses.push(dateTime) */
+  responses.push(dateTime)  // Timestamp
   this.db.query().
     insert('next-project-funding',
            columns,
@@ -210,6 +211,18 @@ Model.prototype.listUsers = function(id, callback) {
 	.from('next-users')
 	.rightJoin("next-groups")
 	.on([["`next-users`.group", "`next-groups`.id"]]);;
+	this.db.execute(function(error, result) {
+		callback(error, result)
+	})
+}
+
+// Lists pending small group funding applications
+
+Model.prototype.listApps = function(id, callback) {
+	this.db.query()
+	.select(["*"])
+	.from('next-project-funding')
+        .where('Status = ?', [ 'Pending' ]);
 	this.db.execute(function(error, result) {
 		callback(error, result)
 	})
@@ -403,4 +416,56 @@ Model.prototype.removeUser = function(kerberos, callback) {
   });
 }
 
+// Approve funding application
+
+Model.prototype.approveApp = function(timestamp, callback) {
+  var returnError = "";
+  var db = this.db;
+    this.db.query().
+    update('next-project-funding',
+          ['Status'],
+          ['Approved']).
+     where('dateTime = ?', [ timestamp ]);  // Change Status from 'Pending' to 'Approved'
+      db.execute(function(error, result) {
+        if (error) {
+          returnError += error + "\n";
+          console.log('Error: ' + error);
+        } else {
+          console.log('Application approved: ' + timestamp);
+        }
+      callback(returnError);
+      });    
+      db.execute(function(error, result) {
+        if (error) {
+          console.log('Error: ' + error);
+        }
+      });
+}
+
+// Deny funding application
+
+Model.prototype.denyApp = function(timestamp, reason, callback) {
+  var returnError = "";
+  var db = this.db;
+  var denied = 'Denied - '+reason;
+    this.db.query().
+    update('next-project-funding',
+          ['Status'],
+          [denied]).                           // Change Status from 'Pending' to 'Denied-' with reason given.
+     where('dateTime = ?', [ timestamp ]); 
+      db.execute(function(error, result) {
+        if (error) {
+          returnError += error + "\n";
+          console.log('Error: ' + error);
+        } else {
+          console.log('Application denied: ' + timestamp);
+        }
+      callback(returnError);
+      });    
+      db.execute(function(error, result) {
+        if (error) {
+          console.log('Error: ' + error);
+        }
+      });
+}
 module.exports = Model

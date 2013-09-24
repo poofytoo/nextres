@@ -21,6 +21,7 @@
   <ul>
     <li class="item-header nextexec">Next Exec</li>
     <li><a href="allusers">Manage Users</a></li>
+    <li><a href="allusers">Review Funding Applications</a></li>
   </ul>
   {{/if}}
 </div>

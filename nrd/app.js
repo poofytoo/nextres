@@ -214,20 +214,20 @@ app.get('/application', function(req, res) {
   console.log(req.user);
   if (req.user !== undefined) {
       model.getApp(req.user.id, function(error, result) {     
-        if (result !== undefined){
+        if (result !== undefined && result['Status']=='Pending'){
           registerContent('appcompleted');
           model.getPermissions(req.user.id, function(permissions) {
           res.render('base.html', {'user': req.user,
                                    'permissions': permissions});
           });
         }
-        else {
+        else { 
           registerContent('application');
           model.getPermissions(req.user.id, function(permissions) {
           res.render('base.html', {'user': req.user,
                                    'permissions': permissions});
           });
-        }
+        } 
       });
   } else {
   	res.redirect('/login');
@@ -243,7 +243,7 @@ app.post('/application', function(req, res) {
     var emptyFields = false;
     for (var i = 1; i <= 7; i++) {
         if (req.body['responseField' + i].replace(' ','') == "") emptyFields = true;
-    }
+    } // check that all required fields are completed
     if (emptyFields) {
       registerContent('application');
         model.getPermissions(id, function(permissions) {
@@ -317,6 +317,60 @@ app.get('/allusers', function(req, res) {
       });
     });
   } else {
+    res.redirect('/login');
+  }
+});
+
+app.get('/reviewapps', function(req, res) {
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    console.log(id);
+    model.listApps(id, function(error, result) {
+      registerContent('reviewapps');
+      model.getPermissions(req.user.id, function(permissions) {
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/reviewapps', function(req, res) {
+  console.log(req.body);
+  if (req.user !== undefined) {
+    var id = req.user.id;
+    console.log(id);
+    if (req.body['decision0'] == 'approve') {
+      model.approveApp(req.body['timestamp0'], function (error) {  
+        registerContent('reviewapps');
+        model.getPermissions(id, function(permissions) {
+          var success = 'Application approved. Applicant has been notified.';
+          res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'success': success});
+        });
+      });
+    } else if (req.body['decision0'] == 'deny') {
+        model.denyApp(req.body['timestamp0'], req.body['reason0'], function (error) {  
+          registerContent('reviewapps');
+          model.getPermissions(id, function(permissions) {
+          var error = 'Application denied. Applicant has been notified.';
+          res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'error': error});
+          });
+        });
+       } else if (req.body['decision0'] == undefined) {  
+          registerContent('reviewapps');
+          model.getPermissions(id, function(permissions) {
+          var error = 'Approve/deny not selected for first application listed. Please try again.' ;
+          res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'error': error});
+          });
+        }
+   } else {
     res.redirect('/login');
   }
 });
