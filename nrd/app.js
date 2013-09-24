@@ -155,7 +155,7 @@ app.get('/manage', function(req, res) {
     console.log(req.user);
     model.getGuests(req.user.id, function(error, result) {
       guests =[]
-      for (var i = 0; i < 3; i++) {
+      for (var i = 1; i <= 3; i++) {
         info = {name: result['guest' + i + 'Name'],
                 kerberos: result['guest' + i + 'Kerberos']};
         guests.push(info);
@@ -213,10 +213,21 @@ app.post('/manage', function(req, res) {
 app.get('/application', function(req, res) {
   console.log(req.user);
   if (req.user !== undefined) {
-      registerContent('application');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user,
-                                 'permissions': permissions});
+      model.getApp(req.user.id, function(error, result) {     
+        if (result !== undefined){
+          registerContent('appcompleted');
+          model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {'user': req.user,
+                                   'permissions': permissions});
+          });
+        }
+        else {
+          registerContent('application');
+          model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {'user': req.user,
+                                   'permissions': permissions});
+          });
+        }
       });
   } else {
   	res.redirect('/login');
@@ -229,19 +240,34 @@ app.post('/application', function(req, res) {
   console.log(req.body);
   var id = req.user.id;
   if (req.user !== undefined) {
-    app_responses = [];
+    var emptyFields = false;
     for (var i = 1; i <= 7; i++) {
-        app_responses.push(req.body['responseField' + i]);
-    } 
-    model.submitApp(id, app_responses, function(error, result) { 
+        if (req.body['responseField' + i].replace(' ','') == "") emptyFields = true;
+    }
+    if (emptyFields) {
       registerContent('application');
-      model.getPermissions(id, function(permissions) {
-      var success = 'Thank you! Your application has been submitted and will be reviewed shortly.';
-        res.render('base.html', {'user': req.user,
+        model.getPermissions(id, function(permissions) {
+          var error = 'Please complete all required fields.';
+          res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'error': error});
+        });
+    }
+    else {
+      responses = []
+      for (var i = 1; i <= 7; i++) {
+        responses.push(req.body['responseField' + i]);
+      } 
+      model.submitApp(id, responses, function(error, result) { 
+        registerContent('appcompleted');
+        model.getPermissions(id, function(permissions) {
+          var success = 'Thank you! Your application has been submitted.';
+          res.render('base.html', {'user': req.user,
               'permissions': permissions,
               'success': success});
+        });
       });
-    });
+    }
   } else {
   	res.redirect('/login');
   }

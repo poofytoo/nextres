@@ -1,0 +1,10 @@
+{{#if error}}
+  <div class="error-msg">{{error}}</div>
+{{/if}}
+{{#if success}}
+  <div class="success-msg">{{success}}</div>
+{{/if}}
+<h1>Application for Project Funding</h1>
+<p></p>
+<h3>Application submitted. You will be e-mailed when it is reviewed.</h3>
+

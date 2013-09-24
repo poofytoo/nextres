@@ -11,32 +11,28 @@
 <form action='application' method='post'>
 <p></p>
   <p>List group members (separated by commas):</p>
-    <td><input type='text' name='responseField1' value='{{ this.name }}' /></td>
+    <td><input type='text' name='responseField1' value='{{ this.response }}' /></td>
 <p></p>
   <p>Brief description of project (100 words):</p>
-    <td><textarea name='responseField2' rows="8" cols="75" value='{{ this.name }}'>
-    </textarea></td>
+    <td><textarea name='responseField2' rows="8" cols="75" value='{{ this.response }}'></textarea></td>
 <p></p>
   <p>Why do you want funding for this project?</p>
-    <td><textarea name='responseField3' rows="6" cols="75" value='{{ this.name }}'>
-    </textarea></td>
+    <td><textarea name='responseField3' rows="6" cols="75" value='{{ this.response }}'></textarea></td>
 <p></p>
   <p>How will it benefit the community?</p>
-    <td><textarea name='responseField4' rows="6" cols="75" value='{{ this.name }}'>
-    </textarea></td>
+    <td><textarea name='responseField4' rows="6" cols="75" value='{{ this.response }}'></textarea></td>
 <p></p>
   <p>Number of people involved:</p>
-    <td><input type='text' name='responseField5' value='{{ this.name }}' /></td>
+    <td><input type='text' name='responseField5' value='{{ this.response }}' /></td>
 <p></p>
   <p>Requested amount($):</p>
-    <input type='text' name='responseField6' value='{{ this.name }}' />
+    <input type='text' name='responseField6' value='{{ this.response }}' />
 <p></p>
   <p>Please outline cost breakdown:</p>
-    <td><textarea name='responseField7' rows="8" cols="75" value='{{ this.name }}'>
-    </textarea></td>
+    <td><textarea name='responseField7' rows="8" cols="75" value='{{ this.response }}'></textarea></td>
 <p></p>
 <p>
-<input type='submit' value='Submit'>
+<input type='submit' name = 'button' value='Submit'>
 </p>
 
 </form>

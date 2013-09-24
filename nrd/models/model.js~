@@ -46,12 +46,12 @@ Model.prototype.getPermissions = function(id, callback) {
 }
 
 Model.prototype.submitApp = function(id, responseFields, callback) {
-  columns = ['groupMembers','projectDescription', 'reasonForFunding', 
+  columns = ['nextUser','groupMembers','projectDescription', 'reasonForFunding', 
              'communityBenefit', 'peopleInvolved', 'requestedAmount', 
              'costBreakdown'/*, 'Date/Time'*/];
-  responses = [];
+  responses = [id];
   for (var i = 0; i < 7; i++) {
-    responses.push(responseFields[i]);
+    responses.push(responseFields[i].response);
   }
  /* d = new Date(); 
   var dateTime = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear()+' '
@@ -63,6 +63,31 @@ Model.prototype.submitApp = function(id, responseFields, callback) {
            responses);
   this.db.execute(function(error, result) {
     callback(error, result);
+  });
+}
+
+Model.prototype.getApp = function(id, callback) {
+  console.log(id);
+  this.db.query().
+    select(['*']).
+    from('next-project-funding').
+    where('nextUser = ?', [ id ]).
+    limit(1);
+  var db = this.db;
+  this.db.execute(function(error, result) {
+    console.log(id);
+    if (result==undefined) {
+      db.query().
+        insert('next-project-funding',
+               ['nextUser'],
+               [id]);
+      db.execute(function(error, result) {
+        callback(error, result);
+      });
+    } else {
+      console.log(result);
+      callback(error, result[0]);
+    }
   });
 }
 
