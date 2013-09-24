@@ -374,4 +374,14 @@ Model.prototype.addFile = function(name, date, callback) {
   });
 }
 
+Model.prototype.removeFile = function(name, callback) {
+  this.db.query().
+    deleteFrom('next-minutes').
+    where('name = ?', [name]).
+    limit(1);
+  this.db.execute(function(error, result) {
+    callback(error);
+  });
+}
+
 module.exports = Model

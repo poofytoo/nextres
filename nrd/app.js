@@ -550,7 +550,7 @@ app.post('/minutes', function(req, res) {
         var dest = "minutes/" + req.files.minute.name;
         model.addFile(req.files.minute.name, req.body.date, function(error) {
           fs.writeFile(dest, data, function(err) {
-            model.getFiles(function(files) {
+            model.getFiles(function(error, files) {
               model.getPermissions(req.user.id, function(permissions) {
                 res.render('base.html', {user: req.user,
                   permissions: permissions,
@@ -564,6 +564,26 @@ app.post('/minutes', function(req, res) {
     }
   } else {
     res.redirect('/login');
+  }
+});
+
+app.get('/minutesdel', function(req, res) {
+  if (req.user !== undefined) {
+    if (req.query.minute) {
+      model.removeFile(req.query.minute, function(error) {
+        model.getFiles(function(error, files) {
+          console.log('files: ' + files);
+          model.getPermissions(req.user.id, function(permissions) {
+            res.render('base.html', {user: req.user,
+              permissions: permissions,
+              files: files,
+              success: 'File successfully removed'});
+          });
+        });
+      });
+    }
+  } else {
+      res.redirect('/login');
   }
 });
 
