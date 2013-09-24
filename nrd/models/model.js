@@ -356,4 +356,22 @@ Model.prototype.removeUser = function(kerberos, callback) {
   });
 }
 
+Model.prototype.getFiles = function(callback) {
+  this.db.query().
+    select(['*']).
+    from('next-minutes').
+    orderBy('date');
+  this.db.execute(function(error, result) {
+    callback(error, result);
+  });
+}
+
+Model.prototype.addFile = function(name, date, callback) {
+  this.db.query().
+    insert('next-minutes', ['name', 'date'], [name, date]);
+  this.db.execute(function(error, result) {
+    callback(error);
+  });
+}
+
 module.exports = Model

@@ -515,7 +515,7 @@ app.get('/minutes', function(req, res) {
       res.sendfile('minutes/' + req.query.minute);
     } else {
       registerContent('minutes');
-      fs.readdir('minutes/', function(err, files) {
+      model.getFiles(function(error, files) {
         model.getPermissions(req.user.id, function(permissions) {
           res.render('base.html', {user: req.user, permissions: permissions, files: files});
         });
@@ -536,7 +536,7 @@ app.post('/minutes', function(req, res) {
       error = 'Maximum file size is 10 MB';
     }
     if (error) {
-      fs.readdir('minutes/', function(err, files) {
+      model.getFiles(function(error, files) {
         model.getPermissions(req.user.id, function(permissions) {
           res.render('base.html', {user: req.user,
             permissions: permissions,
@@ -548,13 +548,15 @@ app.post('/minutes', function(req, res) {
       console.log('Uploading file ' + req.files.minute.name);
       fs.readFile(req.files.minute.path, function(err, data) {
         var dest = "minutes/" + req.files.minute.name;
-        fs.writeFile(dest, data, function(err) {
-          fs.readdir('minutes/', function(err, files) {
-            model.getPermissions(req.user.id, function(permissions) {
-              res.render('base.html', {user: req.user,
-                permissions: permissions,
-                files: files,
-                success: 'File successfully uploaded'});
+        model.addFile(req.files.minute.name, req.body.date, function(error) {
+          fs.writeFile(dest, data, function(err) {
+            model.getFiles(function(files) {
+              model.getPermissions(req.user.id, function(permissions) {
+                res.render('base.html', {user: req.user,
+                  permissions: permissions,
+                  files: files,
+                  success: 'File successfully uploaded'});
+              });
             });
           });
         });
