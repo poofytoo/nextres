@@ -509,6 +509,45 @@ var errorLog = "";
   }
 });
 
+app.get('/minutes', function(req, res) {
+  if (req.user !== undefined) {
+    registerContent('minutes');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {user: req.user, permissions: permissions});
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/minutes', function(req, res) {
+  if (req.user !== undefined) {
+    registerContent('minutes');
+    success = error = '';
+    if (!req.files || req.files.minute.size == 0) {
+      error = 'No file chosen.';
+    } else if (req.files.minute.size > 10000000) {
+      error = 'Maximum file size is 10 MB';
+    } else {
+      console.log('Uploading file ' + req.files.minute.name);
+      fs.readFile(req.files.minute.path, function(err, data) {
+        var dest = "minutes/" + req.files.minute.name;
+        fs.writeFile(dest, data, function(err) {
+          success = 'File successfully uploaded';
+        });
+      });
+    }
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {user: req.user,
+        permissions: permissions,
+        success: success,
+        error: error});
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
 
 app.get('/users', user.list);
 
