@@ -4,6 +4,9 @@
 {{#if success}}
 <div class="success-msg">{{success}}</div>
 {{/if}}
+{{#each files}}
+<div><a href="minutes?minute={{this}}">{{this}}</a></div>
+{{/each}}
 <form action="minutes" method="post" enctype="multipart/form-data">
   <input type="file" name="minute">
   <input type="submit">

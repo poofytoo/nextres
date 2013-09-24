@@ -511,10 +511,16 @@ var errorLog = "";
 
 app.get('/minutes', function(req, res) {
   if (req.user !== undefined) {
-    registerContent('minutes');
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {user: req.user, permissions: permissions});
-    });
+    if (req.query.minute) {
+      res.sendfile('minutes/' + req.query.minute);
+    } else {
+      registerContent('minutes');
+      fs.readdir('minutes/', function(err, files) {
+        model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {user: req.user, permissions: permissions, files: files});
+        });
+      });
+    }
   } else {
     res.redirect('/login');
   }
@@ -523,26 +529,37 @@ app.get('/minutes', function(req, res) {
 app.post('/minutes', function(req, res) {
   if (req.user !== undefined) {
     registerContent('minutes');
-    success = error = '';
+    var error = '';
     if (!req.files || req.files.minute.size == 0) {
       error = 'No file chosen.';
     } else if (req.files.minute.size > 10000000) {
       error = 'Maximum file size is 10 MB';
+    }
+    if (error) {
+      fs.readdir('minutes/', function(err, files) {
+        model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {user: req.user,
+            permissions: permissions,
+            files: files,
+            error: error});
+        });
+      });
     } else {
       console.log('Uploading file ' + req.files.minute.name);
       fs.readFile(req.files.minute.path, function(err, data) {
         var dest = "minutes/" + req.files.minute.name;
         fs.writeFile(dest, data, function(err) {
-          success = 'File successfully uploaded';
+          fs.readdir('minutes/', function(err, files) {
+            model.getPermissions(req.user.id, function(permissions) {
+              res.render('base.html', {user: req.user,
+                permissions: permissions,
+                files: files,
+                success: 'File successfully uploaded'});
+            });
+          });
         });
       });
     }
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {user: req.user,
-        permissions: permissions,
-        success: success,
-        error: error});
-    });
   } else {
     res.redirect('/login');
   }
