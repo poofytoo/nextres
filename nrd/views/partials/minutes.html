@@ -7,8 +7,10 @@
 {{#each files}}
 <div><a href="minutes?minute={{this.name}}">{{this.name}}</a> {{this.date}} <a href="minutesdel?minute={{this.name}}">X</a></div>
 {{/each}}
+{{#if permissions.EDITMINUTES}}
 <form action="minutes" method="post" enctype="multipart/form-data">
   <input type="file" name="minute">
   <input type="date" name="date">
   <input type="submit">
 </form>
+{{/if}}
