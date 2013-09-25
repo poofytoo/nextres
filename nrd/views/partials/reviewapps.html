@@ -1,6 +1,6 @@
 <h1>Review Funding Applications</h1>
 <p></p>
-<p>Approve/deny funding for proposed projects. Review applications IN ORDER, and give reason if denied.</p>
+<p>Approve/deny funding for proposed projects. Review applications in the order they are listed; please include a reason if application is denied.</p>
 <p></p>
 {{#if success}}
   <div class="success-msg">{{success}}</div>
@@ -42,7 +42,7 @@
           <td>{{this.costBreakdown}}</td>     
           <td><input name='timestamp{{@index}}' value={{this.dateTime}} readonly /></td>
           <td><input type='radio' name='decision{{@index}}' value='approve'>Approve <input type='radio' name='decision{{@index}}' value='deny'>Deny</td>
-          <td><textarea name='reason' rows="3" cols="15" value='{{ this.reason }}'></textarea>
+          <td><textarea name='reason{{@index}}' rows="3" cols="15" value='{{ this.reason }}'></textarea>
               <input type='submit' value='Submit'>
           </td> 
 	</tr>

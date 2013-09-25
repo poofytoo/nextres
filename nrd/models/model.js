@@ -48,7 +48,7 @@ Model.prototype.getPermissions = function(id, callback) {
 Model.prototype.submitApp = function(id, responseFields, callback) {
   columns = ['nextUser','groupMembers','projectDescription', 'reasonForFunding', 
              'communityBenefit', 'peopleInvolved', 'requestedAmount', 
-             'costBreakdown', 'Status', 'dateTime'];
+             'costBreakdown', 'Status', 'dateTime', 'Timestamp'];
   responses = [id];
   for (var i = 0; i < 7; i++) {
     responses.push(responseFields[i]);
@@ -57,7 +57,8 @@ Model.prototype.submitApp = function(id, responseFields, callback) {
   d = new Date(); 
   var dateTime = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear()+'_'
                 +d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
-  responses.push(dateTime)  // Timestamp
+  responses.push(dateTime)
+  responses.push(Date.now()+''); // Timestamp
   this.db.query().
     insert('next-project-funding',
            columns,
@@ -73,15 +74,11 @@ Model.prototype.getApp = function(id, callback) {
     select(['*']).
     from('next-project-funding').
     where('nextUser = ?', [ id ]).
-    limit(1);
+    orderByDESC('Timestamp'); // Selects most recent application
   var db = this.db;
   this.db.execute(function(error, result) {
     console.log(id);
     if (result==undefined) {
-      db.query().
-        insert('next-project-funding',
-               ['nextUser'],
-               [id]);
       db.execute(function(error, result) {
         callback(error, result);
       });
@@ -226,6 +223,133 @@ Model.prototype.listApps = function(id, callback) {
 	this.db.execute(function(error, result) {
 		callback(error, result)
 	})
+}
+
+// Approve funding application & notify user via e-mail
+
+Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) {
+  var returnError = "";
+  var db = this.db;
+    this.db.query().
+    update('next-project-funding',
+          ['Status'],
+          ['Approved']).
+     where('dateTime = ?', [ timestamp ]);  // Change Status from 'Pending' to 'Approved'
+      db.execute(function(error, result) {
+        if (error) {
+          returnError += error + "\n";
+          console.log('Error: ' + error);
+        } else {
+          console.log('Application approved: ' + timestamp);
+
+          //contacting user
+          var smtpTransport = nodemailer.createTransport("SMTP",{
+            service: "Gmail",
+            auth: {
+              user: "sparkyroombot@gmail.com",
+              pass: "pencilpencil"
+            }
+              });
+            
+            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
+            "NextExec has approved your application for the small group project funding!<br /><br />"+
+            "If you have any questions, feel free to contact nextres@mit.edu." +
+            "<br /><br />" +
+            "Cheers,<br />" +
+            "NextExec";
+
+            textEmail = "Hello, "+firstName+"NextExec has approved your application for the small group project funding! If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
+		
+            var mailOptions = {
+              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Application for Project Funding Approved", // Subject line
+              text: textEmail, // plaintext body
+              html: htmlEmail // html body
+            };
+              
+            smtpTransport.sendMail(mailOptions, function(error, response){
+              if (error) {
+      		      returnError += error + "\n";
+                console.log(error);
+              } else {
+                console.log("Message sent: " + response.message);
+                }
+            });
+        }
+      callback(returnError);
+      });    
+      db.execute(function(error, result) {
+        if (error) {
+          console.log('Error: ' + error);
+        }
+      });
+}
+
+// Deny funding application & notify user via e-mail.
+
+Model.prototype.denyApp = function(timestamp, reason, kerberos, firstName, callback) {
+  var returnError = "";
+  var db = this.db;
+  var denied = 'Denied - '+reason;
+    this.db.query().
+    update('next-project-funding',
+          ['Status'],
+          [denied]).                       // Change Status from 'Pending' to 'Denied-' with reason given.
+     where('dateTime = ?', [ timestamp ]); 
+     db.execute(function(error, result) {
+       if (error) {
+          returnError += error + "\n";
+          console.log('Error: ' + error);
+       } else {
+          console.log('Application denied: ' + timestamp);
+            
+          //contacting user
+          var smtpTransport = nodemailer.createTransport("SMTP",{
+            service: "Gmail",
+            auth: {
+              user: "sparkyroombot@gmail.com",
+              pass: "pencilpencil"
+            }
+              });
+            
+            // var url = "http://mplcr.mit.edu";
+            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
+            "NextExec has denied your application for the following reason(s): <br />" +
+            reason +
+            "<br /><br />" +
+            "You have the option to reapply and submit another proposal." +
+            "If you have any questions, feel free to contact nextres@mit.edu." +
+            "<br /><br />" +
+            "Cheers,<br />" +
+            "NextExec";
+
+            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
+		
+            var mailOptions = {
+              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Result of Application for Project Funding", // Subject line
+              text: textEmail, // plaintext body
+              html: htmlEmail // html body
+            };
+              
+            smtpTransport.sendMail(mailOptions, function(error, response){
+              if (error) {
+      		      returnError += error + "\n";
+                console.log(error);
+              } else {
+                console.log("Message sent: " + response.message);
+                }
+            });
+        }    
+    callback(returnError);
+    });
+    db.execute(function(error, result) {
+        if (error) {
+          console.log('Error: ' + error);
+        }
+    });
 }
 
 // Finds the user with the given kerberos, to compare the password hash to
@@ -416,56 +540,5 @@ Model.prototype.removeUser = function(kerberos, callback) {
   });
 }
 
-// Approve funding application
 
-Model.prototype.approveApp = function(timestamp, callback) {
-  var returnError = "";
-  var db = this.db;
-    this.db.query().
-    update('next-project-funding',
-          ['Status'],
-          ['Approved']).
-     where('dateTime = ?', [ timestamp ]);  // Change Status from 'Pending' to 'Approved'
-      db.execute(function(error, result) {
-        if (error) {
-          returnError += error + "\n";
-          console.log('Error: ' + error);
-        } else {
-          console.log('Application approved: ' + timestamp);
-        }
-      callback(returnError);
-      });    
-      db.execute(function(error, result) {
-        if (error) {
-          console.log('Error: ' + error);
-        }
-      });
-}
-
-// Deny funding application
-
-Model.prototype.denyApp = function(timestamp, reason, callback) {
-  var returnError = "";
-  var db = this.db;
-  var denied = 'Denied - '+reason;
-    this.db.query().
-    update('next-project-funding',
-          ['Status'],
-          [denied]).                           // Change Status from 'Pending' to 'Denied-' with reason given.
-     where('dateTime = ?', [ timestamp ]); 
-      db.execute(function(error, result) {
-        if (error) {
-          returnError += error + "\n";
-          console.log('Error: ' + error);
-        } else {
-          console.log('Application denied: ' + timestamp);
-        }
-      callback(returnError);
-      });    
-      db.execute(function(error, result) {
-        if (error) {
-          console.log('Error: ' + error);
-        }
-      });
-}
 module.exports = Model

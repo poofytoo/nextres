@@ -1,13 +1,13 @@
-
-{{#if error}}
-  <div class="error-msg">{{error}}</div>
-{{/if}}
 {{#if success}}
   <div class="success-msg">{{success}}</div>
 {{/if}}
 <h1>Application for Project Funding</h1>
 <p></p>
-<p>Please complete the following form to apply for funding. All are fields required.</p>
+{{#if error}}
+  <div class="error-msg">{{error}}</div>
+{{/if}}
+<p></p>
+<p>Please complete the following form. All are fields required.</p>
 <form action='application' method='post'>
 <p></p>
   <p>List group members (separated by commas):</p>

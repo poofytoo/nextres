@@ -210,24 +210,41 @@ app.post('/manage', function(req, res) {
   }
 });
 
+// If application 'Pending', redirect and do not allow another submission. If most recent application 'Denied', notify user and allow resubmission.
 app.get('/application', function(req, res) {
   console.log(req.user);
   if (req.user !== undefined) {
-      model.getApp(req.user.id, function(error, result) {     
-        if (result !== undefined && result['Status']=='Pending'){
-          registerContent('appcompleted');
-          model.getPermissions(req.user.id, function(permissions) {
-          res.render('base.html', {'user': req.user,
+      model.getApp(req.user.id, function(error, result) {
+        console.log(result);     
+        if (result !== undefined) {
+           if (result['Status']=='Pending'){ 
+             registerContent('appcompleted');
+             model.getPermissions(req.user.id, function(permissions) {
+             res.render('base.html', {'user': req.user,
                                    'permissions': permissions});
-          });
-        }
-        else { 
-          registerContent('application');
-          model.getPermissions(req.user.id, function(permissions) {
-          res.render('base.html', {'user': req.user,
-                                   'permissions': permissions});
-          });
-        } 
+             });
+           } else if (result['Status'].substring(0,6)=='Denied') { 
+                    registerContent('application');
+                    model.getPermissions(req.user.id, function(permissions) {
+                    var message = "Note: Your most recent application for was denied (check e-mail for reasons). You have the option of reapplying.";
+                    res.render('base.html', {'user': req.user,
+                                             'permissions': permissions,
+                                             'error': message});
+                    });
+             } else if (result['Status'].substring(0,8)=='Approved') { 
+                    registerContent('application');
+                    model.getPermissions(req.user.id, function(permissions) {
+                    res.render('base.html', {'user': req.user,
+                                             'permissions': permissions});
+                    });
+              }
+         } else {
+                 registerContent('application');
+                 model.getPermissions(req.user.id, function(permissions) {
+                 res.render('base.html', {'user': req.user,
+                                   '      permissions': permissions});
+                 });
+           }
       });
   } else {
   	res.redirect('/login');
@@ -327,9 +344,16 @@ app.get('/reviewapps', function(req, res) {
     console.log(id);
     model.listApps(id, function(error, result) {
       registerContent('reviewapps');
-      model.getPermissions(req.user.id, function(permissions) {
-      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
-      });
+      if (result==undefined) {
+        model.getPermissions(req.user.id, function(permissions) {
+        var noApps = "No applications pending.";
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions, success: noApps });
+        });
+      } else {
+             model.getPermissions(req.user.id, function(permissions) {
+      	     res.render('base.html', {user: req.user, result: result, permissions: permissions});
+        });
+        }
     });
   } else {
     res.redirect('/login');
@@ -340,9 +364,11 @@ app.post('/reviewapps', function(req, res) {
   console.log(req.body);
   if (req.user !== undefined) {
     var id = req.user.id;
+    var kerberos = req.user.kerberos; // for email
+    var firstName = req.user.firstName; 
     console.log(id);
     if (req.body['decision0'] == 'approve') {
-      model.approveApp(req.body['timestamp0'], function (error) {  
+      model.approveApp(req.body['timestamp0'], kerberos, firstName, function (error) {  
         registerContent('reviewapps');
         model.getPermissions(id, function(permissions) {
           var success = 'Application approved. Applicant has been notified.';
@@ -352,7 +378,7 @@ app.post('/reviewapps', function(req, res) {
         });
       });
     } else if (req.body['decision0'] == 'deny') {
-        model.denyApp(req.body['timestamp0'], req.body['reason0'], function (error) {  
+        model.denyApp(req.body['timestamp0'], req.body['reason0'], kerberos, firstName, function (error) {  
           registerContent('reviewapps');
           model.getPermissions(id, function(permissions) {
           var error = 'Application denied. Applicant has been notified.';
