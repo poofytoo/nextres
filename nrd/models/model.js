@@ -227,7 +227,7 @@ Model.prototype.listApps = function(id, callback) {
 
 // Approve funding application & notify user via e-mail
 
-Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) {
+Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
     this.db.query().
@@ -252,7 +252,7 @@ Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) 
               });
             
             htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
-            "NextExec has approved your application for the small group project funding!<br /><br />"+
+            "NextExec has approved your application for the small group project funding!<br />"+
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
@@ -262,7 +262,7 @@ Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) 
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: kerberos + "@mit.edu", // list of receivers
+              to: email, // list of receivers
               subject: "Application for Project Funding Approved", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
@@ -288,7 +288,7 @@ Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) 
 
 // Deny funding application & notify user via e-mail.
 
-Model.prototype.denyApp = function(timestamp, reason, kerberos, firstName, callback) {
+Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
   var denied = 'Denied - '+reason;
@@ -318,7 +318,7 @@ Model.prototype.denyApp = function(timestamp, reason, kerberos, firstName, callb
             "NextExec has denied your application for the following reason(s): <br />" +
             reason +
             "<br /><br />" +
-            "You have the option to reapply and submit another proposal." +
+            "You have the option to reapply and submit another funding proposal.<br />" +
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
@@ -328,7 +328,7 @@ Model.prototype.denyApp = function(timestamp, reason, kerberos, firstName, callb
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: kerberos + "@mit.edu", // list of receivers
+              to: email, // list of receivers
               subject: "Result of Application for Project Funding", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body

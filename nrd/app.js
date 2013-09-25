@@ -346,8 +346,7 @@ app.get('/reviewapps', function(req, res) {
       registerContent('reviewapps');
       if (result==undefined) {
         model.getPermissions(req.user.id, function(permissions) {
-        var noApps = "No applications pending.";
-      	res.render('base.html', {user: req.user, result: result, permissions: permissions, success: noApps });
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
         });
       } else {
              model.getPermissions(req.user.id, function(permissions) {
@@ -364,11 +363,10 @@ app.post('/reviewapps', function(req, res) {
   console.log(req.body);
   if (req.user !== undefined) {
     var id = req.user.id;
-    var kerberos = req.user.kerberos; // for email
-    var firstName = req.user.firstName; 
-    console.log(id);
+    model.getUser (id, function(error, result) {
+    console.log(result);
     if (req.body['decision0'] == 'approve') {
-      model.approveApp(req.body['timestamp0'], kerberos, firstName, function (error) {  
+      model.approveApp(req.body['timestamp0'], result['email'], result['firstName'], function (error) {  
         registerContent('reviewapps');
         model.getPermissions(id, function(permissions) {
           var success = 'Application approved. Applicant has been notified.';
@@ -378,7 +376,7 @@ app.post('/reviewapps', function(req, res) {
         });
       });
     } else if (req.body['decision0'] == 'deny') {
-        model.denyApp(req.body['timestamp0'], req.body['reason0'], kerberos, firstName, function (error) {  
+        model.denyApp(req.body['timestamp0'], req.body['reason0'], result['email'], result['firstName'], function (error) {  
           registerContent('reviewapps');
           model.getPermissions(id, function(permissions) {
           var error = 'Application denied. Applicant has been notified.';
@@ -396,6 +394,7 @@ app.post('/reviewapps', function(req, res) {
               'error': error});
           });
         }
+     });
    } else {
     res.redirect('/login');
   }

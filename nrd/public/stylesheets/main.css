@@ -118,6 +118,10 @@ body {
       color: #47a9c4; }
     .content p em {
       font-weight: 500; }
+    .content div a {
+      color: #47a9c4; }
+      .content div a:hover {
+      color: #a4d654; }
   .content .todo {
     background-color: #FFECDE;
     color: #222;
@@ -180,6 +184,13 @@ input[type="button"] {
   input[type="button"]:hover {
     background-color: #ddd;
     cursor: pointer; }
+
+input[type="radio"]{
+  font-size: 12px; }
+
+textarea {
+  font-family: sans-serif;
+  font-size: 14px; }
 
 table tr td {
   vertical-align: middle;
