@@ -7,9 +7,6 @@
 {{#if success}}
   <div class="success-msg">{{success}}</div>
 {{/if}}
-{{#each alreadyHere}}
-<div class="warning-msg">Note: {{this.kerberos}} is already on the guest list of {{this.firstName}} {{this.lastName}}</div>
-{{/each}}
 <h1>View/Edit Your Guestlist</h1>
 <p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="http://studentlife.mit.edu/studentlife.mit.edu/reslifeanddining/news/residencehallsecurity">MIT security policies</a></p>
 <form action='manage' method='post'>

@@ -22,3 +22,9 @@ _testmain.go
 
 *.exe
 *.scssc
+
+# Delete text editor swap files
+*.swp
+*.swo
+*~
+*.log

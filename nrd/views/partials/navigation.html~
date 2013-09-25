@@ -4,15 +4,11 @@
     <li><a href="manage">View/Edit Your Guestlist</a></li>
   </ul>
   <ul>
-    <li class="item-header">House</li>
-    <li><a href="minutes">Exec Meeting Minutes</a></li>
-  </ul>
-  <ul>
     <li class="item-header">Account</li>
     <!-- <li><a href="">Reserve a Room</a></li> -->
+    <li><a href="application">Request Small Group Project Funding</a></li>
     <!-- <li><a href="">Next Mailing Lists</a></li> -->
     <li><a href="residentinfo">Residence Info</a></li>
-    <li><a href="application">Request Small Group Project Funding</a></li>
     <li><a href="changepassword">Change Password</a></li>
   </ul>
   {{#if permissions.VIEWALLGUESTLISTS}}
@@ -25,7 +21,7 @@
   <ul>
     <li class="item-header nextexec">Next Exec</li>
     <li><a href="allusers">Manage Users</a></li>
-    <li><a href="reviewapps">Review Funding Applications</a></li>
+    <li><a href="allusers">Review Funding Applications</a></li>
   </ul>
   {{/if}}
 </div>
