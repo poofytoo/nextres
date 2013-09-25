@@ -187,15 +187,12 @@ app.post('/manage', function(req, res) {
       if (invalids.length == 0) {
         model.addGuests(id, guests, function(error, result) {
           registerContent('manage');
-          model.onGuestList(id, guests, function(onGuestLists) {
-            model.getPermissions(id, function(permissions) {
-              var success = 'Your guest list has been updated.';
-              res.render('base.html', {'user': req.user,
-                'permissions': permissions,
-                'guests': guests,
-                'success': success,
-                'alreadyHere': onGuestLists});
-            });
+          model.getPermissions(id, function(permissions) {
+            var success = 'Your guest list has been updated.';
+            res.render('base.html', {'user': req.user,
+              'permissions': permissions,
+              'guests': guests,
+              'success': success});
           });
         });
       } else {
@@ -349,8 +346,8 @@ app.get('/reviewapps', function(req, res) {
       registerContent('reviewapps');
       if (result==undefined) {
         model.getPermissions(req.user.id, function(permissions) {
-        var noApps = "No applications pending.";
-      	res.render('base.html', {user: req.user, result: result, permissions: permissions, success: noApps });
+        var noapps = "No applications pending.";
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions, success: noapps });
         });
       } else {
              model.getPermissions(req.user.id, function(permissions) {
