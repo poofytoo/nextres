@@ -21,3 +21,9 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+
+# Delete text editor swap files
+*.swp
+*.swo
+*~
+*.log
