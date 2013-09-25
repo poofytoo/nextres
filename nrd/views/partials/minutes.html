@@ -4,13 +4,43 @@
 {{#if success}}
 <div class="success-msg">{{success}}</div>
 {{/if}}
+
+<h1>Next Exec Meeting Minutes</h1>
+<p>Below are the archived Next Exec Meeting Minutes</p>
+
+<ul>
 {{#each files}}
-<div><a href="minutes?minute={{this.name}}">{{this.name}}</a> {{this.date}} <a href="minutesdel?minute={{this.name}}">X</a></div>
+	<li>
+		<a class="file" href="minutes?minute={{this.name}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
+		<a class="remove" href="minutesdel?minute={{this.name}}">remove</a>
+	</li>
 {{/each}}
+</ul>
+
 {{#if permissions.EDITMINUTES}}
+<h1>
+	Upload Minutes
+</h1>
+<p>Upload meeting minutes in .docx, .doc, .pdf formats</p>
 <form action="minutes" method="post" enctype="multipart/form-data">
   <input type="file" name="minute">
-  <input type="date" name="date">
+  <span class="nodate"></span>
+  <p>Date: <input type="date" name="date"></p>
   <input type="submit">
 </form>
+
+{{else}}
+<script>
+$('.remove').remove();
+</script>
 {{/if}}
+
+<script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
+<script>
+$(document).ready(function(){
+	if (!Modernizr.inputtypes.date) {
+	  console.log('hellasdfo');
+		$('.nodate').text('Format YYYY-MM-DD');
+	}
+});
+</script>

@@ -137,6 +137,27 @@ body {
     margin-right: 10px; }
   .content table {
     text-align: left; }
+  .content ul {
+    margin-bottom: 20px;
+    border-top: 1px solid #ddd; }
+    .content ul li {
+      border-bottom: 1px solid #ddd;
+      position: relative; }
+      .content ul li a.file {
+        display: block;
+        padding: 10px; }
+      .content ul li a.remove {
+        display: inline;
+        float: right;
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #ddd;
+        padding: 10px; }
+        .content ul li a.remove:hover {
+          background-color: #c94f4f; }
+      .content ul li:hover {
+        background-color: #f3f3f3; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -159,6 +180,12 @@ input[type="submit"] {
     background-color: #94C447;
     cursor: pointer; }
 
+input[type="date"] {
+  display: inline; }
+
+input[type="file"] {
+  margin-bottom: 10px; }
+
 input[type="button"] {
   font-family: sans-serif;
   font-weight: 200;
@@ -180,6 +207,10 @@ input[type="button"] {
   input[type="button"]:hover {
     background-color: #ddd;
     cursor: pointer; }
+
+.nodate {
+  font-size: 14px;
+  color: #aaa; }
 
 table tr td {
   vertical-align: middle;

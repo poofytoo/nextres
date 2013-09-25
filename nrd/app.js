@@ -588,6 +588,8 @@ app.get('/minutesdel', function(req, res) {
               success: 'File successfully removed'});
           });
         });
+      } else {
+      	res.redirect('/minutes');
       }
     });
   } else {
