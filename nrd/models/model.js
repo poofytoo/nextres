@@ -91,8 +91,6 @@ Model.prototype.getApp = function(id, callback) {
 
 
 // Very dirty kerberos validation
-// Takes a list of guests and an empty invalids list.
-// Puts invalid guests into invalids list.
 Model.prototype.validateKerberos = function(guests, callback) {
   var count = guests.length;
   var invalids = [];
@@ -111,6 +109,39 @@ Model.prototype.validateKerberos = function(guests, callback) {
                 callback(invalids);
               }
             });
+      })(kerberos);
+    }
+  }
+}
+
+// Returns whether given kerberos is guest of someone at Next
+Model.prototype.onGuestList = function(id, guests, callback) {
+  var count = guests.length;
+  var onGuestLists = [];
+  var db = this.db;
+  for (var i = 0; i < guests.length; i++) {
+    var kerberos = guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
+    if (kerberos === '') {
+        count--;
+    } else {
+      (function(kerberos) {
+        db.query()
+        .select(["firstName", "lastName"])
+        .from("next-guestlist")
+        .rightJoin("next-users")
+        .on([["`next-guestlist`.nextUser", "`next-users`.id"]])
+        .where("`next-users`.id != ? AND " +
+            "( guest1Kerberos LIKE ? OR guest2Kerberos LIKE ? OR guest3Kerberos LIKE ? )",
+                [id, kerberos, kerberos, kerberos]);
+        db.execute(function(err, res) {
+          if (res && res.length > 0) {
+            res[0].kerberos = kerberos;
+              onGuestLists.push(res[0]);
+          }
+          if (--count == 0) {
+            callback(onGuestLists);
+          }
+        });
       })(kerberos);
     }
   }
@@ -602,5 +633,32 @@ Model.prototype.removeUser = function(kerberos, callback) {
   });
 }
 
+Model.prototype.getFiles = function(callback) {
+  this.db.query().
+    select(['*']).
+    from('next-minutes').
+    orderBy('date');
+  this.db.execute(function(error, result) {
+    callback(error, result);
+  });
+}
+
+Model.prototype.addFile = function(name, date, callback) {
+  this.db.query().
+    insert('next-minutes', ['name', 'date'], [name, date]);
+  this.db.execute(function(error, result) {
+    callback(error);
+  });
+}
+
+Model.prototype.removeFile = function(name, callback) {
+  this.db.query().
+    deleteFrom('next-minutes').
+    where('name = ?', [name]).
+    limit(1);
+  this.db.execute(function(error, result) {
+    callback(error);
+  });
+}
 
 module.exports = Model

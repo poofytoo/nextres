@@ -192,6 +192,37 @@ body {
 	table {
 		text-align: left;
 	}
+	ul {
+		margin-bottom: 20px;
+		border-top: 1px solid #ddd;
+		
+		li {
+			border-bottom: 1px solid #ddd;
+			position: relative;
+			
+			a.file {
+				display: block;
+				padding: 10px;
+			}
+			a.remove {
+				display: inline;
+				float: right;
+				position: absolute;
+				top: 0;
+				right: 0;
+				color: #ddd;
+				padding: 10px;
+				
+				&:hover {
+					background-color: $alertred;
+				}
+			}
+			&:hover {
+				background-color: #f3f3f3;
+			}
+			
+		}
+	}
 }
 
 input[type="text"], input[type="password"] {
@@ -200,6 +231,7 @@ input[type="text"], input[type="password"] {
 	outline: none;
 	&:focus {
 		border: 1px solid #FFAC00;
+		
 	}
 }
 
@@ -218,6 +250,14 @@ input[type="submit"] {
 		background-color: #94C447;
 		cursor: pointer;
 	}
+}
+
+input[type="date"] {
+	display: inline;
+}
+
+input[type="file"] {
+	margin-bottom: 10px;
 }
 
 input[type="button"] {
@@ -248,6 +288,12 @@ input[type="button"] {
 		background-color: #ddd;
 		cursor: pointer;
 	}
+}
+
+// In case the user does not have HTML5 Date input
+.nodate {
+	font-size: 14px;
+	color: #aaa;
 }
 
 table {
