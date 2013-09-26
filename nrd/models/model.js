@@ -252,7 +252,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
               });
             
             htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
-            "NextExec has approved your application for the small group project funding!<br />"+
+            "NextExec has approved your application for the small group project funding!<br /><br />"+
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
@@ -263,9 +263,10 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: email, // list of receivers
-              subject: "Application for Project Funding Approved", // Subject line
+              subject: "Request for Project Funding Approved", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
+            /*cc: 'nextexec@mit.edu' */
             };
               
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -317,21 +318,22 @@ Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback
             htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
             "NextExec has denied your application for the following reason(s): <br />" +
             reason +
-            "<br /><br />" +
-            "You have the option to reapply and submit another funding proposal.<br />" +
+            ".<br /><br />" +
+            "You have the option to reapply and submit another funding proposal.<br /><br />" +
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
             "NextExec";
 
-            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
+            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another funding proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: email, // list of receivers
-              subject: "Result of Application for Project Funding", // Subject line
+              subject: "Request for Project Funding Denied", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
+              /*cc: 'nextexec@mit.edu' */
             };
               
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -379,6 +381,55 @@ Model.prototype.changePassword = function(id, newPassword, callback) {
   })
 }
 
+//reset password and notify user via email
+Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callback) {
+  this.db.query().
+    update('next-users', ['password'], [hash]).
+    where('id = ?', [ id ]);
+  var smtpTransport = nodemailer.createTransport("SMTP",{
+              service: "Gmail",
+              auth: {
+                user: "sparkyroombot@gmail.com",
+                pass: "pencilpencil"
+              }
+            });
+            
+            htmlEmail = "Hello,<br /><br />" + 
+            "The password to your Next resident dashboard account has been reset. "+
+            "Login with your kerberos ID and the following password: <b>" + rawPassword +
+            "</b>. Once you have logged in, please change your password." +
+            "<br /><br />" +
+            "If you have any questions, feel free to contact nextres@mit.edu" +
+            "<br /><br />" +
+            "Cheers,<br />" +
+            "Sparky, the Next House Mailbot";
+
+
+            textEmail = "The password to your Next resident dashboard account has been reset. Login with your kerberos ID and the following password: " + rawPassword + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
+		
+            var mailOptions = {
+              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Testing Password Reset", // Subject line
+              text: textEmail, // plaintext body
+              html: htmlEmail // html body
+            };
+              
+            smtpTransport.sendMail(mailOptions, function(error, response){
+              if(error){
+      		      returnError += error + "\n";
+                console.log(error);
+              } else {
+                console.log("Message sent: " + response.message);
+              }
+            });
+  this.db.execute(function(error, result) {
+    console.log(error);
+    console.log(result[0]);
+    callback(error, result[0]);
+  })
+}
+
 /*
     update('next-guestlist',
            columns,
@@ -391,6 +442,17 @@ Model.prototype.getUser = function(id, callback) {
     select(['*']).
     from('next-users').
     where('id = ?', [ id ]).
+    limit(1);
+  this.db.execute(function(error, result) {
+    callback(error, result[0]);
+  })
+}
+
+Model.prototype.getKerberos = function(kerberos, callback) {
+  this.db.query().
+    select(['*']).
+    from('next-users').
+    where('kerberos = ?', [ kerberos ]).
     limit(1);
   this.db.execute(function(error, result) {
     callback(error, result[0]);

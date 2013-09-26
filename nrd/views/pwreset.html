@@ -1,0 +1,41 @@
+<html>
+	<head>
+		<title>Reset Password</title>
+		<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
+		<link rel="stylesheet" type="text/css" href="stylesheets/login.css">
+	</head>
+	<body>
+	<form  method="post" action="/pwreset">
+		<div class="container">
+			<div class="header"><span class="circle">N</span></div>
+			<div class="loginform">
+                        {{#if success}}
+                        <div class="success-msg">{{success}}</div>
+                        {{/if}}
+			{{#if error}}
+				<h1 class="error">
+					Invalid kerberos
+				</h1>
+			{{else}}
+				<h1>
+					Reset Your Password
+				</h1>
+			{{/if}}
+                                <p>Enter full name and kerberos ID. </br > A new password will be sent to your e-mail.</p>
+				<table>
+					<tr>
+						<td>full name</td>
+						<td><input type="text" class="username" name="fullName"></td>
+					</tr>
+					<tr>
+						<td>kerberos</td>
+					 	<td><input type="text" class="username" name="kerberos"></td>
+					</tr>
+				</table>
+				<input type="submit" value="reset">
+				<p class="returnToLogin"> <a href="login">return to login</a> </p>
+			</div>
+		</div>
+		</form>
+	</body>
+</html>

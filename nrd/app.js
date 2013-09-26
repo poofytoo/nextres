@@ -122,6 +122,36 @@ app.post('/login',
   }
 );
 
+app.get('/pwreset', function(req, res) {
+      res.render('pwreset.html')
+});
+
+// this is probably very unsecure..
+app.post('/pwreset', function(req, res) {
+      console.log(req.body);
+      kerberos = req.body['kerberos'];
+      model.getKerberos (kerberos, function(error, result) {
+        console.log(result);
+        if (result!==undefined) {
+        id = result['id'];
+        var newPassword = randomPassword();
+        console.log(newPassword);
+        bcrypt.genSalt(10, function(err, salt) {
+              bcrypt.hash(newPassword, salt, function(err, hash) {
+                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {
+                  var success = 'Password reset. Please check your e-mail.' 
+                  res.render('pwreset.html', {'success' : success});
+                });
+              }); 
+        });
+        } else {
+                  res.render('pwreset.html', {'error' : true});
+          }
+      });
+});
+
+
+
 app.get('/login', function(req, res) {
   if (req.user !== undefined) {
   	res.redirect('/manage');
@@ -264,7 +294,7 @@ app.post('/application', function(req, res) {
     if (emptyFields) {
       registerContent('application');
         model.getPermissions(id, function(permissions) {
-          var error = 'Please complete all required fields.';
+          var error = '* Complete all required fields.';
           res.render('base.html', {'user': req.user,
               'permissions': permissions,
               'error': error});
