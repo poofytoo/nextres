@@ -52,7 +52,7 @@ Query.prototype.where = function(rules, arr) {
     idx ++;
     rules = rules.substring(rules.indexOf('?') + 1);
   }
-  this.queryString += where + rules + ' ';
+  this.queryString += where + ' ';
   return this;
 }
 

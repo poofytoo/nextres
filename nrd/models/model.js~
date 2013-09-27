@@ -91,6 +91,8 @@ Model.prototype.getApp = function(id, callback) {
 
 
 // Very dirty kerberos validation
+// Takes a list of guests and an empty invalids list.
+// Puts invalid guests into invalids list.
 Model.prototype.validateKerberos = function(guests, callback) {
   var count = guests.length;
   var invalids = [];
@@ -109,39 +111,6 @@ Model.prototype.validateKerberos = function(guests, callback) {
                 callback(invalids);
               }
             });
-      })(kerberos);
-    }
-  }
-}
-
-// Returns whether given kerberos is guest of someone at Next
-Model.prototype.onGuestList = function(id, guests, callback) {
-  var count = guests.length;
-  var onGuestLists = [];
-  var db = this.db;
-  for (var i = 0; i < guests.length; i++) {
-    var kerberos = guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
-    if (kerberos === '') {
-        count--;
-    } else {
-      (function(kerberos) {
-        db.query()
-        .select(["firstName", "lastName"])
-        .from("next-guestlist")
-        .rightJoin("next-users")
-        .on([["`next-guestlist`.nextUser", "`next-users`.id"]])
-        .where("`next-users`.id != ? AND " +
-            "( guest1Kerberos LIKE ? OR guest2Kerberos LIKE ? OR guest3Kerberos LIKE ? )",
-                [id, kerberos, kerberos, kerberos]);
-        db.execute(function(err, res) {
-          if (res && res.length > 0) {
-            res[0].kerberos = kerberos;
-              onGuestLists.push(res[0]);
-          }
-          if (--count == 0) {
-            callback(onGuestLists);
-          }
-        });
       })(kerberos);
     }
   }
@@ -258,7 +227,7 @@ Model.prototype.listApps = function(id, callback) {
 
 // Approve funding application & notify user via e-mail
 
-Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
+Model.prototype.approveApp = function(timestamp, kerberos, firstName, callback) {
   var returnError = "";
   var db = this.db;
     this.db.query().
@@ -293,11 +262,10 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: email, // list of receivers
-              subject: "Request for Project Funding Approved", // Subject line
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Application for Project Funding Approved", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
-            /*cc: 'nextexec@mit.edu' */
             };
               
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -320,7 +288,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
 
 // Deny funding application & notify user via e-mail.
 
-Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback) {
+Model.prototype.denyApp = function(timestamp, reason, kerberos, firstName, callback) {
   var returnError = "";
   var db = this.db;
   var denied = 'Denied - '+reason;
@@ -346,25 +314,24 @@ Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback
               });
             
             // var url = "http://mplcr.mit.edu";
-            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
+            htmlEmail = "Hello, " + firstName+ ", <br /><br />" + 
             "NextExec has denied your application for the following reason(s): <br />" +
             reason +
-            ".<br /><br />" +
-            "You have the option to reapply and submit another funding proposal.<br /><br />" +
+            "<br /><br />" +
+            "You have the option to reapply and submit another proposal." +
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
             "NextExec";
 
-            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another funding proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
+            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
 		
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: email, // list of receivers
-              subject: "Request for Project Funding Denied", // Subject line
+              to: kerberos + "@mit.edu", // list of receivers
+              subject: "Result of Application for Project Funding", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
-              /*cc: 'nextexec@mit.edu' */
             };
               
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -412,55 +379,6 @@ Model.prototype.changePassword = function(id, newPassword, callback) {
   })
 }
 
-//reset password and notify user via email
-Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callback) {
-  this.db.query().
-    update('next-users', ['password'], [hash]).
-    where('id = ?', [ id ]);
-  var smtpTransport = nodemailer.createTransport("SMTP",{
-              service: "Gmail",
-              auth: {
-                user: "sparkyroombot@gmail.com",
-                pass: "pencilpencil"
-              }
-            });
-            
-            htmlEmail = "Hello,<br /><br />" + 
-            "The password to your Next resident dashboard account has been reset. "+
-            "Login with your kerberos ID and the following password: <b>" + rawPassword +
-            "</b>. Once you have logged in, please change your password." +
-            "<br /><br />" +
-            "If you have any questions, feel free to contact nextres@mit.edu" +
-            "<br /><br />" +
-            "Cheers,<br />" +
-            "Sparky, the Next House Mailbot";
-
-
-            textEmail = "The password to your Next resident dashboard account has been reset. Login with your kerberos ID and the following password: " + rawPassword + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-		
-            var mailOptions = {
-              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: kerberos + "@mit.edu", // list of receivers
-              subject: "Testing Password Reset", // Subject line
-              text: textEmail, // plaintext body
-              html: htmlEmail // html body
-            };
-              
-            smtpTransport.sendMail(mailOptions, function(error, response){
-              if(error){
-      		      returnError += error + "\n";
-                console.log(error);
-              } else {
-                console.log("Message sent: " + response.message);
-              }
-            });
-  this.db.execute(function(error, result) {
-    console.log(error);
-    console.log(result[0]);
-    callback(error, result[0]);
-  })
-}
-
 /*
     update('next-guestlist',
            columns,
@@ -473,17 +391,6 @@ Model.prototype.getUser = function(id, callback) {
     select(['*']).
     from('next-users').
     where('id = ?', [ id ]).
-    limit(1);
-  this.db.execute(function(error, result) {
-    callback(error, result[0]);
-  })
-}
-
-Model.prototype.getKerberos = function(kerberos, callback) {
-  this.db.query().
-    select(['*']).
-    from('next-users').
-    where('kerberos = ?', [ kerberos ]).
     limit(1);
   this.db.execute(function(error, result) {
     callback(error, result[0]);
@@ -633,32 +540,5 @@ Model.prototype.removeUser = function(kerberos, callback) {
   });
 }
 
-Model.prototype.getFiles = function(callback) {
-  this.db.query().
-    select(['*']).
-    from('next-minutes').
-    orderBy('date');
-  this.db.execute(function(error, result) {
-    callback(error, result);
-  });
-}
-
-Model.prototype.addFile = function(name, date, callback) {
-  this.db.query().
-    insert('next-minutes', ['name', 'date'], [name, date]);
-  this.db.execute(function(error, result) {
-    callback(error);
-  });
-}
-
-Model.prototype.removeFile = function(name, callback) {
-  this.db.query().
-    deleteFrom('next-minutes').
-    where('name = ?', [name]).
-    limit(1);
-  this.db.execute(function(error, result) {
-    callback(error);
-  });
-}
 
 module.exports = Model

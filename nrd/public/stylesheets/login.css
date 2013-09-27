@@ -24,7 +24,7 @@ body {
   top: 50%;
   border: 1px solid #ddd;
   width: 300px;
-  height: 300px;
+  height: 325px;
   margin: -150px 0 0 -150px;
   text-align: center; }
   .container h1 {
@@ -35,6 +35,10 @@ body {
     text-align: center; }
     .container h1.error {
       color: #C94F4F; }
+  .success-msg {
+  color: #a4d654;
+  font-size: 12px;
+  margin-bottom: 8px; }
   .container table {
     font-weight: 100;
     margin: 20px 0 0 20px; }
@@ -42,9 +46,13 @@ body {
       padding-left: 10px; }
   .container p {
     font-weight: 100;
-    margin-top: 20px;
+    margin-top: 15px;
+    margin-right: 5px;
+    margin-left: 5px;
     font-size: 12px;
     color: #aaa; }
+   .container a:hover {
+         color: #FFAC00;}
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -64,7 +72,7 @@ input[type="submit"] {
   width: 80px;
   border: none;
   border-radius: 5px;
-  margin-top: 10px; }
+  margin-top: 12px; }
   input[type="submit"]:hover {
     background-color: #94C447;
     cursor: pointer; }

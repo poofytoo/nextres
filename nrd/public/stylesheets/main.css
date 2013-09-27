@@ -118,6 +118,10 @@ body {
       color: #47a9c4; }
     .content p em {
       font-weight: 500; }
+    .content div a {
+      color: #47a9c4; }
+      .content div a:hover {
+      color: #a4d654; }
   .content .todo {
     background-color: #FFECDE;
     color: #222;
@@ -137,6 +141,27 @@ body {
     margin-right: 10px; }
   .content table {
     text-align: left; }
+  .content ul {
+    margin-bottom: 20px;
+    border-top: 1px solid #ddd; }
+    .content ul li {
+      border-bottom: 1px solid #ddd;
+      position: relative; }
+      .content ul li a.file {
+        display: block;
+        padding: 10px; }
+      .content ul li a.remove {
+        display: inline;
+        float: right;
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #ddd;
+        padding: 10px; }
+        .content ul li a.remove:hover {
+          background-color: #c94f4f; }
+      .content ul li:hover {
+        background-color: #f3f3f3; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -158,6 +183,12 @@ input[type="submit"] {
   input[type="submit"]:hover {
     background-color: #94C447;
     cursor: pointer; }
+
+input[type="date"] {
+  display: inline; }
+
+input[type="file"] {
+  margin-bottom: 10px; }
 
 input[type="button"] {
   font-family: sans-serif;
@@ -181,6 +212,17 @@ input[type="button"] {
     background-color: #ddd;
     cursor: pointer; }
 
+input[type="radio"]{
+  font-size: 12px; }
+
+textarea {
+  font-family: sans-serif;
+  font-size: 14px; }
+
+.nodate {
+  font-size: 14px;
+  color: #aaa; }
+
 table tr td {
   vertical-align: middle;
   padding-right: 10px;
@@ -198,6 +240,10 @@ table tr td {
 
 .success-msg {
   color: #a4d654;
+  margin-bottom: 10px; }
+
+.warning-msg {
+  color: #EB9744;
   margin-bottom: 10px; }
 
 .invalid {
