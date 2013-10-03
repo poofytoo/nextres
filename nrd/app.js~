@@ -122,6 +122,36 @@ app.post('/login',
   }
 );
 
+app.get('/pwreset', function(req, res) {
+      res.render('pwreset.html')
+});
+
+// this is probably very unsecure..
+app.post('/pwreset', function(req, res) {
+      console.log(req.body);
+      kerberos = req.body['kerberos'];
+      model.getKerberos (kerberos, function(error, result) {
+        console.log(result);
+        if (result!==undefined) {
+        id = result['id'];
+        var newPassword = randomPassword();
+        console.log(newPassword);
+        bcrypt.genSalt(10, function(err, salt) {
+              bcrypt.hash(newPassword, salt, function(err, hash) {
+                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {
+                  var success = 'Password reset. Please check your e-mail.' 
+                  res.render('pwreset.html', {'success' : success});
+                });
+              }); 
+        });
+        } else {
+                  res.render('pwreset.html', {'error' : true});
+          }
+      });
+});
+
+
+
 app.get('/login', function(req, res) {
   if (req.user !== undefined) {
   	res.redirect('/manage');
@@ -187,12 +217,15 @@ app.post('/manage', function(req, res) {
       if (invalids.length == 0) {
         model.addGuests(id, guests, function(error, result) {
           registerContent('manage');
-          model.getPermissions(id, function(permissions) {
-            var success = 'Your guest list has been updated.';
-            res.render('base.html', {'user': req.user,
-              'permissions': permissions,
-              'guests': guests,
-              'success': success});
+          model.onGuestList(id, guests, function(onGuestLists) {
+            model.getPermissions(id, function(permissions) {
+              var success = 'Your guest list has been updated.';
+              res.render('base.html', {'user': req.user,
+                'permissions': permissions,
+                'guests': guests,
+                'success': success,
+                'alreadyHere': onGuestLists});
+            });
           });
         });
       } else {
@@ -264,7 +297,7 @@ app.post('/application', function(req, res) {
     if (emptyFields) {
       registerContent('application');
         model.getPermissions(id, function(permissions) {
-          var error = 'Please complete all required fields.';
+          var error = '* Complete all required fields.';
           res.render('base.html', {'user': req.user,
               'permissions': permissions,
               'error': error});
@@ -346,8 +379,7 @@ app.get('/reviewapps', function(req, res) {
       registerContent('reviewapps');
       if (result==undefined) {
         model.getPermissions(req.user.id, function(permissions) {
-        var noapps = "No applications pending.";
-      	res.render('base.html', {user: req.user, result: result, permissions: permissions, success: noapps });
+      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
         });
       } else {
              model.getPermissions(req.user.id, function(permissions) {
@@ -364,11 +396,10 @@ app.post('/reviewapps', function(req, res) {
   console.log(req.body);
   if (req.user !== undefined) {
     var id = req.user.id;
-    var kerberos = req.user.kerberos; // for email
-    var firstName = req.user.firstName; 
-    console.log(id);
+    model.getUser (id, function(error, result) {
+    console.log(result);
     if (req.body['decision0'] == 'approve') {
-      model.approveApp(req.body['timestamp0'], kerberos, firstName, function (error) {  
+      model.approveApp(req.body['timestamp0'], result['email'], result['firstName'], function (error) {  
         registerContent('reviewapps');
         model.getPermissions(id, function(permissions) {
           var success = 'Application approved. Applicant has been notified.';
@@ -378,7 +409,7 @@ app.post('/reviewapps', function(req, res) {
         });
       });
     } else if (req.body['decision0'] == 'deny') {
-        model.denyApp(req.body['timestamp0'], req.body['reason0'], kerberos, firstName, function (error) {  
+        model.denyApp(req.body['timestamp0'], req.body['reason0'], result['email'], result['firstName'], function (error) {  
           registerContent('reviewapps');
           model.getPermissions(id, function(permissions) {
           var error = 'Application denied. Applicant has been notified.';
@@ -396,6 +427,7 @@ app.post('/reviewapps', function(req, res) {
               'error': error});
           });
         }
+     });
    } else {
     res.redirect('/login');
   }
@@ -653,10 +685,108 @@ var errorLog = "";
   }
 });
 
+app.get('/minutes', function(req, res) {
+  if (req.user !== undefined) {
+    if (req.query.minute) {
+      res.sendfile('minutes/' + req.query.minute);
+    } else {
+      registerContent('minutes');
+      model.getFiles(function(error, files) {
+        model.getPermissions(req.user.id, function(permissions) {
+          res.render('base.html', {user: req.user, permissions: permissions, files: files});
+        });
+      });
+    }
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/minutes', function(req, res) {
+  if (req.user !== undefined) {
+    registerContent('minutes');
+    var error = '';
+    model.getPermissions(req.user.id, function(permissions) {
+      if (!permissions.EDITMINUTES) {
+        error = 'Invalid permissions.';
+      } else if (!req.files || req.files.minute.size == 0) {
+        error = 'No file chosen.';
+      } else if (req.files.minute.size > 10000000) {
+        error = 'Maximum file size is 10 MB';
+      }
+      if (error) {
+        model.getFiles(function(error, files) {
+          res.render('base.html', {user: req.user,
+            permissions: permissions,
+            files: files,
+            error: error});
+        });
+      } else {
+        console.log('Uploading file ' + req.files.minute.name);
+        fs.readFile(req.files.minute.path, function(err, data) {
+          var dest = "minutes/" + req.files.minute.name;
+          model.addFile(req.files.minute.name, req.body.date, function(error) {
+            fs.writeFile(dest, data, function(err) {
+              model.getFiles(function(error, files) {
+                res.render('base.html', {user: req.user,
+                  permissions: permissions,
+                  files: files,
+                  success: 'File successfully uploaded'});
+              });
+            });
+          });
+        });
+      }
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.get('/minutesdel', function(req, res) {
+  if (req.user !== undefined) {
+    model.getPermissions(req.user.id, function(permissions) {
+      if (!permissions.EDITMINUTES) {
+        model.getFiles(function(error, files) {
+          console.log('files: ' + files);
+          res.render('base.html', {user: req.user,
+            permissions: permissions,
+            files: files,
+            error: 'Invalid permissions.'});
+        });
+      } else if (req.query.minute) {
+        model.removeFile(req.query.minute, function(error) {
+          model.getFiles(function(error, files) {
+            console.log('files: ' + files);
+            res.render('base.html', {user: req.user,
+              permissions: permissions,
+              files: files,
+              success: 'File successfully removed'});
+          });
+        });
+      } else {
+      	res.redirect('/minutes');
+      }
+    });
+  } else {
+      res.redirect('/login');
+  }
+});
+
 
 app.get('/users', user.list);
 
-
+// Hi I'm starting here
+app.get('/emaillists', function(req, res) {
+  if (req.user !== undefined) {
+	registerContent('emaillists');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
+  } else {
+  	res.render('login.html');
+  }
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
