@@ -13,6 +13,7 @@ var Consolidate = require('consolidate');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var Model = require('./models/model');
+var reservations = require('./models/reservations');
 var hbs = require('hbs');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
@@ -363,6 +364,19 @@ app.get('/roomreservations', function(req, res) {
   	});
   } else {
   	res.redirect('/login');
+  }
+});
+
+app.post('/reserve', function(req, res) {
+  if (req.user !== undefined) {
+    reservations.reserve(req.user, req.body, function() {
+      registerContent('roomreservations');
+      model.getPermissions(req.user.id, function(permissions) {
+        res.render('base.html', {user: req.user, permissions: permissions});
+      });
+    });
+  } else {
+    res.redirect('/login');
   }
 });
 
