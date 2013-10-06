@@ -358,12 +358,15 @@ app.get('/allguests', function(req, res) {
 
 app.get('/roomreservations', function(req, res) {
   if (req.user !== undefined) {
-  	registerContent('roomreservations');
+    registerContent('roomreservations');
     model.getPermissions(req.user.id, function(permissions) {
-  	  res.render('base.html', {user: req.user, permissions: permissions});
+      reservations.getEventsWithUser(req.user, function(userEvents) {
+        res.render('base.html',
+          {user: req.user, permissions: permissions, userEvents: userEvents});
   	});
+    });
   } else {
-  	res.redirect('/login');
+    res.redirect('/login');
   }
 });
 
@@ -372,13 +375,26 @@ app.post('/roomreservations', function(req, res) {
     reservations.reserve(req.user, req.body, function(result) {
       registerContent('roomreservations');
       model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {
+        reservations.getEventsWithUser(req.user, function(userEvents) {
+          res.render('base.html', {
             user: req.user,
             permissions: permissions,
             success: result.success,
-            error: result.error
+            error: result.error,
+            userEvents: userEvents
+          });
         });
       });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.delete('/roomreservations', function(req, res) {
+  if (req.user !== undefined) {
+    reservations.removeReservation(req.body.id, function(err) {
+      res.json({'okay': !err});
     });
   } else {
     res.redirect('/login');

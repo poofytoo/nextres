@@ -7,6 +7,32 @@
 
 <iframe src="https://www.google.com/calendar/embed?src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 
+<h1> My Reservations </h1>
+<ul>
+{{#each userEvents}}
+<li id="remove-reservation-li-{{this.id}}">
+{{this.summary}} at {{this.start.dateTime}}
+<a id="remove-reservation-{{this.id}}" class="remove_reservation">CANCEL RESERVATION</a>
+</li>
+{{/each}}
+</ul>
+
+<script type="text/javascript">
+  $('.remove_reservation').on('click', function(e) {
+    var yes = $('<a>').html('REMOVE').on('click',
+      function(e2) {
+        event_id = e.target.id.substring('remove-reservation-'.length);
+        $.ajax('/roomreservations',{data:{id:event_id}, type:"DELETE"});
+        $('#remove-reservation-li-'+event_id).remove();
+      }
+    );
+    var no = $('<a>').html('cancel').on('click',
+      function(e2) { $(e.target).html('CANCEL RESERVATION'); }
+    );
+    $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+  });
+</script>
+
 <h1> Reserve A Room </h1>
 <form action="roomreservations" method="post">
     <p>Room: <select name="room">
@@ -14,9 +40,10 @@
         <option value="Country Kitchen">Country Kitchen</option>
         <option value="Conference Room">Conference Room</option>
     </select>
-    <p>Date: <input type="date" name="date"></p>
-    <p>Start time: <input type="time" name="start"></p>
-    <p>End time: <input type="time" name="end"></p>
+    <p>Title: <input type="text" name="title" required></p>
+    <p>Date: <input type="date" name="date" required></p>
+    <p>Start time: <input type="time" name="start" required></p>
+    <p>End time: <input type="time" name="end" required></p>
     <p>Description:</p> <textarea name="reason" rows="3" cols="60"></textarea>
     <input type="submit">
 </form>
