@@ -273,7 +273,7 @@ app.get('/application', function(req, res) {
                  registerContent('application');
                  model.getPermissions(req.user.id, function(permissions) {
                  res.render('base.html', {'user': req.user,
-                                   '      permissions': permissions});
+                                         'permissions': permissions});
                  });
            }
       });
