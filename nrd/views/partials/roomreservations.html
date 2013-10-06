@@ -1,9 +1,22 @@
+{{#if error}}
+  <div class="error-msg">{{error}}</div>
+{{/if}}
+{{#if success}}
+  <div class="success-msg">{{success}}</div>
+{{/if}}
+
 <iframe src="https://www.google.com/calendar/embed?src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 
-<form action="reserve" method="post">
-    <p>Start: <input type="datetime-local" name="start"></p>
-    <p>End: <input type="datetime-local" name="end"></p>
-    <p>Room: <input type="text" name="room"></p>
-    <p>Reason:</p> <textarea name="reason" rows="3" cols="60"></textarea>
+<h1> Reserve A Room </h1>
+<form action="roomreservations" method="post">
+    <p>Room: <select name="room">
+        <option value="TFL">TFL</option>
+        <option value="Country Kitchen">Country Kitchen</option>
+        <option value="Conference Room">Conference Room</option>
+    </select>
+    <p>Date: <input type="date" name="date"></p>
+    <p>Start time: <input type="time" name="start"></p>
+    <p>End time: <input type="time" name="end"></p>
+    <p>Description:</p> <textarea name="reason" rows="3" cols="60"></textarea>
     <input type="submit">
 </form>

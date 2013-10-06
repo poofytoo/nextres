@@ -367,12 +367,17 @@ app.get('/roomreservations', function(req, res) {
   }
 });
 
-app.post('/reserve', function(req, res) {
+app.post('/roomreservations', function(req, res) {
   if (req.user !== undefined) {
-    reservations.reserve(req.user, req.body, function() {
+    reservations.reserve(req.user, req.body, function(result) {
       registerContent('roomreservations');
       model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {user: req.user, permissions: permissions});
+        res.render('base.html', {
+            user: req.user,
+            permissions: permissions,
+            success: result.success,
+            error: result.error
+        });
       });
     });
   } else {
