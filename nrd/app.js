@@ -122,14 +122,12 @@ app.post('/login',
   }
 );
 
-app.get('/pwreset', function(req, res) {
-      res.render('pwreset.html')
-});
 
 // this is probably very unsecure..
 app.post('/pwreset', function(req, res) {
       console.log(req.body);
-      kerberos = req.body['kerberos'];
+  if (req.user !== undefined) {
+      kerberos = req.body.kerberos;
       model.getKerberos (kerberos, function(error, result) {
         console.log(result);
         if (result!==undefined) {
@@ -138,16 +136,16 @@ app.post('/pwreset', function(req, res) {
         console.log(newPassword);
         bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
-                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {
-                  var success = 'Password reset. Please check your e-mail.' 
-                  res.render('pwreset.html', {'success' : success});
-                });
+                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
               }); 
         });
         } else {
-                  res.render('pwreset.html', {'error' : true});
           }
-      });
+         });
+   } else {
+     res.render('login.html'); 
+     } 
+
 });
 
 

@@ -441,7 +441,7 @@ Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callba
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: kerberos + "@mit.edu", // list of receivers
-              subject: "Testing Password Reset", // Subject line
+              subject: "Password Reset", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
             };
