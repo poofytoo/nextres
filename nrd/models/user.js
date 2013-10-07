@@ -1,11 +1,10 @@
 var Database = require('./db');
-var Email = require('./email');
+var mailer = require('./mailer');
 
 var exec = require('child_process').exec;
 
 function User() {
   this.db = new Database();
-  this.email = new Email();
 }
 
 // Finds a user with the given id, then calls the callback function
@@ -64,9 +63,8 @@ User.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callbac
   this.db.query().
     update('next-users', ['password'], [hash]).
     where('id = ?', [ id ]);
-  
-  // Send email
-  this.email.resetPasswordEmail(rawPassword, kerberos);
+
+  mailer.resetPassword(kerberos, rawPassword);
 
   this.db.execute(function(error, result) {
     console.log(error);
@@ -120,11 +118,8 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
     
   var userCreated = false;
   var db = this.db;
-  var email = this.email;
   var returnError = "";
   
-  console.log('hi');
-
   this.db.execute(function (error, result) {
     if (error) {
       console.log('INSERT ERROR: ' + error);
@@ -147,9 +142,7 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
             console.log ('Error:' + error)
           } else {
             console.log ('User Properties Created: ' + kerberos);
-              
-            //contacting user
-            email.newUserEmail(returnError, passwordRaw, kerberos);
+            mailer.newUser(kerberos, passwordRaw);
           }
         });
       });

@@ -1,11 +1,9 @@
 var Database = require('./db');
-var Email = require('./email');
 
 var exec = require('child_process').exec;
 
 function GuestList() {
   this.db = new Database();
-  this.email = new Email();
 }
 
 // Returns whether given kerberos is guest of someone at Next

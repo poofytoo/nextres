@@ -29,8 +29,6 @@ function mail(receivers, subject, htmlEmail, textEmail) {
   });
 }
 
-exports.mail = mail;
-
 exports.newUser = function(kerberos, passwordRaw) {
   var receiver = kerberos + "@mit.edu";
   var subject = "Your Next Resident Dashboard Account";

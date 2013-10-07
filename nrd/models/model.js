@@ -5,7 +5,6 @@ var exec = require('child_process').exec;
 
 function Model() {
   this.db = new Database();
-  this.email = new Email();
 }
 
 // Can probably use joins but i hate joins

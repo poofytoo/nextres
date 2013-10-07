@@ -1,11 +1,10 @@
 var Database = require('./db');
-var Email = require('./email');
+var mailer = require('./mailer');
 
 var exec = require('child_process').exec;
 
 function Funding() {
   this.db = new Database();
-  this.email = new Email();
 }
 
 Funding.prototype.submitApp = function(id, responseFields, callback) {
@@ -69,7 +68,6 @@ Funding.prototype.listApps = function(id, callback) {
 Funding.prototype.approveApp = function(timestamp, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
-  var email = this.email;
   this.db.query().
   update('next-project-funding',
         ['Status'],
@@ -81,9 +79,7 @@ Funding.prototype.approveApp = function(timestamp, email, firstName, callback) {
         console.log('Error: ' + error);
       } else {
         console.log('Application approved: ' + timestamp);
-
-        //contacting user
-        returnError = email.approveEmail(returnError, firstName, email);
+        mailer.approveApplication(email, firstName);
       }
     callback(returnError);
     });    
@@ -99,7 +95,6 @@ Funding.prototype.approveApp = function(timestamp, email, firstName, callback) {
 Funding.prototype.denyApp = function(timestamp, reason, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
-  var email = this.email;
   var denied = 'Denied - '+reason;
   this.db.query().
   update('next-project-funding',
@@ -112,9 +107,7 @@ Funding.prototype.denyApp = function(timestamp, reason, email, firstName, callba
         console.log('Error: ' + error);
      } else {
         console.log('Application denied: ' + timestamp);
-
-        //contacting user
-        returnError = email.denyEmail(returnError, firstName, email, reason);
+        mailer.denyApplication(email, firstName);
       }    
   callback(returnError);
   });
