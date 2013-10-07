@@ -1,5 +1,5 @@
 var Database = require('./db');
-var nodemailer = require('../node_modules/nodemailer');
+var mailer = require('./mailer');
 var exec = require('child_process').exec;
 
 function Model() {
@@ -272,42 +272,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
           console.log('Error: ' + error);
         } else {
           console.log('Application approved: ' + timestamp);
-
-          //contacting user
-          var smtpTransport = nodemailer.createTransport("SMTP",{
-            service: "Gmail",
-            auth: {
-              user: "sparkyroombot@gmail.com",
-              pass: "pencilpencil"
-            }
-              });
-            
-            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
-            "NextExec has approved your application for the small group project funding!<br /><br />"+
-            "If you have any questions, feel free to contact nextres@mit.edu." +
-            "<br /><br />" +
-            "Cheers,<br />" +
-            "NextExec";
-
-            textEmail = "Hello, "+firstName+"NextExec has approved your application for the small group project funding! If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
-		
-            var mailOptions = {
-              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: email, // list of receivers
-              subject: "Request for Project Funding Approved", // Subject line
-              text: textEmail, // plaintext body
-              html: htmlEmail // html body
-            /*cc: 'nextexec@mit.edu' */
-            };
-              
-            smtpTransport.sendMail(mailOptions, function(error, response){
-              if (error) {
-      		      returnError += error + "\n";
-                console.log(error);
-              } else {
-                console.log("Message sent: " + response.message);
-                }
-            });
+          mailer.approveApplication(email, firstName);
         }
       callback(returnError);
       });    
@@ -335,46 +300,7 @@ Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback
           console.log('Error: ' + error);
        } else {
           console.log('Application denied: ' + timestamp);
-            
-          //contacting user
-          var smtpTransport = nodemailer.createTransport("SMTP",{
-            service: "Gmail",
-            auth: {
-              user: "sparkyroombot@gmail.com",
-              pass: "pencilpencil"
-            }
-              });
-            
-            // var url = "http://mplcr.mit.edu";
-            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
-            "NextExec has denied your application for the following reason(s): <br />" +
-            reason +
-            ".<br /><br />" +
-            "You have the option to reapply and submit another funding proposal.<br /><br />" +
-            "If you have any questions, feel free to contact nextres@mit.edu." +
-            "<br /><br />" +
-            "Cheers,<br />" +
-            "NextExec";
-
-            textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another funding proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
-		
-            var mailOptions = {
-              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: email, // list of receivers
-              subject: "Request for Project Funding Denied", // Subject line
-              text: textEmail, // plaintext body
-              html: htmlEmail // html body
-              /*cc: 'nextexec@mit.edu' */
-            };
-              
-            smtpTransport.sendMail(mailOptions, function(error, response){
-              if (error) {
-      		      returnError += error + "\n";
-                console.log(error);
-              } else {
-                console.log("Message sent: " + response.message);
-                }
-            });
+          mailer.denyApplication(email, firstName);
         }    
     callback(returnError);
     });
@@ -417,43 +343,9 @@ Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callba
   this.db.query().
     update('next-users', ['password'], [hash]).
     where('id = ?', [ id ]);
-  var smtpTransport = nodemailer.createTransport("SMTP",{
-              service: "Gmail",
-              auth: {
-                user: "sparkyroombot@gmail.com",
-                pass: "pencilpencil"
-              }
-            });
-            
-            htmlEmail = "Hello,<br /><br />" + 
-            "The password to your Next resident dashboard account has been reset. "+
-            "Login with your kerberos ID and the following password: <b>" + rawPassword +
-            "</b>. Once you have logged in, please change your password." +
-            "<br /><br />" +
-            "If you have any questions, feel free to contact nextres@mit.edu" +
-            "<br /><br />" +
-            "Cheers,<br />" +
-            "Sparky, the Next House Mailbot";
 
+  mailer.resetPassword(kerberos, rawPassword);
 
-            textEmail = "The password to your Next resident dashboard account has been reset. Login with your kerberos ID and the following password: " + rawPassword + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-		
-            var mailOptions = {
-              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: kerberos + "@mit.edu", // list of receivers
-              subject: "Password Reset", // Subject line
-              text: textEmail, // plaintext body
-              html: htmlEmail // html body
-            };
-              
-            smtpTransport.sendMail(mailOptions, function(error, response){
-              if(error){
-      		      returnError += error + "\n";
-                console.log(error);
-              } else {
-                console.log("Message sent: " + response.message);
-              }
-            });
   this.db.execute(function(error, result) {
     console.log(error);
     console.log(result[0]);
@@ -515,8 +407,6 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
   var db = this.db;
   var returnError = "";
   
-  console.log('hi');
-
   this.db.execute(function (error, result) {
     if (error) {
       console.log('INSERT ERROR: ' + error);
@@ -539,49 +429,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
             console.log ('Error:' + error)
           } else {
             console.log ('User Properties Created: ' + kerberos);
-              
-            //contacting user
-            var smtpTransport = nodemailer.createTransport("SMTP",{
-              service: "Gmail",
-              auth: {
-                user: "sparkyroombot@gmail.com",
-                pass: "pencilpencil"
-              }
-            });
-            
-            // var url = "http://mplcr.mit.edu";
-            htmlEmail = "Hello!<br /><br />" + 
-            "Your Next resident dashboard account has been created! Please " +
-            "go to <a href='next.mit.edu'>next.mit.edu</a>, and click the " +
-            "link on the top-right corner of the page. Login with your " +
-            "kerberos ID and the following password: <b>" + passwordRaw +
-            "</b>. Once you have logged in, please change your password." +
-            "<br /><br />" +
-            "If you have any questions, feel free to contact nextres@mit.edu" +
-            "<br /><br />" +
-            "Cheers,<br />" +
-            "Sparky, the Next House Mailbot";
-
-
-            textEmail = "Hello! Your Next resident dashboard account has been created! Please go to <a href='next.mit.edu'>next.mit.edu</a>, and click the link on the top-right corner of the page. Login with your kerberos ID and the following password: " + passwordRaw + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-		
-            var mailOptions = {
-              from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
-              to: kerberos + "@mit.edu", // list of receivers
-              subject: "Your Next Resident Dashboard Account", // Subject line
-              text: textEmail, // plaintext body
-              html: htmlEmail // html body
-            };
-              
-            smtpTransport.sendMail(mailOptions, function(error, response){
-              if(error){
-      		      returnError += error + "\n";
-                console.log(error);
-              } else {
-                console.log("Message sent: " + response.message);
-              }
-            });
-            
+            mailer.newUser(kerberos, passwordRaw);
           }
         });
       });
