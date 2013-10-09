@@ -27,6 +27,7 @@
       <th width="240">Resident Name</th>
       <th>Room</th>
       <th>Role</th>
+      <th>Reset Password</th>
       <th>Remove</th>
     </tr>
     {{#each result}}
@@ -35,6 +36,7 @@
 	  <td>{{this.firstName}} {{this.lastName}}</td>
 	  <td>{{this.roomNumber}}</td>
 	  <td>{{this.name}}</td>
+          <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
 	  <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
 	</tr>
   	{{/each}}
@@ -53,6 +55,23 @@
     );
     var no = $('<a>').html('no').on('click',
       function(e2) { $(e.target).html('X'); }
+    );
+    $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+  });
+</script>
+
+<script type="text/javascript">
+  $('.pwreset').on('click', function(e) {
+    var yes = $('<a>').html('yes').on('click',
+      function(e2) {
+        kerberos = e.target.id;
+        kerberos = kerberos.substring(0,kerberos.length-'-pwreset'.length);
+        $.ajax('/pwreset',{data:{kerberos:kerberos}, type:"POST"});
+        $(e.target).html(yes).append('password reset');
+      }
+    );
+    var no = $('<a>').html('no').on('click',
+      function(e2) { $(e.target).html('reset pass'); }
     );
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
   });

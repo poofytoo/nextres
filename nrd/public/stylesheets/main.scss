@@ -223,6 +223,15 @@ body {
 			
 		}
 	}
+	
+	.email-special {
+		p {
+			line-height: 20px;
+		}
+		h2 {
+			color: #ccc;
+		}
+	}
 }
 
 input[type="text"], input[type="password"] {

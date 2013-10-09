@@ -123,14 +123,12 @@ app.post('/login',
   }
 );
 
-app.get('/pwreset', function(req, res) {
-      res.render('pwreset.html')
-});
 
 // this is probably very unsecure..
 app.post('/pwreset', function(req, res) {
       console.log(req.body);
-      kerberos = req.body['kerberos'];
+  if (req.user !== undefined) {
+      kerberos = req.body.kerberos;
       model.getKerberos (kerberos, function(error, result) {
         console.log(result);
         if (result!==undefined) {
@@ -139,16 +137,16 @@ app.post('/pwreset', function(req, res) {
         console.log(newPassword);
         bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
-                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {
-                  var success = 'Password reset. Please check your e-mail.' 
-                  res.render('pwreset.html', {'success' : success});
-                });
+                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
               }); 
         });
         } else {
-                  res.render('pwreset.html', {'error' : true});
           }
-      });
+         });
+   } else {
+     res.render('login.html'); 
+     } 
+
 });
 
 
@@ -276,7 +274,7 @@ app.get('/application', function(req, res) {
                  registerContent('application');
                  model.getPermissions(req.user.id, function(permissions) {
                  res.render('base.html', {'user': req.user,
-                                   '      permissions': permissions});
+                                         'permissions': permissions});
                  });
            }
       });
@@ -822,7 +820,18 @@ app.get('/minutesdel', function(req, res) {
 
 app.get('/users', user.list);
 
-
+// Hi I'm starting here
+app.get('/emaillists', function(req, res) {
+  if (req.user !== undefined) {
+	registerContent('emaillists');
+    model.getPermissions(req.user.id, function(permissions) {
+      res.render('base.html', {'user': req.user, 'permissions': permissions});
+    });
+  } else {
+  	res.render('login.html');
+  }
+});
+// Hi I'm ending here
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

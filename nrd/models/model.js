@@ -129,7 +129,7 @@ Model.prototype.onGuestList = function(id, guests, callback) {
         .select(["firstName", "lastName"])
         .from("next-guestlist")
         .rightJoin("next-users")
-        .on([["`next-guestlist`.nextUser", "`next-users`.id"]])
+        .on("`next-guestlist`.nextUser=`next-users`.id")
         .where("`next-users`.id != ? AND " +
             "( guest1Kerberos LIKE ? OR guest2Kerberos LIKE ? OR guest3Kerberos LIKE ? )",
                 [id, kerberos, kerberos, kerberos]);
@@ -198,7 +198,7 @@ Model.prototype.listGuests = function(id, params, callback) {
   	  .select(["*"])
   	  .from("next-users")
   	  .rightJoin("next-guestlist")
-	  .on([["`next-users`.id", "`next-guestlist`.nextUser"]])
+	  .on("`next-users`.id=`next-guestlist`.nextUser")
 	  .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s])
 	  .orderBy(params.sort);
 	  
@@ -212,7 +212,7 @@ Model.prototype.listGuests = function(id, params, callback) {
 	    .select(["*"])
 	    .from("next-users")
 	    .rightJoin("next-guestlist")
-	    .on([["`next-users`.id", "`next-guestlist`.nextUser"]]);
+	    .on("`next-users`.id=`next-guestlist`.nextUser");
 	  this.db.execute(function(error, result) {
 	    console.log(error);
 	  	callback(error, result)
@@ -238,7 +238,7 @@ Model.prototype.listUsers = function(id, callback) {
 	.select(["*"])
 	.from('next-users')
 	.rightJoin("next-groups")
-	.on([["`next-users`.group", "`next-groups`.id"]]);;
+	.on("`next-users`.group=`next-groups`.id");
 	this.db.execute(function(error, result) {
 		callback(error, result)
 	})
@@ -441,7 +441,7 @@ Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callba
             var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: kerberos + "@mit.edu", // list of receivers
-              subject: "Testing Password Reset", // Subject line
+              subject: "Password Reset", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
             };
@@ -515,6 +515,8 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
   var db = this.db;
   var returnError = "";
   
+  console.log('hi');
+
   this.db.execute(function (error, result) {
     if (error) {
       console.log('INSERT ERROR: ' + error);

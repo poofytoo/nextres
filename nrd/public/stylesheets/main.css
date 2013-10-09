@@ -118,10 +118,6 @@ body {
       color: #47a9c4; }
     .content p em {
       font-weight: 500; }
-    .content div a {
-      color: #47a9c4; }
-      .content div a:hover {
-      color: #a4d654; }
   .content .todo {
     background-color: #FFECDE;
     color: #222;
@@ -162,6 +158,10 @@ body {
           background-color: #c94f4f; }
       .content ul li:hover {
         background-color: #f3f3f3; }
+  .content .email-special p {
+    line-height: 20px; }
+  .content .email-special h2 {
+    color: #ccc; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -212,13 +212,6 @@ input[type="button"] {
     background-color: #ddd;
     cursor: pointer; }
 
-input[type="radio"]{
-  font-size: 12px; }
-
-textarea {
-  font-family: sans-serif;
-  font-size: 14px; }
-
 .nodate {
   font-size: 14px;
   color: #aaa; }
@@ -240,10 +233,6 @@ table tr td {
 
 .success-msg {
   color: #a4d654;
-  margin-bottom: 10px; }
-
-.warning-msg {
-  color: #EB9744;
   margin-bottom: 10px; }
 
 .invalid {

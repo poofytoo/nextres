@@ -11,8 +11,11 @@ var mysql = require('mysql2');
 // then call db.execute(callback)
 // see model.js for examples
 
+
+
 function Query() {
   this.queryString = '';
+  this.arr = [];
 }
 
 Query.prototype.select = function(arr) {
@@ -38,21 +41,27 @@ Query.prototype.deleteFrom = function(table) {
 }
 
 Query.prototype.from = function(table) {
-  this.queryString += 'FROM `' + table + '` ';
+  //this.queryString += 'FROM `' + table + '` ';
+  this.queryString += 'FROM ?? ';
+  this.arr.push(table);
   return this;
 }
 
 Query.prototype.where = function(rules, arr) {
-  var where = 'WHERE ';
-  var idx = 0;
-  while (rules.indexOf('?') >= 0) {
-    var temp = rules.substring(0, rules.indexOf('?') + 1);
-    temp = temp.replace('?', '\'' + arr[idx] + '\'');
-    where += temp;
-    idx ++;
-    rules = rules.substring(rules.indexOf('?') + 1);
+  //var where = 'WHERE ';
+  //var idx = 0;
+  //while (rules.indexOf('?') >= 0) {
+  //  var temp = rules.substring(0, rules.indexOf('?') + 1);
+  //  temp = temp.replace('?', '\'' + arr[idx] + '\'');
+  //  where += temp;
+  //  idx ++;
+  //  rules = rules.substring(rules.indexOf('?') + 1);
+  //}
+  //this.queryString += where + rules + ' ';
+  this.queryString += 'WHERE ' + rules + ' ';
+  for (var i = 0; i < arr.length; ++i) {
+    this.arr.push(arr[i]);
   }
-  this.queryString += where + rules + ' ';
   return this;
 }
 
@@ -62,49 +71,63 @@ Query.prototype.limit = function(limit) {
 }
 
 Query.prototype.insert = function(table, columns, values) {
+  console.log('insert query');
   this.queryString += 'INSERT INTO `' + table + '` ';
   this.queryString += '(' + columns.join() + ') ';
-  for (var i = 0; i < values.length; i++) {
-    values[i] = '\'' + values[i] + '\'';
-  }
-  this.queryString += 'VALUES (' + values.join() + ') ';
+  //for (var i = 0; i < values.length; i++) {
+  //  values[i] = '\'' + values[i] + '\'';
+  //}
+  //this.queryString += 'VALUES (' + values.join() + ') ';
+  this.queryString += 'VALUES (?) ';
+  this.arr.push(values);
   return this;
 }
 
 Query.prototype.update = function(table, columns, values) {
   this.queryString += "UPDATE `" + table + "` SET ";
-  for (var i = 0; i < columns.length - 1; i++) {
-    this.queryString += columns[i] + "='" + values[i] + "', ";
+  //for (var i = 0; i < columns.length - 1; i++) {
+  //  this.queryString += columns[i] + "='" + values[i] + "', ";
+  //}
+  //this.queryString += columns[columns.length-1] + "='" + values[columns.length-1] + "' ";
+  for (var i = 0; i < columns.length-1; ++i) {
+    this.queryString += "??=?, ";
+    this.arr.push(columns[i],values[i]);
   }
-  this.queryString += columns[columns.length-1] + "='" + values[columns.length-1] + "' ";
+  this.queryString += "??=? ";
+  this.arr.push(columns[columns.length-1],values[columns.length-1]);
   return this;
 }
 
 Query.prototype.rightJoin = function(table) {
-  this.queryString += "RIGHT JOIN `" + table + "` ";
+  //this.queryString += "RIGHT JOIN `" + table + "` ";
+  this.queryString += "RIGHT JOIN ?? ";
+  this.arr.push(table);
   return this;
 }
 
 Query.prototype.leftJoin = function(table) {
-  this.queryString += "LEFT JOIN `" + table + "` ";
+  //this.queryString += "LEFT JOIN `" + table + "` ";
+  this.queryString += "LEFT JOIN ?? ";
+  this.arr.push(table);
   return this;
 }
 
-//TODO - make this function less lame
 Query.prototype.orderBy = function(column) {
-  this.queryString += 'ORDER BY ' + column + ' ';
+  this.queryString += 'ORDER BY ?? ';
+  this.arr.push(column);
 }
 
 Query.prototype.orderByDESC = function(column) {
-  this.queryString += 'ORDER BY ' + column + ' DESC ';
+  this.orderBy(column);
+  this.queryString += 'DESC ';
 }
 
 Query.prototype.on = function(conditions) {
-  this.queryString += "ON ";
-  for (var i = 0; i < conditions.length - 1; i++) {
-    this.queryString += conditions[i][0] + ' = ' + conditions[i][1] + ' AND ';
-  }
-  this.queryString += conditions[conditions.length - 1][0] + ' = ' + conditions[conditions.length - 1][1] + ' ';
+  this.queryString += "ON " + conditions + " ";
+  //for (var i = 0; i < conditions.length - 1; i++) {
+  //  this.queryString += conditions[i][0] + ' = ' + conditions[i][1] + ' AND ';
+  //}
+  //this.queryString += conditions[conditions.length - 1][0] + ' = ' + conditions[conditions.length - 1][1] + ' ';
   return this;
 }
 
@@ -118,8 +141,20 @@ Query.prototype.raw = function(query) {
 }
 
 function Database() {
+  if ( arguments.callee._singletonInstance )
+    return arguments.callee._singletonInstance;
 
-  //this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
+  arguments.callee._singletonInstance = this;
+
+  this.sql_settings = { 
+    host: 'mysql://sql.mit.edu:3306/next+nextres',
+    user: 'next',
+    password: '645cf777'
+  };
+  this.sql_settings = 'mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777';
+  //this.pool = mysql.createPool(this.url+
+  //    "?user="+this.user+"+password="+this.password);
+  this.pool = mysql.createPool(this.sql_settings);
 }
 
 Database.prototype.query = function () {
@@ -128,15 +163,25 @@ Database.prototype.query = function () {
 }
 
 Database.prototype.execute = function(callback) {
-  if (this.queryString !== undefined && this.queryString.isDefined) {
-    this.connection = mysql.createConnection('mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777');
-    this.connection.connect();
-    console.log(this.queryString.queryString);
-    this.connection.query(this.queryString.queryString, function(err, rows, fields) {
-      this.queryString = undefined;
-      callback(err, rows, fields);
+  var obj = this;
+  var queryString = this.queryString;
+  if (queryString !== undefined && queryString.isDefined()) {
+    this.pool.getConnection(function(err, connection) {
+        if (err) {
+          console.log(err);
+          callback(err);
+        } else {
+          console.log(queryString.queryString);
+          console.log(queryString.arr);
+          connection.query(queryString.queryString, queryString.arr,
+            function(err, rows, fields) {
+              obj.queryString = undefined;
+              connection.end();
+              callback(err, rows, fields);
+            }
+          );
+        }
     });
-    this.connection.end();
   }
 }
 
