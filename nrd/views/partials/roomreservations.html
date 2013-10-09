@@ -5,45 +5,126 @@
   <div class="success-msg">{{success}}</div>
 {{/if}}
 
+{{#if userEvents}}
+	<h1>Your Room Reservations</h1>
+	<p>Below are the rooms you have reserved</p>
+	<ul>
+	{{#each userEvents}}
+	<li class="reservation" id="remove-reservation-li-{{this.id}}">
+		{{this.summary}} at {{this.start.dateTime}}
+		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove">cancel reservation</a></span>
+	</li>
+	{{/each}}
+	</ul>
+{{/if}}
+
+<h1>Reserve a Room</h1>
+<p>All room reservations follow the policies updated on October 10, 2013, which can be found in the updated community handbook.</p>
+<form action="roomreservations" method="post">
+
+    <fieldset>
+    	<label for="room">Room</label>
+    	<select class="sel_room" name="room">
+        	<option value="">--</option>
+        	<option value="Country Kitchen">Country Kitchen</option>
+        	<option value="Conference Room">Conference Room</option>
+        	<option value="TFL">TFL</option>
+        	<option value="PDR">Private Dining Room (PDR)</option>
+        	<option value="Courtyard">Courtyard & BBQ Pits</option>
+        	<option value="TFL TV area">TFL TV Area</option>
+        	<option value="Music Room">Music Room</option>
+    	</select>
+    </fieldset>
+    <fieldset>
+    	<label for="people">Number of People</label>
+    	<select class="sel_people" name="people">
+        	<option value="">--</option>
+        	<option value="0">&lt;10</option>
+        	<option value="1">&ge;10</option>
+    	</select>
+    </fieldset>
+    <div class="part2" style="display: none;">
+    <h2>Signatories</h2>
+    <p><span class='nres'></span> Next House Residents are required to reserve the <span class='nroom'></span>. Please enter their <em>Kerberos</em></p>
+    <table class="room-reserve">
+    	<tr>
+    		<td><label for="resident1">Resident 1</label></td>
+    		<td><input type="text" placeholder="kerberos" value="{{user.kerberos}}" name="resident1" disabled="disabled"></td>
+    	</tr>
+    	<tr>
+    		<td><label for="resident2">Resident 2</label></td>
+    		<td><input type="text" placeholder="kerberos" name="resident2" required></td>
+    	</tr>
+    	<tr class="r3" style="display: hidden;">
+    		<td><label for="resident3">Resident 3</label></td>
+    		<td><input type="text" placeholder="kerberos" name="resident3" required></td>
+    	</tr>
+    </table>
+    
+    <h2>Reservation Details</h2>
+    <p>To reserve multiple days, please fill out multiple reservations</p>
+    <table class="room-reserve">
+    	<tr>
+    		<td><label for="date">Date</label></td>
+    		<td><input type="date" name="date" required></td>
+    	</tr>
+    	<tr>
+    		<td><label for="date">Start Time</label></td>
+    		<td><input type="time" name="start" required></td>
+    	</tr>
+    	<tr>
+    		<td><label for="date">End Time</label></td>
+    		<td><input type="time" name="end" required></td>
+    	</tr>
+    </table>
+    <p>
+    	Short Description of Event/Activity: <br />
+    	<textarea name="reason" rows="5" cols="60"></textarea>
+    </p>
+    <input type="submit" value="Submit Room Reservation Request">
+</form>
+
 <iframe src="https://www.google.com/calendar/embed?src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 
-<h1> My Reservations </h1>
-<ul>
-{{#each userEvents}}
-<li id="remove-reservation-li-{{this.id}}">
-{{this.summary}} at {{this.start.dateTime}}
-<a id="remove-reservation-{{this.id}}" class="remove_reservation">CANCEL RESERVATION</a>
-</li>
-{{/each}}
-</ul>
+</div> <!-- closetag for part2. not ideal, I know -->
 
 <script type="text/javascript">
   $('.remove_reservation').on('click', function(e) {
-    var yes = $('<a>').html('REMOVE').on('click',
+    var yes = $('<a class="remove">').html('are you sure?').on('click',
       function(e2) {
         event_id = e.target.id.substring('remove-reservation-'.length);
         $.ajax('/roomreservations',{data:{id:event_id}, type:"DELETE"});
         $('#remove-reservation-li-'+event_id).remove();
       }
     );
+    /*
     var no = $('<a>').html('cancel').on('click',
-      function(e2) { $(e.target).html('CANCEL RESERVATION'); }
+      function(e2) { $(e.target).html('cancel reservation'); }
     );
-    $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+    */
+    $(e.target).parent().html(yes);//.append(no);
+  });
+  
+  $('select').on('change', function(){
+  	$('.part2').hide();
+  	var UNSELECTED = "";
+  	
+  	room = $('.sel_room').val();
+  	if ($('.sel_people').val() == 1) {
+  		$('.r3').show();
+  		$('.nres').text(3);
+  		$('.nroom').text(room);
+  	} else {
+  		$('.r3').hide();
+  		$('.nres').text(2);
+  		$('.nroom').text(room);
+
+  	}
+  	
+  	if ($('.sel_room').val() != UNSELECTED && $('.sel_people').val() != UNSELECTED){
+  		$('.part2').slideDown(600);
+  		window.setTimeout(function(){$.scrollTo('.part2', 600, {easing:'swing', offset: {top: -15, left: 0}})}, 400);
+  	}
+  	
   });
 </script>
-
-<h1> Reserve A Room </h1>
-<form action="roomreservations" method="post">
-    <p>Room: <select name="room">
-        <option value="TFL">TFL</option>
-        <option value="Country Kitchen">Country Kitchen</option>
-        <option value="Conference Room">Conference Room</option>
-    </select>
-    <p>Title: <input type="text" name="title" required></p>
-    <p>Date: <input type="date" name="date" required></p>
-    <p>Start time: <input type="time" name="start" required></p>
-    <p>End time: <input type="time" name="end" required></p>
-    <p>Description:</p> <textarea name="reason" rows="3" cols="60"></textarea>
-    <input type="submit">
-</form>

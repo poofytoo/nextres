@@ -280,34 +280,34 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
               user: "sparkyroombot@gmail.com",
               pass: "pencilpencil"
             }
-              });
+          });
             
-            htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
+          htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
             "NextExec has approved your application for the small group project funding!<br /><br />"+
             "If you have any questions, feel free to contact nextres@mit.edu." +
             "<br /><br />" +
             "Cheers,<br />" +
             "NextExec";
 
-            textEmail = "Hello, "+firstName+"NextExec has approved your application for the small group project funding! If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
+          textEmail = "Hello, "+firstName+"NextExec has approved your application for the small group project funding! If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
 		
-            var mailOptions = {
+          var mailOptions = {
               from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
               to: email, // list of receivers
               subject: "Request for Project Funding Approved", // Subject line
               text: textEmail, // plaintext body
               html: htmlEmail // html body
             /*cc: 'nextexec@mit.edu' */
-            };
+          };
               
-            smtpTransport.sendMail(mailOptions, function(error, response){
+          smtpTransport.sendMail(mailOptions, function(error, response){
               if (error) {
       		      returnError += error + "\n";
                 console.log(error);
               } else {
                 console.log("Message sent: " + response.message);
-                }
-            });
+              }
+          });
         }
       callback(returnError);
       });    

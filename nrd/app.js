@@ -820,7 +820,6 @@ app.get('/minutesdel', function(req, res) {
 
 app.get('/users', user.list);
 
-// Hi I'm starting here
 app.get('/emaillists', function(req, res) {
   if (req.user !== undefined) {
 	registerContent('emaillists');
@@ -831,7 +830,6 @@ app.get('/emaillists', function(req, res) {
   	res.render('login.html');
   }
 });
-// Hi I'm ending here
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

@@ -43,7 +43,7 @@ function insertEvent(user, access_token, params, callback) {
   request.post({
     url: postURL,
     body: {
-      'summary': params.title + " at " + params.room,
+      'summary': params.room + " - " + user.kerberos,
       'location': params.room,
       'description': params.reason,
       'start': { 'dateTime': toRFC3339(params.date, params.start) },
