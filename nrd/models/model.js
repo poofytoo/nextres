@@ -1,9 +1,11 @@
 var Database = require('./db');
 var mailer = require('./mailer');
+
 var exec = require('child_process').exec;
 
 function Model() {
   this.db = new Database();
+  this.email = new Email();
 }
 
 // Can probably use joins but i hate joins
@@ -343,7 +345,6 @@ Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callba
   this.db.query().
     update('next-users', ['password'], [hash]).
     where('id = ?', [ id ]);
-
   mailer.resetPassword(kerberos, rawPassword);
 
   this.db.execute(function(error, result) {
