@@ -11,6 +11,7 @@ var gaccount = require('google-oauth-serviceaccount');
 var qs = require('qs');
 var validation = require('./validation');
 var df = require('./dateformat');
+var mailer = require('./mailer');
 
 const calRoot = "https://www.googleapis.com/calendar/v3/";
 const calID = "87a94e6q5l0nb6bfphe3192uv8@group.calendar.google.com";
@@ -106,6 +107,7 @@ exports.reserve = function(user, params, callback) {
       params.resident1 === params.resident3 ||
       params.resident2 === params.resident3) {
         callback({'error': 'Duplicate resident field.'});
+        return;
       }
   validation.validate(params.resident2, function(kerberos, isUser) {
     if (!isUser) {
@@ -128,6 +130,7 @@ exports.reserve = function(user, params, callback) {
                   }
                 }
               }
+              mailer.reserveRoom(params);
               /* Update Google Calendar */
               insertEvent(access_token, params, function(err, res, body) {
                 callback({'success': 'Room successfully reserved'});
