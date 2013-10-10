@@ -1,6 +1,6 @@
 var nodemailer = require('../node_modules/nodemailer');
 
-exports.mail = function(receivers, subject, htmlEmail, textEmail) {
+function mail(receivers, subject, htmlEmail, textEmail) {
   console.log('MAILING TO ' + receivers);
   //contacting user
   var smtpTransport = nodemailer.createTransport("SMTP", {
@@ -28,6 +28,8 @@ exports.mail = function(receivers, subject, htmlEmail, textEmail) {
     }
   });
 }
+
+exports.mail = mail;
 
 exports.newUser = function(kerberos, passwordRaw) {
   var receiver = kerberos + "@mit.edu";
