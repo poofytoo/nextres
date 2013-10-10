@@ -11,7 +11,7 @@
 	<ul>
 	{{#each userEvents}}
 	<li class="reservation" id="remove-reservation-li-{{this.id}}">
-		{{this.summary}} at {{this.start.dateTime}}
+		{{this.summary}} at {{this.formattedTime}}
 		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove">cancel reservation</a></span>
 	</li>
 	{{/each}}

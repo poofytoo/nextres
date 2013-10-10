@@ -26,6 +26,12 @@ function toRFC3339(date, time) {
   }
 }
 
+function formatRFC3339(str) {
+  var parts = str.split('T');
+  var day = parts[0], time = parts[1].substring(0, 5);
+  return time + " on " + day;
+}
+
 function listEvents(access_token, timeMin, timeMax, callback) {
   var listURL = calRoot + "calendars/" + calID + "/events?" +
     qs.stringify({
@@ -82,6 +88,7 @@ exports.getEventsWithUser = function(user, callback) {
         for (var i = 0; i < body.items.length; i++) {
           for (var j = 0; j < body.items[i].attendees.length; j++) {
             var creator = body.items[i].attendees[j];
+            body.items[i].formattedTime = formatRFC3339(body.items[i].start.dateTime);
             if (creator && creator.email === user.kerberos + '@mit.edu') {
               userEvents.push(body.items[i]);
             }
