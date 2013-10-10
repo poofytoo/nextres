@@ -9,6 +9,7 @@ DO NOT COMMIT key.pem!
 var request = require('request');
 var gaccount = require('google-oauth-serviceaccount');
 var qs = require('qs');
+var validation = require('./validation');
 var df = require('./dateformat');
 
 const calRoot = "https://www.googleapis.com/calendar/v3/";
@@ -38,18 +39,25 @@ function listEvents(access_token, timeMin, timeMax, callback) {
   }, callback);
 }
 
-function insertEvent(user, access_token, params, callback) {
+function insertEvent(access_token, params, callback) {
   var postURL = calRoot + "calendars/" + calID + "/events?access_token=" + access_token;
+  var attendees = [{ 'email': params.resident1 + '@mit.edu' }];
+  if (params.resident2) {
+    attendees.push({ 'email': params.resident2 + '@mit.edu' });
+  }
+  if (params.resident3) {
+    attendees.push({ 'email': params.resident3 + '@mit.edu' });
+  }
   request.post({
     url: postURL,
     body: {
-      'summary': params.room + " - " + user.kerberos,
+      'summary': params.room + " - " + params.resident1,
       'location': params.room,
       'description': params.reason,
       'start': { 'dateTime': toRFC3339(params.date, params.start) },
       'end': { 'dateTime': toRFC3339(params.date, params.end) },
       'status': 'tentative',  // until exec confirms or denies
-      'attendees': [ { 'email': user.kerberos + '@mit.edu' } ],
+      'attendees': attendees,
       'visibility': 'public'
     },
     json: true
@@ -72,9 +80,11 @@ exports.getEventsWithUser = function(user, callback) {
       var userEvents = [];
       if (body.items) {
         for (var i = 0; i < body.items.length; i++) {
-          var creator = body.items[i].attendees[0];
-          if (creator && creator.email === user.kerberos + '@mit.edu') {
-            userEvents.push(body.items[i]);
+          for (var j = 0; j < body.items[i].attendees.length; j++) {
+            var creator = body.items[i].attendees[j];
+            if (creator && creator.email === user.kerberos + '@mit.edu') {
+              userEvents.push(body.items[i]);
+            }
           }
         }
       }
@@ -84,24 +94,42 @@ exports.getEventsWithUser = function(user, callback) {
 }
 
 exports.reserve = function(user, params, callback) {
-  gaccount.auth(function(err, access_token) {
-    var timeMin = toRFC3339(params.date, params.start);
-    var timeMax = toRFC3339(params.date, params.end);
-    listEvents(access_token, timeMin, timeMax, function(err, res, body) {
-      /* Forbid conflicts */
-      if (body.items) {
-        for (var i = 0; i < body.items.length; i++) {
-          if (body.items[i].location === params.room) {
-            callback({'error': 'Reservation conflict'});
-            return;
-          }
-        }
+  params.resident1 = user.kerberos;
+  if (params.resident1 === params.resident2 ||
+      params.resident1 === params.resident3 ||
+      params.resident2 === params.resident3) {
+        callback({'error': 'Duplicate resident field.'});
       }
-      /* Update Google Calendar */
-      insertEvent(user, access_token, params, function(err, res, body) {
-        callback({'success': 'Room successfully reserved'});
+  validation.validate(params.resident2, function(kerberos, isUser) {
+    if (!isUser) {
+      callback({'error': 'Invalid kerberos for resident 2.'});
+    } else {
+      validation.validate(params.resident3, function(kerberos_, isUser_) {
+        if (!isUser_) {
+          callback({'error': 'Invalid kerberos for resident 3.'});
+        } else {
+          gaccount.auth(function(err, access_token) {
+            var timeMin = toRFC3339(params.date, params.start);
+            var timeMax = toRFC3339(params.date, params.end);
+            listEvents(access_token, timeMin, timeMax, function(err, res, body) {
+              /* Forbid conflicts */
+              if (body.items) {
+                for (var i = 0; i < body.items.length; i++) {
+                  if (body.items[i].location === params.room) {
+                    callback({'error': 'Reservation conflict'});
+                    return;
+                  }
+                }
+              }
+              /* Update Google Calendar */
+              insertEvent(access_token, params, function(err, res, body) {
+                callback({'success': 'Room successfully reserved'});
+              });
+            });
+          });
+        }
       });
-    });
+    }
   });
 };
 

@@ -96,7 +96,7 @@ Model.prototype.validateKerberos = function(guests, callback) {
   var count = guests.length;
   var invalids = [];
   for (var i = 0; i < guests.length; i++) {
-    validation.validate(guests[i].kerberos, true, function(kerberos, isUser) {
+    validation.validate(guests[i].kerberos, function(kerberos, isUser) {
       if (!isUser) {
         invalids.push(kerberos);
       }

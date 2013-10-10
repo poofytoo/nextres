@@ -1,9 +1,9 @@
 var exec = require('child_process').exec;
 
-exports.validate = function(kerberos, allowEmpty, callback) {
+exports.validate = function(kerberos, callback) {
   kerberos = kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
   if (kerberos === '') {
-    callback(kerberos, allowEmpty);
+    callback(kerberos, true);
   }
   exec('finger ' + kerberos + '@athena.dialup.mit.edu',
       function(error, stdout, stderr) {
