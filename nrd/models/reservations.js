@@ -89,7 +89,8 @@ function removeEvent(access_token, id, callback) {
 
 exports.getEventsWithUser = function(user, callback) {
   gaccount.auth(function(err, access_token) {
-    var now = new Date(); var timeMin = toRFC3339(now);
+    var now = new Date();
+    now.setDate(now.getDate() - 1); var timeMin = toRFC3339(now);
     now.setDate(now.getDate() + MAX_DAYS); var timeMax = toRFC3339(now);
     listEvents(access_token, timeMin, timeMax, function(err, res, body) {
       var userEvents = [];

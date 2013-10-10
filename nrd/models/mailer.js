@@ -1,5 +1,7 @@
 var nodemailer = require('../node_modules/nodemailer');
 
+const NEXT_EXEC = "sparkyroombot@gmail.com";  // change to next-exec@mit.edu
+
 function mail(receivers, subject, htmlEmail, textEmail) {
   console.log('MAILING TO ' + receivers);
   //contacting user
@@ -101,11 +103,15 @@ exports.reserveRoom = function(reserveParams) {
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = "insert text version of reserveRoom here";
-  mail("sparkyroombot@gmail.com", subject, htmlEmail, textEmail);
+  mail(NEXT_EXEC, subject, htmlEmail, textEmail);
 }
 
 // item is a Google Calendar events resource
 exports.denyRoom = function(item, reason) {
+  var receivers = [NEXT_EXEC];
+  for (var i = 0; i < item.attendees.length; i++) {
+    receivers.push(item.attendees[i].email);
+  }
   var subject = "Room Reservation denied";
   var htmlEmail = "Dear recipient, <br />" +
     "Your room reservation for " + item.summary + " has been denied for the following reason: <br /><br />" +
@@ -115,7 +121,5 @@ exports.denyRoom = function(item, reason) {
     "Cheers, <br />" +
     "NextExec";
   var textEmail = "insert text version of denyRoom email here";
-  for (var i = 0; i < item.attendees.length; i++) {
-    mail(item.attendees[i].email, subject, htmlEmail, textEmail);
-  }
+  mail(receivers.join(), subject, htmlEmail, textEmail);
 }
