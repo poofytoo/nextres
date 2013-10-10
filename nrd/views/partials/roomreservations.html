@@ -18,6 +18,19 @@
 	</ul>
 {{/if}}
 
+{{#if permissions.EDITRESERVATIONS}}
+<h1>All Room Resrvations</h1>
+<ul>
+  {{#each allEvents}}
+  <li class="reservation" id="process-reservation-li-{{this.id}}">
+  {{this.summary}} at {{this.formattedTime}}
+  <span id="deny-reservation-{{this.id}}" class="deny-reservation">Deny</span>
+  <span>Reason: <textarea id="deny-reservation-reason-{{this.id}}"></textarea></span>
+  </li>
+  {{/each}}
+</ul>
+{{/if}}
+
 <h1>Reserve a Room</h1>
 <p>All room reservations follow the policies updated on October 10, 2013, which can be found in the updated community handbook.</p>
 <form action="roomreservations" method="post">
@@ -126,5 +139,12 @@
   		window.setTimeout(function(){$.scrollTo('.part2', 600, {easing:'swing', offset: {top: -15, left: 0}})}, 400);
   	}
   	
+  });
+
+  $('.deny-reservation').on('click', function(e) {
+      event_id = e.target.id.substring('deny-reservation-'.length);
+      reason = $('#deny-reservation-reason-' + event_id).val();
+      $.ajax('/roomreservationdeny', {data: {id: event_id, reason: reason}, type: "POST"});
+      $('#deny-reservation-li-' + event_id).remove();
   });
 </script>

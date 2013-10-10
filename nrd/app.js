@@ -358,10 +358,14 @@ app.get('/roomreservations', function(req, res) {
   if (req.user !== undefined) {
     registerContent('roomreservations');
     model.getPermissions(req.user.id, function(permissions) {
-      reservations.getEventsWithUser(req.user, function(userEvents) {
-        res.render('base.html',
-          {user: req.user, permissions: permissions, userEvents: userEvents});
-  	});
+      reservations.getEventsWithUser(req.user, function(userEvents, allEvents) {
+        res.render('base.html', {
+          user: req.user,
+          permissions: permissions,
+          userEvents: userEvents,
+          allEvents: allEvents
+        });
+      });
     });
   } else {
     res.redirect('/login');
@@ -392,6 +396,16 @@ app.post('/roomreservations', function(req, res) {
 app.delete('/roomreservations', function(req, res) {
   if (req.user !== undefined) {
     reservations.removeReservation(req.body.id, function(err) {
+      res.json({'okay': !err});
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/roomreservationdeny', function(req, res) {
+  if (req.user !== undefined) {
+    reservations.denyReservation(req.body.id, req.body.reason, function(err) {
       res.json({'okay': !err});
     });
   } else {

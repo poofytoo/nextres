@@ -115,5 +115,7 @@ exports.denyRoom = function(item, reason) {
     "Cheers, <br />" +
     "NextExec";
   var textEmail = "insert text version of denyRoom email here";
-  mail(item.attendees[0].email, subject, htmlEmail, textEmail);
+  for (var i = 0; i < item.attendees.length; i++) {
+    mail(item.attendees[i].email, subject, htmlEmail, textEmail);
+  }
 }

@@ -33,6 +33,14 @@ function formatRFC3339(str) {
   return time + " on " + day;
 }
 
+function getEvent(access_token, id, callback) {
+  var getURL = calRoot + "calendars/" + calID + "/events/" + id + "?access_token=" + access_token;
+  request.get({
+    url: getURL,
+    json: true
+  }, callback);
+}
+
 function listEvents(access_token, timeMin, timeMax, callback) {
   var listURL = calRoot + "calendars/" + calID + "/events?" +
     qs.stringify({
@@ -85,6 +93,7 @@ exports.getEventsWithUser = function(user, callback) {
     now.setDate(now.getDate() + MAX_DAYS); var timeMax = toRFC3339(now);
     listEvents(access_token, timeMin, timeMax, function(err, res, body) {
       var userEvents = [];
+      var allEvents = [];
       if (body.items) {
         for (var i = 0; i < body.items.length; i++) {
           for (var j = 0; j < body.items[i].attendees.length; j++) {
@@ -94,9 +103,10 @@ exports.getEventsWithUser = function(user, callback) {
               userEvents.push(body.items[i]);
             }
           }
+          allEvents.push(body.items[i]);
         }
       }
-      callback(userEvents);
+      callback(userEvents, allEvents);
     });
   });
 }
@@ -143,8 +153,23 @@ exports.reserve = function(user, params, callback) {
   });
 };
 
-exports.removeReservation = function(id, callback) {
+
+
+function removeReservation(id, callback) {
   gaccount.auth(function (err, access_token) {
+    removeEvent(access_token, id, function(err, res, body) {
+      callback(err);
+    });
+  });
+}
+
+exports.removeReservation = removeReservation;
+
+exports.denyReservation = function(id, reason, callback) {
+  gaccount.auth(function (err, access_token) {
+    getEvent(access_token, id, function(err, res, body) {
+      mailer.denyRoom(body, reason);
+    });
     removeEvent(access_token, id, function(err, res, body) {
       callback(err);
     });
