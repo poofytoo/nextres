@@ -32,7 +32,7 @@ app.set('view options', {layout: false});
 
 hbs.registerPartials(__dirname + '/views/partials');
 
-app.use(express.favicon());
+app.use(express.favicon(__dirname + '/public/images/favicon.ico')); 
 app.use(express.cookieParser());
 app.use(express.logger('dev'));
 
