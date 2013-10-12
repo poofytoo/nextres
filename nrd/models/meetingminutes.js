@@ -1,11 +1,9 @@
 var Database = require('./db');
-var Email = require('./email');
 
 var exec = require('child_process').exec;
 
 function House() {
   this.db = new Database();
-  this.email = new Email();
 }
 
 House.prototype.getFiles = function(callback) {
