@@ -52,16 +52,7 @@ exports.editall = function(req, res) {
       });
     })(user);
   }
-/*
-  bcrypt.genSalt(10, function(err, salt) {
-    pw = randomPassword();
-    bcrypt.hash(pw, salt, function(err, hash) {
-      model.createUser(req.body.kerberos,
-                          hash, pw);
-      res.render('base.html');
-    });
-  });
-  */
+
   // TODO: duplicate code, refactor
   var renderComplete = function(){
     if (req.user !== undefined) {

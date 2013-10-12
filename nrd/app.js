@@ -152,54 +152,6 @@ app.post('/minutes', house.editminutes);
 // TODO: make a post request
 app.get('/minutesdel', house.removeminutes);
 
-/*
-
-    guests = [];
-    for (var i = 0; i < 3; i++) {
-      info = {name: req.body['guest' + i + 'Name'],
-              kerberos: req.body['guest' + i + 'Kerberos']};
-      guests.push(info);
-    }
-    var id = req.user.id;
-    model.addGuests(id, guests, function(error, result) {
-      model.getGuests(id, function(error, result) {
-        guests =[];
-        for (var i = 1; i <= 3; i++) {
-          info = {name: result['guest' + i + 'Name'],
-                  kerberos: result['guest' + i + 'Kerberos']};
-          guests.push(info);
-        }
-        registerContent('manage');
-        model.getPermissions(req.user.id, function(permissions) {
-          res.render('base.html', {'user': req.user,
-                                   'permissions': permissions,
-                                   'guests': guests});
-        });
-      });
-    });
-    */
-
-
-// TODO: remove individual signup
-/*
-app.post('/signup', function(req, res) {
-  var errorLog = "";
-  bcrypt.genSalt(10, function(err, salt) {
-  	pw = randomPassword();
-    bcrypt.hash(pw, salt, function(err, hash) {
-      model.createUser(req.body.kerberos,
-                          hash, pw, function(error, result) {
-                          	errorLog += error;
-                          });
-      model.getPermissions(req.user.id, function(permissions) {
-      
-        registerContent('allusers');
-        res.render('base.html', {'user': req.user, 'permissions': permissions, 'error' : errorLog});
-      });
-    });
-  });
-});
-*/
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

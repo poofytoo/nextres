@@ -53,7 +53,6 @@ Email.prototype.denyEmail = function(firstName, email, reason) {
     }
   });
   
-  // var url = "http://mplcr.mit.edu";
   var htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
   "NextExec has denied your application for the following reason(s): <br />" +
   reason +
@@ -134,7 +133,6 @@ Email.prototype.newUserEmail = function(rawPassword, kerberos) {
     }
   });
   
-  // var url = "http://mplcr.mit.edu";
   htmlEmail = "Hello!<br /><br />" + 
   "Your Next resident dashboard account has been created! Please " +
   "go to <a href='next.mit.edu'>next.mit.edu</a>, and click the " +
