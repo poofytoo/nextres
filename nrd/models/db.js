@@ -126,6 +126,7 @@ function Database() {
     user: 'next',
     password: '645cf777'
   };
+  // TODO read from file :D
   this.sql_settings = 'mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777';
   this.pool = mysql.createPool(this.sql_settings);
 }

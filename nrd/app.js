@@ -21,15 +21,15 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var guestlist = require('./routes/guestlist');
 var funding = require('./routes/funding');
-var house = require('./routes/house');
+var minutes = require('./routes/minutes');
 var util = require('./routes/util');
 var site = require('./routes/site');
 
 /**
  * Models
  */
-var Model = require('./models/model');
-var model = new Model();
+var User = require('./models/user');
+var userModel = new User();
 
 var app = express();
 
@@ -57,7 +57,7 @@ app.use(app.router);
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    model.login(username, function(error, res) {
+    userModel.login(username, function(error, res) {
       if (error !== null) { 
       	return done(null, false); 
       }
@@ -84,7 +84,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  model.findUser(id, function(error, user) {
+  userModel.findUser(id, function(error, user) {
     return done(null, user);
   });
 });
@@ -147,10 +147,10 @@ app.post('/reviewapps', funding.edit);
 /*
  * House/Exec functions
  */
-app.get('/minutes', house.viewminutes);
-app.post('/minutes', house.editminutes);
+app.get('/minutes', minutes.viewminutes);
+app.post('/minutes', minutes.editminutes);
 // TODO: make a post request
-app.get('/minutesdel', house.removeminutes);
+app.get('/minutesdel', minutes.removeminutes);
 
 
 http.createServer(app).listen(app.get('port'), function(){

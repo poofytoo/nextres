@@ -7,7 +7,7 @@ function Email() {
   this.from = "Next Resident Dashboard <sparkyroombot@gmail.com>";
 }
 
-Email.prototype.approveEmail = function(firstName, email) {
+Email.prototype.approveEmail = function(returnError, firstName, email) {
   var smtpTransport = nodemailer.createTransport("SMTP",{
     service: "Gmail",
     auth: {
@@ -42,9 +42,10 @@ Email.prototype.approveEmail = function(firstName, email) {
       console.log("Message sent: " + response.message);
     }
   });
+  return returnError;
 }
 
-Email.prototype.denyEmail = function(firstName, email, reason) {
+Email.prototype.denyEmail = function(returnError, firstName, email, reason) {
   var smtpTransport = nodemailer.createTransport("SMTP",{
     service: "Gmail",
     auth: {
@@ -82,6 +83,7 @@ Email.prototype.denyEmail = function(firstName, email, reason) {
       console.log("Message sent: " + response.message);
     }
   });
+  return returnError;
 }
 
 Email.prototype.resetPasswordEmail = function(rawPassword, kerberos) {
@@ -116,7 +118,6 @@ Email.prototype.resetPasswordEmail = function(rawPassword, kerberos) {
     
   smtpTransport.sendMail(mailOptions, function(error, response){
     if(error){
-      returnError += error + "\n";
       console.log(error);
     } else {
       console.log("Message sent: " + response.message);
@@ -124,7 +125,7 @@ Email.prototype.resetPasswordEmail = function(rawPassword, kerberos) {
   });
 }
 
-Email.prototype.newUserEmail = function(rawPassword, kerberos) {
+Email.prototype.newUserEmail = function(returnError, rawPassword, kerberos) {
   var smtpTransport = nodemailer.createTransport("SMTP",{
     service: "Gmail",
     auth: {
@@ -164,6 +165,7 @@ Email.prototype.newUserEmail = function(rawPassword, kerberos) {
       console.log("Message sent: " + response.message);
     }
   });
+  return returnError;
 }
 
 module.exports = Email

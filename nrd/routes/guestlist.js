@@ -1,11 +1,13 @@
 var util = require('./util');
 var Model = require('../models/model');
 var model = new Model();
+var GuestList = require('../models/guestlist');
+var guestlistModel = new GuestList();
 
 exports.view = function(req, res) {
   if (req.user !== undefined) {
     console.log(req.user);
-    model.getGuests(req.user.id, function(error, result) {
+    guestlistModel.getGuests(req.user.id, function(error, result) {
       guests =[]
       for (var i = 1; i <= 3; i++) {
         info = {name: result['guest' + i + 'Name'],
@@ -36,9 +38,9 @@ exports.edit = function(req, res) {
     model.validateKerberos(guests, function(invalids) {
       var id = req.user.id;
       if (invalids.length == 0) {
-        model.addGuests(id, guests, function(error, result) {
+        guestlistModel.addGuests(id, guests, function(error, result) {
           util.registerContent('manage');
-          model.onGuestList(id, guests, function(onGuestLists) {
+          guestlistModel.onGuestList(id, guests, function(onGuestLists) {
             model.getPermissions(id, function(permissions) {
               var success = 'Your guest list has been updated.';
               res.render('base.html', {'user': req.user,
@@ -69,7 +71,7 @@ exports.list = function(req, res) {
     console.log(id);
     params = {};
     var id = req.user.id
-    model.listGuests(id, params, function(error, result) {
+    guestlistModel.listGuests(id, params, function(error, result) {
       console.log(result);
       util.registerContent('allguests');
       model.getPermissions(req.user.id, function(permissions) {
@@ -83,7 +85,7 @@ exports.list = function(req, res) {
 
 exports.search = function(req, res) {
   var id = req.user.id;
-  model.listGuests(id, req.query, function(error, result) {
+  guestlistModel.listGuests(id, req.query, function(error, result) {
     if (result !== undefined){
       console.log("this works");
       // Lol, I'm just going to render the HTML here.
