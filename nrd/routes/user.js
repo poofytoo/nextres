@@ -1,6 +1,8 @@
 var bcrypt = require('bcrypt');
 
 var util = require('./util');
+var User = require('../models/user');
+var userModel = new User();
 var Model = require('../models/model');
 var model = new Model();
 
@@ -17,7 +19,7 @@ exports.list = function(req, res) {
     var id = req.user.id;
     console.log(id);
     
-    model.listUsers(id, function(error, result) {
+    userModel.listUsers(id, function(error, result) {
       util.registerContent('allusers');
       model.getPermissions(req.user.id, function(permissions) {
         res.render('base.html', {user: req.user, result: result, permissions: permissions});
@@ -41,7 +43,7 @@ exports.editall = function(req, res) {
       var pw = util.randomPassword();
         bcrypt.hash(pw, salt, function(err, hash) {
           console.log("ATTEMPTING TO CREATE USER FOR: " + u);
-          model.createUser(u, hash, pw, function(error, result) {
+          userModel.createUser(u, hash, pw, function(error, result) {
             errorLog += error;
             counter --;
             if (counter <= 0) {
@@ -59,7 +61,7 @@ exports.editall = function(req, res) {
       var id = req.user.id;
       console.log(id);
       
-      model.listUsers(id, function(error, result) {
+      userModel.listUsers(id, function(error, result) {
         util.registerContent('allusers');
         model.getPermissions(req.user.id, function(permissions) {
           res.render('base.html', {user: req.user, result: result, permissions: permissions, error: errorLog});
@@ -90,7 +92,7 @@ exports.logout = function(req, res) {
 exports.remove = function(req, res) {
   console.log(req.body);
   if (req.user !== undefined) {
-    model.removeUser(req.body.kerberos, function (error) {
+    userModel.removeUser(req.body.kerberos, function (error) {
       if (error) {
         res.json({okay:false});
       } else {
@@ -124,7 +126,7 @@ exports.passwordreset = function(req, res) {
   console.log(req.body);
   if (req.user !== undefined) {
       kerberos = req.body.kerberos;
-      model.getKerberos (kerberos, function(error, result) {
+      userModel.getKerberos (kerberos, function(error, result) {
         console.log(result);
         if (result!==undefined) {
         id = result['id'];
@@ -132,7 +134,7 @@ exports.passwordreset = function(req, res) {
         console.log(newPassword);
         bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
-                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
+                userModel.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
               }); 
         });
         } else {
@@ -145,8 +147,7 @@ exports.passwordreset = function(req, res) {
 
 exports.viewinfo = function(req, res) {
   if (req.user !== undefined) {
-    
-    model.getUser(req.user.id, function(error, result) {
+    userModel.getUser(req.user.id, function(error, result) {
       var info = result;
       util.registerContent('residentinfo');
       console.log(info);
@@ -166,8 +167,8 @@ exports.editinfo = function(req, res) {
     info.lastName = req.body.lastname;
     info.roomNumber = req.body.roomnumber;
     
-    model.updateUser(req.user.id, info, function(error, result) {
-      model.getUser(req.user.id, function(error, result) {
+    userModel.updateUser(req.user.id, info, function(error, result) {
+      userModel.getUser(req.user.id, function(error, result) {
         var info = result;
         util.registerContent('residentinfo');
         console.log(info);
@@ -202,7 +203,7 @@ exports.editpassword = function(req, res) {
     var oldPassword = req.body.oldpassword;
     var newPassword = req.body.newpassword;
 
-    model.login(req.user.kerberos, function(error, result) {
+    userModel.login(req.user.kerberos, function(error, result) {
       if (result !== undefined) {
         bcrypt.compare(oldPassword, result.password, function(err, authenticated) {
           if (!authenticated) {
@@ -217,7 +218,7 @@ exports.editpassword = function(req, res) {
             console.log('correct password');
             bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
-                model.changePassword(id, hash, function(error, result) {
+                userModel.changePassword(id, hash, function(error, result) {
                   util.registerContent('changepassword');
                   model.getPermissions(req.user.id, function(permissions) {
                     var success = "Your password has been changed!";
