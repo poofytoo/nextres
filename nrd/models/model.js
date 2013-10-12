@@ -363,13 +363,6 @@ Model.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callba
   })
 }
 
-/*
-    update('next-guestlist',
-           columns,
-           guestValues).
-    where('nextUser = ?', [ id ]);
-*/
-    
 Model.prototype.getUser = function(id, callback) {
   this.db.query().
     select(['*']).
