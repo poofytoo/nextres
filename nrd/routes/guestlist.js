@@ -80,3 +80,34 @@ exports.list = function(req, res) {
     res.redirect('/login');
   }
 }
+
+exports.search = function(req, res) {
+  var id = req.user.id;
+  model.listGuests(id, req.query, function(error, result) {
+    if (result !== undefined){
+      console.log("this works");
+      // Lol, I'm just going to render the HTML here.
+      // TODO: CONVERT TO CLIENT SIDE HANDLEBAR PARSING
+      html = ""
+      for (key in result) {
+        var entry = result[key];
+        html += '<tr>';
+        html += '<td>' + entry.kerberos + '</td>';
+        html += '<td>' + entry.firstName + ' ' + entry.lastName + '</td>';
+        for (i = 1; i <= 3; i ++) {
+          html += '<td>';
+          if (entry['guest' + i + 'Kerberos']){
+            html += entry['guest' + i + 'Kerberos'] + " (" + entry['guest' + i + 'Name'] + ")";
+          } else {
+            html += '<span class="empty">empty</span>';
+          }
+          html += '</td>';
+        }
+        html += '</tr>';
+      }
+      res.end(html);
+    } else {
+      res.end("None");
+    }
+  });
+}
