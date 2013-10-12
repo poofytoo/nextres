@@ -6,6 +6,7 @@
 var express = require('express');
 var routes = require('./routes');
 var user = require('./routes/user');
+var guestlist = require('./routes/guestlist');
 var http = require('http');
 var path = require('path');
 var bcrypt = require('bcrypt');
@@ -23,7 +24,7 @@ var app = express();
 
 // all environments
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', /*process.env.PORT || 3000*/ 8080);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
 app.engine('html', require('hbs').__express);
@@ -99,147 +100,42 @@ app.get('/',
   }
 );
 
-//TODO: fix this to actually use FailureFlash
-
-app.get('/loginfail', function(req, res) {
-    res.render('login.html', {'error': true});
-});
-
-app.post('/login',
-  passport.authenticate('local', {
-  	failureRedirect: '/loginfail'
-  }),
-  function(req, res) {
-  	if (req.user.id) {
-    // If this function gets called, authentication was successful.
-    // `req.user` contains the authenticated user.
-      console.log('login success: ' + req.user.username);
-      registerContent('home');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user, 'permissions': permissions});
-      });
-  	}
-  }
-);
-
-
-// this is probably very unsecure..
-app.post('/pwreset', function(req, res) {
-      console.log(req.body);
-  if (req.user !== undefined) {
-      kerberos = req.body.kerberos;
-      model.getKerberos (kerberos, function(error, result) {
-        console.log(result);
-        if (result!==undefined) {
-        id = result['id'];
-        var newPassword = randomPassword();
-        console.log(newPassword);
-        bcrypt.genSalt(10, function(err, salt) {
-              bcrypt.hash(newPassword, salt, function(err, hash) {
-                model.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
-              }); 
-        });
-        } else {
-          }
-         });
-   } else {
-     res.render('login.html'); 
-     } 
-
-});
-
-
-
-app.get('/login', function(req, res) {
-  if (req.user !== undefined) {
-  	res.redirect('/manage');
-  } else {
-  	res.render('login.html');
-  }
-});
-
-app.get('/logout', function(req, res) {
-  req.session.regenerate(function() {
-
-    req.logout();
-  registerContent('home');
-  res.redirect('/');
-  });
-});
-
 app.get('/home', function(req, res) {
   if (req.user !== undefined) {
-	registerContent('home');
+  registerContent('home');
     model.getPermissions(req.user.id, function(permissions) {
       res.render('base.html', {'user': req.user, 'permissions': permissions});
     });
   } else {
-  	res.render('login.html');
+    res.render('login.html');
   }
 });
 
-app.get('/manage', function(req, res) {
-  if (req.user !== undefined) {
-    console.log(req.user);
-    model.getGuests(req.user.id, function(error, result) {
-      guests =[]
-      for (var i = 1; i <= 3; i++) {
-        info = {name: result['guest' + i + 'Name'],
-                kerberos: result['guest' + i + 'Kerberos']};
-        guests.push(info);
-      }
-      registerContent('manage');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user,
-                                 'permissions': permissions,
-                                 'guests': guests});
-      });
-    });
-  } else {
-  	res.redirect('/login');
-  }
-});
+//TODO: fix this to actually use FailureFlash
 
+/*
+ * User functions
+ */
+app.get('/loginfail', user.loginfail);
+app.post('/login',
+  passport.authenticate('local', {
+  	failureRedirect: '/loginfail'
+  }), user.loginsuccess
+);
+app.post('/pwreset', user.passwordreset);
+app.get('/login', user.login);
+app.get('/logout', user.logout);
+app.post('/remove', user.remove);
+app.get('/allusers', user.list);
+app.get('/residentinfo', user.viewinfo);
+app.post('/residentinfo', user.editinfo);
 
-app.post('/manage', function(req, res) {
-  console.log(req.user);
-  if (req.user !== undefined) {
-    guests = [];
-    for (var i = 0; i < 3; i++) {
-      info = {name: req.body['guest' + i + 'Name'],
-              kerberos: req.body['guest' + i + 'Kerberos']};
-      guests.push(info);
-    }
-    model.validateKerberos(guests, function(invalids) {
-      var id = req.user.id;
-      if (invalids.length == 0) {
-        model.addGuests(id, guests, function(error, result) {
-          registerContent('manage');
-          model.onGuestList(id, guests, function(onGuestLists) {
-            model.getPermissions(id, function(permissions) {
-              var success = 'Your guest list has been updated.';
-              res.render('base.html', {'user': req.user,
-                'permissions': permissions,
-                'guests': guests,
-                'success': success,
-                'alreadyHere': onGuestLists});
-            });
-          });
-        });
-      } else {
-        model.getPermissions(id, function(permissions) {
-          var error = 'Invalid kerberos: ' + invalids.join(', ');
-          res.render('base.html', {'user': req.user,
-            'permissions': permissions,
-            'guests': guests,
-            'error': error});
-        });
-      }
-    });
-  } else {
-  	res.redirect('/login');
-  }
-});
+/*
+ * Guestlist functions
+ */
+app.get('/manage', guestlist.view);
+app.post('/manage', guestlist.edit);
+app.get('/allguests', guestlist.list);
 
 // If application 'Pending', redirect and do not allow another submission. If most recent application 'Denied', notify user and allow resubmission.
 app.get('/application', function(req, res) {
@@ -321,54 +217,6 @@ app.post('/application', function(req, res) {
   }
 });
 
-app.post('/remove', function(req, res) {
-  console.log(req.body);
-  if (req.user !== undefined) {
-    model.removeUser(req.body.kerberos, function (error) {
-      if (error) {
-        res.json({okay:false});
-      } else {
-        res.json({okay:true});
-      }
-    });
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/allguests', function(req, res) {
-  if (req.user !== undefined) {
-    console.log(id);
-    params = {};
-    var id = req.user.id
-    model.listGuests(id, params, function(error, result) {
-    	console.log(result);
-      registerContent('allguests');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {user: req.user, result: result, permissions: permissions});
-      });
-    });
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/allusers', function(req, res) {
-  if (req.user !== undefined) {
-    var id = req.user.id;
-    console.log(id);
-    
-    model.listUsers(id, function(error, result) {
-      registerContent('allusers');
-      model.getPermissions(req.user.id, function(permissions) {
-      	res.render('base.html', {user: req.user, result: result, permissions: permissions});
-      });
-    });
-  } else {
-    res.redirect('/login');
-  }
-});
-
 app.get('/reviewapps', function(req, res) {
   if (req.user !== undefined) {
     var id = req.user.id;
@@ -431,44 +279,7 @@ app.post('/reviewapps', function(req, res) {
   }
 });
 
-app.get('/residentinfo', function(req, res) {
-  if (req.user !== undefined) {
-    
-    model.getUser(req.user.id, function(error, result) {
-      var info = result;
-      registerContent('residentinfo');
-      console.log(info);
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info});
-      });
-    });
-  } else {
-  	res.redirect('/login');
-  }
-});
 
-app.post('/residentinfo', function(req, res) {
-  if (req.user !== undefined) {
-  	info = {};
-  	info.firstName = req.body.firstname;
-  	info.lastName = req.body.lastname;
-  	info.roomNumber = req.body.roomnumber;
-  	
-    model.updateUser(req.user.id, info, function(error, result) {
-	    model.getUser(req.user.id, function(error, result) {
-	      var info = result;
-	      registerContent('residentinfo');
-	      console.log(info);
-	      model.getPermissions(req.user.id, function(permissions) {
-	      	var success = "Your residence info has been updated."
-	        res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info, 'success': success});
-	      });
-	    });
-    });
-  } else {
-  	res.redirect('/login');
-  }
-});
 
 app.get('/searchguestlist', function(req, res) {
   var id = req.user.id;
@@ -772,7 +583,7 @@ app.get('/minutesdel', function(req, res) {
 });
 
 
-app.get('/users', user.list);
+app.get('/users', user.listall);
 
 // Hi I'm starting here
 app.get('/emaillists', function(req, res) {

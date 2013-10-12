@@ -290,6 +290,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
 Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
+  var email = this.email;
   var denied = 'Denied - '+reason;
     this.db.query().
     update('next-project-funding',
@@ -406,6 +407,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
     
   var userCreated = false;
   var db = this.db;
+  var email = this.email;
   var returnError = "";
   
   this.db.execute(function (error, result) {
