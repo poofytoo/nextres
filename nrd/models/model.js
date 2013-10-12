@@ -264,6 +264,7 @@ Model.prototype.listApps = function(id, callback) {
 Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
+  var email = this.email;
   this.db.query().
   update('next-project-funding',
         ['Status'],
@@ -277,7 +278,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
         console.log('Application approved: ' + timestamp);
 
         //contacting user
-        this.email.approveEmail(firstName, email);
+        email.approveEmail(firstName, email);
       }
     callback(returnError);
     });    
@@ -293,6 +294,7 @@ Model.prototype.approveApp = function(timestamp, email, firstName, callback) {
 Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback) {
   var returnError = "";
   var db = this.db;
+  var email = this.email;
   var denied = 'Denied - '+reason;
   this.db.query().
   update('next-project-funding',
@@ -307,7 +309,7 @@ Model.prototype.denyApp = function(timestamp, reason, email, firstName, callback
         console.log('Application denied: ' + timestamp);
 
         //contacting user
-        this.email.denyEmail(firstName, email, reason);
+        email.denyEmail(firstName, email, reason);
       }    
   callback(returnError);
   });
@@ -413,6 +415,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
     
   var userCreated = false;
   var db = this.db;
+  var email = this.email;
   var returnError = "";
   
   console.log('hi');
@@ -441,7 +444,7 @@ Model.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callb
             console.log ('User Properties Created: ' + kerberos);
               
             //contacting user
-            this.email.newUserEmail(passwordRaw, kerberos);
+            email.newUserEmail(passwordRaw, kerberos);
           }
         });
       });
