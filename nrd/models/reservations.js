@@ -12,6 +12,8 @@ var qs = require('qs');
 var validation = require('./validation');
 var df = require('./dateformat');
 var mailer = require('./mailer');
+var User = require('./user');
+var userModel = new User();
 
 const calRoot = "https://www.googleapis.com/calendar/v3/";
 const calID = "87a94e6q5l0nb6bfphe3192uv8@group.calendar.google.com";
@@ -123,12 +125,21 @@ Reservation.prototype.reserve = function(user, params, callback) {
         callback({'error': 'Duplicate resident field.'});
         return;
       }
-  validation.validate(params.resident2, function(kerberos, isUser) {
-    if (!isUser) {
+  function isAllowed(kerberos, callback) {
+    if (kerberos === '') {
+      callback(true);
+    } else {
+      userModel.getKerberos(kerberos, function(error, user) {
+        callback(user);
+      });
+    }
+  };
+  isAllowed(params.resident2, function(user) {
+    if (!user) {
       callback({'error': 'Invalid kerberos for resident 2.'});
     } else {
-      validation.validate(params.resident3, function(kerberos_, isUser_) {
-        if (!isUser_) {
+      isAllowed(params.resident3, function(user_) {
+        if (!user_) {
           callback({'error': 'Invalid kerberos for resident 3.'});
         } else {
           gaccount.auth(function(err, access_token) {
