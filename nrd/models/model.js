@@ -1,4 +1,5 @@
 var Database = require('./db');
+var validation = require('./validation');
 var mailer = require('./mailer');
 
 var exec = require('child_process').exec;
@@ -51,22 +52,14 @@ Model.prototype.validateKerberos = function(guests, callback) {
   var count = guests.length;
   var invalids = [];
   for (var i = 0; i < guests.length; i++) {
-    var kerberos = guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
-    if (kerberos === '') {
-      count--;
-    } else {
-      (function(kerberos) {
-        exec('finger ' + kerberos + '@athena.dialup.mit.edu',
-            function(error, stdout, stderr) {
-              if (stdout.indexOf('no such user.') != -1) {
-                invalids.push(kerberos);
-              }
-              if (--count == 0) {
-                callback(invalids);
-              }
-            });
-      })(kerberos);
-    }
+    validation.validate(guests[i].kerberos, function(kerberos, isUser) {
+      if (!isUser) {
+        invalids.push(kerberos);
+      }
+      if (--count == 0) {
+        callback(invalids);
+      }
+    });
   }
 }
 
