@@ -10,9 +10,9 @@
 
 <ul>
 {{#each files}}
-	<li>
+        <li id="remove-minutes-li-{{this.id}}">
 		<a class="file" href="minutes?minute={{this.name}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
-		<a class="remove" href="minutesdel?minute={{this.name}}">remove</a>
+                <a id="remove-minutes-{{this.id}}" class="remove remove-minute" href="#">remove</a>
 	</li>
 {{/each}}
 </ul>
@@ -39,8 +39,12 @@ $('.remove').remove();
 <script>
 $(document).ready(function(){
 	if (!Modernizr.inputtypes.date) {
-	  console.log('hellasdfo');
 		$('.nodate').text('Format YYYY-MM-DD');
 	}
+});
+$('.remove-minute').on('click', function(e) {
+  id = e.target.id.substring('remove-minutes-'.length);
+  $.ajax('/minutes', { data: { id: id}, type: "DELETE" });
+  $('#remove-minutes-li-' + id).remove();
 });
 </script>

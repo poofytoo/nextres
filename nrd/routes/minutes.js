@@ -74,8 +74,8 @@ exports.removeminutes = function(req, res) {
             files: files,
             error: 'Invalid permissions.'});
         });
-      } else if (req.query.minute) {
-        minutesModel.removeFile(req.query.minute, function(error) {
+      } else if (req.body.id) {
+        minutesModel.removeFile(req.body.id, function(error) {
           minutesModel.getFiles(function(error, files) {
             console.log('files: ' + files);
             res.render('base.html', {user: req.user,

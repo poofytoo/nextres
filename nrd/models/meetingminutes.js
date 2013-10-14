@@ -24,10 +24,10 @@ House.prototype.addFile = function(name, date, callback) {
   });
 }
 
-House.prototype.removeFile = function(name, callback) {
+House.prototype.removeFile = function(id, callback) {
   this.db.query().
     deleteFrom('next-minutes').
-    where('name = ?', [name]).
+    where('id = ?', [id]).
     limit(1);
   this.db.execute(function(error, result) {
     callback(error);

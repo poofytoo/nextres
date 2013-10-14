@@ -152,8 +152,7 @@ app.post('/reviewapps', funding.edit);
  */
 app.get('/minutes', minutes.viewminutes);
 app.post('/minutes', minutes.editminutes);
-// TODO: make a post request
-app.get('/minutesdel', minutes.removeminutes);
+app.delete('/minutes', minutes.removeminutes);
 
 app.get('/roomreservations', reservations.view);
 app.post('/roomreservations', reservations.edit);
