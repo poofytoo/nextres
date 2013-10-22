@@ -12,10 +12,15 @@ var qs = require('qs');
 var validation = require('./validation');
 var df = require('./dateformat');
 var mailer = require('./mailer');
+var User = require('./user');
+var userModel = new User();
 
 const calRoot = "https://www.googleapis.com/calendar/v3/";
 const calID = "87a94e6q5l0nb6bfphe3192uv8@group.calendar.google.com";
 const MAX_DAYS = 60;  // number of days in the future that room can be reserved
+
+function Reservation() {
+};
 
 function toRFC3339(date, time) {
   // New York time zone is -04:00
@@ -87,7 +92,7 @@ function removeEvent(access_token, id, callback) {
   }, callback);
 }
 
-exports.getEventsWithUser = function(user, callback) {
+Reservation.prototype.getEventsWithUser = function(user, callback) {
   gaccount.auth(function(err, access_token) {
     var now = new Date();
     now.setDate(now.getDate() - 1); var timeMin = toRFC3339(now);
@@ -113,7 +118,7 @@ exports.getEventsWithUser = function(user, callback) {
   });
 }
 
-exports.reserve = function(user, params, callback) {
+Reservation.prototype.reserve = function(user, params, callback) {
   params.resident1 = user.kerberos;
   if (params.resident1 === params.resident2 ||
       params.resident1 === params.resident3 ||
@@ -121,12 +126,21 @@ exports.reserve = function(user, params, callback) {
         callback({'error': 'Duplicate resident field.'});
         return;
       }
-  validation.validate(params.resident2, function(kerberos, isUser) {
-    if (!isUser) {
+  function isAllowed(kerberos, callback) {
+    if (kerberos === '') {
+      callback(true);
+    } else {
+      userModel.getKerberos(kerberos, function(error, user) {
+        callback(user);
+      });
+    }
+  };
+  isAllowed(params.resident2, function(user) {
+    if (!user) {
       callback({'error': 'Invalid kerberos for resident 2.'});
     } else {
-      validation.validate(params.resident3, function(kerberos_, isUser_) {
-        if (!isUser_) {
+      isAllowed(params.resident3, function(user_) {
+        if (!user_) {
           callback({'error': 'Invalid kerberos for resident 3.'});
         } else {
           gaccount.auth(function(err, access_token) {
@@ -157,7 +171,7 @@ exports.reserve = function(user, params, callback) {
 
 
 
-function removeReservation(id, callback) {
+Reservation.prototype.removeReservation = function(id, callback) {
   gaccount.auth(function (err, access_token) {
     removeEvent(access_token, id, function(err, res, body) {
       callback(err);
@@ -165,9 +179,7 @@ function removeReservation(id, callback) {
   });
 }
 
-exports.removeReservation = removeReservation;
-
-exports.denyReservation = function(id, reason, callback) {
+Reservation.prototype.denyReservation = function(id, reason, callback) {
   gaccount.auth(function (err, access_token) {
     getEvent(access_token, id, function(err, res, body) {
       mailer.denyRoom(body, reason);
@@ -177,3 +189,5 @@ exports.denyReservation = function(id, reason, callback) {
     });
   });
 }
+
+module.exports = Reservation
