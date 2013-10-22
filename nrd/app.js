@@ -155,10 +155,14 @@ app.get('/minutes', minutes.viewminutes);
 app.post('/minutes', minutes.editminutes);
 app.delete('/minutes', minutes.removeminutes);
 
+/*
+ * Room Reservation functions
+ */
 app.get('/roomreservations', reservations.view);
 app.post('/roomreservations', reservations.edit);
 app.delete('/roomreservations', reservations.delete);
 app.post('/roomreservationdeny', reservations.deny);
+app.get('/managereservations', reservations.manage);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

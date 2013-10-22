@@ -63,4 +63,21 @@ exports.deny = function(req, res) {
   }
 };
 
+exports.manage =  function(req, res) {
+  if (req.user !== undefined) {
+    util.registerContent('managereservations');
+    model.getPermissions(req.user.id, function(permissions) {
+      reservationModel.getEventsWithUser(req.user, function(userEvents, allEvents) {
+        res.render('base.html', {
+          user: req.user,
+          permissions: permissions,
+          userEvents: userEvents,
+          allEvents: allEvents
+        });
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
+}
 
