@@ -244,7 +244,16 @@ body {
 	td {
 		min-width: 100px;
 	}
+	
+	input {
+	&.time {
+		display: inline;
+		width: 100px;
+		min-width: 100px;
+	}
 }
+}
+
 
 input[type="text"], input[type="password"] {
 	border: 1px solid #ccc;
@@ -397,5 +406,26 @@ table {
 		.empty {
 			opacity: 0.2;
 		}
+	}
+}
+
+.calendarIframe {
+	margin-top: 25px;
+}
+
+.manage-reservations {
+	margin-top: 10px;
+	
+	.deny-reservation {
+		background-color: $alertred;
+		&:hover {
+			cursor: pointer;
+		}
+	}
+	textarea {
+		height: 30px;
+	}
+	li {
+		padding: 2px;
 	}
 }

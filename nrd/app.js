@@ -403,6 +403,25 @@ app.delete('/roomreservations', function(req, res) {
   }
 });
 
+//Manage Reservations
+app.get('/managereservations', function(req, res) {
+  if (req.user !== undefined) {
+    registerContent('managereservations');
+    model.getPermissions(req.user.id, function(permissions) {
+      reservations.getEventsWithUser(req.user, function(userEvents, allEvents) {
+        res.render('base.html', {
+          user: req.user,
+          permissions: permissions,
+          userEvents: userEvents,
+          allEvents: allEvents
+        });
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.post('/roomreservationdeny', function(req, res) {
   if (req.user !== undefined) {
     reservations.denyReservation(req.body.id, req.body.reason, function(err) {

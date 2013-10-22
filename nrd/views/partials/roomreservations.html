@@ -18,21 +18,11 @@
 	</ul>
 {{/if}}
 
-{{#if permissions.EDITRESERVATIONS}}
-<h1>All Room Resrvations</h1>
-<ul>
-  {{#each allEvents}}
-  <li class="reservation" id="process-reservation-li-{{this.id}}">
-  {{this.summary}} at {{this.formattedTime}}
-  <span id="deny-reservation-{{this.id}}" class="deny-reservation">Deny</span>
-  <span>Reason: <textarea id="deny-reservation-reason-{{this.id}}"></textarea></span>
-  </li>
-  {{/each}}
-</ul>
-{{/if}}
 
 <h1>Reserve a Room</h1>
 <p>All room reservations follow the policies updated on October 10, 2013, which can be found in the updated community handbook.</p>
+
+
 <form action="roomreservations" method="post">
 
     <fieldset>
@@ -56,6 +46,7 @@
         	<option value="1">&ge;10</option>
     	</select>
     </fieldset>
+    <!-- reservation part 2 -->
     <div class="part2" style="display: none;">
     <h2>Signatories</h2>
     <p><span class='nres'></span> Next House Residents are required to reserve the <span class='nroom'></span>. Please enter their <em>Kerberos</em></p>
@@ -82,24 +73,31 @@
     		<td><input type="date" name="date" required></td>
     	</tr>
     	<tr>
-    		<td><label for="date">Start Time</label></td>
-    		<td><input type="time" name="start" required></td>
+    		<td><label for="date">Time</label></td>
+    		<td>
+    			<input id="startTime" name="start" type="text" class="time ui-timepicker-input" autocomplete="off"> to 
+    			<input id="endTime" name="end" type="text" class="time ui-timepicker-input" autocomplete="off">
+    		</td>
+    		<!--<td><input type="time" id="testTime" name="start" required></td>-->
     	</tr>
+    	<!--
     	<tr>
     		<td><label for="date">End Time</label></td>
     		<td><input type="time" name="end" required></td>
     	</tr>
+    	-->
     </table>
     <p>
-    	Short Description of Event/Activity: <br />
+    	Description of Event/Activity: <br />
     	<textarea name="reason" rows="5" cols="60"></textarea>
     </p>
     <input type="submit" value="Submit Room Reservation Request">
 </form>
 
-<iframe src="https://www.google.com/calendar/embed?src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&ctz=America/New_York" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 
 </div> <!-- closetag for part2. not ideal, I know -->
+
+<iframe class="calendarIframe" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
 
 <script type="text/javascript">
   $('.remove_reservation').on('click', function(e) {
@@ -141,10 +139,26 @@
   	
   });
 
+
+
+  $('#startTime').timepicker({ 'timeFormat': 'H:i'});
+  $('#startTime').on('changeTime', function() {
+	stime = $(this).val();
+	$('#endTime').timepicker('option', {'minTime': stime});
+  });
+  $('#endTime').timepicker({
+  	'timeFormat': 'H:i',
+	'minTime': '2:00pm',
+	'maxTime': '12:00am',
+	'showDuration': true
+  });
+
   $('.deny-reservation').on('click', function(e) {
       event_id = e.target.id.substring('deny-reservation-'.length);
       reason = $('#deny-reservation-reason-' + event_id).val();
       $.ajax('/roomreservationdeny', {data: {id: event_id, reason: reason}, type: "POST"});
       $('#deny-reservation-li-' + event_id).remove();
   });
+  
+  
 </script>

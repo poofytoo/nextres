@@ -100,6 +100,7 @@ exports.getEventsWithUser = function(user, callback) {
           for (var j = 0; j < body.items[i].attendees.length; j++) {
             var creator = body.items[i].attendees[j];
             body.items[i].formattedTime = formatRFC3339(body.items[i].start.dateTime);
+            console.log(body);
             if (creator && creator.email === user.kerberos + '@mit.edu') {
               userEvents.push(body.items[i]);
             }

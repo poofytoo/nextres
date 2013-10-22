@@ -171,6 +171,10 @@ body {
   margin-bottom: 20px; }
   .room-reserve td {
     min-width: 100px; }
+  .room-reserve input.time {
+    display: inline;
+    width: 100px;
+    min-width: 100px; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -282,3 +286,17 @@ table tr td {
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
   .displaytable tr .empty {
     opacity: 0.2; }
+
+.calendarIframe {
+  margin-top: 25px; }
+
+.manage-reservations {
+  margin-top: 10px; }
+  .manage-reservations .deny-reservation {
+    background-color: #c94f4f; }
+    .manage-reservations .deny-reservation:hover {
+      cursor: pointer; }
+  .manage-reservations textarea {
+    height: 30px; }
+  .manage-reservations li {
+    padding: 2px; }
