@@ -243,7 +243,8 @@ textarea {
 
 .nodate {
   font-size: 14px;
-  color: #aaa; }
+  color: #aaa;
+  display: block; }
 
 table tr td {
   vertical-align: middle;

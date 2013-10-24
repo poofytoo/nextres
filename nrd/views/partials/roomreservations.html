@@ -20,7 +20,7 @@
 
 
 <h1>Reserve a Room</h1>
-<p>All room reservations follow the policies updated on October 10, 2013, which can be found in the updated community handbook.</p>
+<p>All room reservations follow the policies updated on October 23, 2013, which can be found in the updated community handbook.</p>
 
 
 <form action="roomreservations" method="post">
@@ -70,10 +70,14 @@
     <table class="room-reserve">
     	<tr>
     		<td><label for="date">Date</label></td>
-    		<td><input type="date" name="date" required></td>
+    		<td>
+  				<span class="nodate"></span>
+  				<input type="date" name="date" required>
+  			</td>
     	</tr>
     	<tr>
-    		<td><label for="date">Time</label></td>
+    		<td>
+    			<label for="date">Time</label></td>
     		<td>
     			<input id="startTime" name="start" type="text" class="time ui-timepicker-input" autocomplete="off"> to 
     			<input id="endTime" name="end" type="text" class="time ui-timepicker-input" autocomplete="off">
@@ -98,8 +102,8 @@
 </div> <!-- closetag for part2. not ideal, I know -->
 
 <iframe class="calendarIframe" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
-
 <script type="text/javascript">
+
   $('.remove_reservation').on('click', function(e) {
     var yes = $('<a class="remove">').html('are you sure?').on('click',
       function(e2) {
@@ -140,25 +144,44 @@
   });
 
 
-
-  $('#startTime').timepicker({ 'timeFormat': 'H:i'});
+$(document).ready(function(){
+console.log("hey");
+	if (!Modernizr.inputtypes.date) {
+		$('.nodate').text('Format YYYY-MM-DD');
+	}
+	
+  $('#startTime').timepicker({ 
+  	'timeFormat': 'H:i', 
+	'maxTime': '23:59',
+  	'forceRoundTime': true 
+  });
   $('#startTime').on('changeTime', function() {
 	stime = $(this).val();
+	if (stime == "24:00") {
+		$(this).val("23:59");
+	}
 	$('#endTime').timepicker('option', {'minTime': stime});
   });
   $('#endTime').timepicker({
   	'timeFormat': 'H:i',
 	'minTime': '2:00pm',
 	'maxTime': '12:00am',
-	'showDuration': true
+	'showDuration': true,
+	'forceRoundTime': true 
   });
-
+  $('#endTime').on('changeTime', function() {
+	etime = $(this).val();
+	if (etime == "24:00") {
+		$(this).val("23:59");
+	};
+  })
   $('.deny-reservation').on('click', function(e) {
       event_id = e.target.id.substring('deny-reservation-'.length);
       reason = $('#deny-reservation-reason-' + event_id).val();
       $.ajax('/roomreservationdeny', {data: {id: event_id, reason: reason}, type: "POST"});
       $('#deny-reservation-li-' + event_id).remove();
   });
+});
   
   
 </script>

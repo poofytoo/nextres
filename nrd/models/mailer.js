@@ -1,6 +1,6 @@
 var nodemailer = require('../node_modules/nodemailer');
 
-const NEXT_EXEC = "sparkyroombot@gmail.com";  // change to next-exec@mit.edu
+const NEXT_EXEC = "next-exec@mit.edu";  // change to next-exec@mit.edu
 
 function mail(receivers, subject, htmlEmail, textEmail) {
   console.log('MAILING TO ' + receivers);
@@ -97,12 +97,20 @@ exports.denyApplication = function(email, firstName) {
 // reserveParams contains attributes of the reservation details
 exports.reserveRoom = function(reserveParams) {
   var subject = "Room Reservation made by " + reserveParams.resident1;
-  var htmlEmail = "Next Exec, <br />" +
-    "A room reservation has been made. (Insert reservation details here.) Please go to <a href='#'>insert actual link here</a> to view. <br />" +
+  var htmlEmail = "Hello Next Exec, <br />" +
+  	"<br />" +
+    "A room reservation has been made. Here are the details: <br /><br />" +
+    "<b>Room</b>: " + reserveParams.room + "<br />" +
+    "<b>Date</b>: " + reserveParams.date + "<br />" + 
+    "<b>Time</b>: " + reserveParams.start + " to " + reserveParams.end + "<br />" + 
+    "<b>Description</b>: " + reserveParams.reason + "<br /><br />" +
+    "If this looks ok, feel free to ignore this email. " + 
+    "If not, please go to <a href='http://nextres.mit.edu/managereservations'>NextRes</a> to view/deny... " + 
+    "after all, I don't know what looks good or not, I'm just a puppy! woof. <br />" +
     "<br />" +
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
-  var textEmail = "insert text version of reserveRoom here";
+  var textEmail = htmlEmail;
   mail(NEXT_EXEC, subject, htmlEmail, textEmail);
 }
 
@@ -113,13 +121,13 @@ exports.denyRoom = function(item, reason) {
     receivers.push(item.attendees[i].email);
   }
   var subject = "Room Reservation denied";
-  var htmlEmail = "Dear recipient, <br />" +
+  var htmlEmail = "Hi, <br /><br />" +
     "Your room reservation for " + item.summary + " has been denied for the following reason: <br /><br />" +
     reason + "<br /><br />" +
-    "Please contact nextres@mit.edu for further information. <br />" +
+    "Please contact nextexec@mit.edu if you have any questions. (or reply to this email!) <br />" +
     "<br />" +
     "Cheers, <br />" +
     "NextExec";
-  var textEmail = "insert text version of denyRoom email here";
+  var textEmail = htmlEmail;
   mail(receivers.join(), subject, htmlEmail, textEmail);
 }
