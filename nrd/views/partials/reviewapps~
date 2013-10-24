@@ -1,6 +1,0 @@
-{{#if error}}
-  <div class="error-msg">{{error}}</div>
-{{/if}}
-<h1>Review Funding Applications</h1>
-<p>Approve/reject proposed funding for small projects.</p>
-

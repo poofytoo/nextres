@@ -1,0 +1,35 @@
+{{#if error}}
+  <div class="error-msg">{{error}}</div>
+{{/if}}
+{{#if success}}
+  <div class="success-msg">{{success}}</div>
+{{/if}}
+
+{{#if permissions.EDITRESERVATIONS}}
+<h1>All Room Resrvations</h1>
+<p>Below are all the upcoming room reservations for Next House. <br />
+Include a reason for denying the room reservation before hitting Deny.</p>
+
+
+<ul class="manage-reservations">
+  {{#each allEvents}}
+  <li class="reservation" id="process-reservation-li-{{this.id}}">
+  {{this.summary}} at {{this.formattedTime}}
+  <span>Reason: <textarea id="deny-reservation-reason-{{this.id}}"></textarea></span>
+  <span id="deny-reservation-{{this.id}}" class="deny-reservation">Deny</span>
+  </li>
+  {{/each}}
+</ul>
+{{/if}}
+
+<iframe class="calendarIframeManage" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
+
+<script>
+  $('.deny-reservation').on('click', function(e) {
+      event_id = e.target.id.substring('deny-reservation-'.length);
+      reason = $('#deny-reservation-reason-' + event_id).val();
+      $.ajax('/roomreservationdeny', {data: {id: event_id, reason: reason}, type: "POST"});
+      $('#process-reservation-li-' + event_id).remove();
+  });
+  
+</script>

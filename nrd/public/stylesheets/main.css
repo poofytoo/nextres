@@ -109,7 +109,10 @@ body {
     font-weight: 400;
     margin-bottom: 5px; }
   .content h2 {
-    margin-bottom: 20px; }
+    font-size: 20px;
+    margin-bottom: 5px;
+    margin-top: 30px;
+    font-weight: 400; }
   .content p {
     font-size: 14px;
     line-height: normal;
@@ -132,7 +135,7 @@ body {
       font-weight: 600; }
   .content input {
     display: block;
-    width: 160px;
+    min-width: 160px;
     margin-top: 5px;
     margin-right: 10px; }
   .content table {
@@ -143,7 +146,7 @@ body {
     .content ul li {
       border-bottom: 1px solid #ddd;
       position: relative; }
-      .content ul li a.file {
+      .content ul li a.file, .content ul li.reservation {
         display: block;
         padding: 10px; }
       .content ul li a.remove {
@@ -155,13 +158,23 @@ body {
         color: #ddd;
         padding: 10px; }
         .content ul li a.remove:hover {
-          background-color: #c94f4f; }
+          background-color: #c94f4f;
+          cursor: pointer; }
       .content ul li:hover {
         background-color: #f3f3f3; }
   .content .email-special p {
     line-height: 20px; }
   .content .email-special h2 {
     color: #ccc; }
+
+.room-reserve {
+  margin-bottom: 20px; }
+  .room-reserve td {
+    min-width: 100px; }
+  .room-reserve input.time {
+    display: inline;
+    width: 100px;
+    min-width: 100px; }
 
 input[type="text"], input[type="password"] {
   border: 1px solid #ccc;
@@ -177,12 +190,17 @@ input[type="submit"] {
   padding: 7px;
   color: #fff;
   background-color: #a4d654;
-  width: 80px;
   border: none;
   border-radius: 5px; }
   input[type="submit"]:hover {
     background-color: #94C447;
     cursor: pointer; }
+
+fieldset {
+  font-size: 14px; }
+  fieldset label {
+    width: 140px;
+    display: inline-block; }
 
 input[type="date"] {
   display: inline; }
@@ -212,9 +230,21 @@ input[type="button"] {
     background-color: #ddd;
     cursor: pointer; }
 
+textarea {
+  border: 1px solid #ccc;
+  padding: 5px;
+  outline: none;
+  font-size: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-style: sans-serif; }
+  textarea:focus {
+    border: 1px solid #FFAC00; }
+
 .nodate {
   font-size: 14px;
-  color: #aaa; }
+  color: #aaa;
+  display: block; }
 
 table tr td {
   vertical-align: middle;
@@ -257,3 +287,17 @@ table tr td {
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
   .displaytable tr .empty {
     opacity: 0.2; }
+
+.calendarIframe {
+  margin-top: 25px; }
+
+.manage-reservations {
+  margin-top: 10px; }
+  .manage-reservations .deny-reservation {
+    background-color: #c94f4f; }
+    .manage-reservations .deny-reservation:hover {
+      cursor: pointer; }
+  .manage-reservations textarea {
+    height: 30px; }
+  .manage-reservations li {
+    padding: 2px; }

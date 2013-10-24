@@ -15,6 +15,9 @@
     "bcrypt": "*",
     "mysql2": "*",
     "hbs": "*",
-    "nodemailer": "*"
+    "nodemailer": "*",
+    "request": "*",
+    "google-oauth-serviceaccount": "*",
+    "qs": "*"
   }
 }

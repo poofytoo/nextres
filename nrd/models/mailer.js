@@ -1,5 +1,7 @@
 var nodemailer = require('../node_modules/nodemailer');
 
+const NEXT_EXEC = "next-exec@mit.edu";  // change to next-exec@mit.edu
+
 function mail(receivers, subject, htmlEmail, textEmail) {
   console.log('MAILING TO ' + receivers);
   //contacting user
@@ -78,7 +80,7 @@ exports.approveApplication = function(email, firstName) {
 }
 
 exports.denyApplication = function(email, firstName) {
-  var subject = "";
+  var subject = "Result of Application for Project Funding";
   var htmlEmail = "Hello " + firstName+ ", <br /><br />" + 
     "NextExec has denied your application for the following reason(s): <br />" +
     reason +
@@ -90,4 +92,42 @@ exports.denyApplication = function(email, firstName) {
     "NextExec";
   var textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another funding proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
   mail(email, subject, htmlEmail, textEmail);
+}
+
+// reserveParams contains attributes of the reservation details
+exports.reserveRoom = function(reserveParams) {
+  var subject = "Room Reservation made by " + reserveParams.resident1;
+  var htmlEmail = "Hello Next Exec, <br />" +
+  	"<br />" +
+    "A room reservation has been made. Here are the details: <br /><br />" +
+    "<b>Room</b>: " + reserveParams.room + "<br />" +
+    "<b>Date</b>: " + reserveParams.date + "<br />" + 
+    "<b>Time</b>: " + reserveParams.start + " to " + reserveParams.end + "<br />" + 
+    "<b>Description</b>: " + reserveParams.reason + "<br /><br />" +
+    "If this looks ok, feel free to ignore this email. " + 
+    "If not, please go to <a href='http://nextres.mit.edu/managereservations'>NextRes</a> to view/deny... " + 
+    "after all, I don't know what looks good or not, I'm just a puppy! woof. <br />" +
+    "<br />" +
+    "Cheers, <br />" +
+    "Sparky, the Next House Mailbot";
+  var textEmail = htmlEmail;
+  mail(NEXT_EXEC, subject, htmlEmail, textEmail);
+}
+
+// item is a Google Calendar events resource
+exports.denyRoom = function(item, reason) {
+  var receivers = [NEXT_EXEC];
+  for (var i = 0; i < item.attendees.length; i++) {
+    receivers.push(item.attendees[i].email);
+  }
+  var subject = "Room Reservation denied";
+  var htmlEmail = "Hi, <br /><br />" +
+    "Your room reservation for " + item.summary + " has been denied for the following reason: <br /><br />" +
+    reason + "<br /><br />" +
+    "Please contact nextexec@mit.edu if you have any questions. (or reply to this email!) <br />" +
+    "<br />" +
+    "Cheers, <br />" +
+    "NextExec";
+  var textEmail = htmlEmail;
+  mail(receivers.join(), subject, htmlEmail, textEmail);
 }

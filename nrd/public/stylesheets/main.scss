@@ -153,7 +153,10 @@ body {
 	}
 	
 	h2 {
-		margin-bottom: 20px;
+		font-size: 20px;
+		margin-bottom: 5px;
+		margin-top: 30px;
+		font-weight: 400;
 	}
 	
 	p {
@@ -185,7 +188,7 @@ body {
 	}
 	input {
 		display: block;
-		width: 160px;
+		min-width: 160px;
 		margin-top: 5px;
 		margin-right: 10px;
 	}
@@ -200,7 +203,7 @@ body {
 			border-bottom: 1px solid #ddd;
 			position: relative;
 			
-			a.file {
+			a.file, &.reservation {
 				display: block;
 				padding: 10px;
 			}
@@ -215,6 +218,7 @@ body {
 				
 				&:hover {
 					background-color: $alertred;
+					cursor: pointer;
 				}
 			}
 			&:hover {
@@ -234,6 +238,23 @@ body {
 	}
 }
 
+.room-reserve {
+	margin-bottom: 20px;
+	
+	td {
+		min-width: 100px;
+	}
+	
+	input {
+	&.time {
+		display: inline;
+		width: 100px;
+		min-width: 100px;
+	}
+}
+}
+
+
 input[type="text"], input[type="password"] {
 	border: 1px solid #ccc;
 	padding: 5px;
@@ -251,13 +272,21 @@ input[type="submit"] {
 	padding: 7px;
 	color: #fff;
 	background-color: $buttongreen;
-	width: 80px;
 	border: none;
 	border-radius: 5px;	
 
 	&:hover {
 		background-color: #94C447;
 		cursor: pointer;
+	}
+}
+
+fieldset {
+	font-size: 14px;
+	
+	label {
+		width: 140px;
+		display: inline-block;
 	}
 }
 
@@ -299,10 +328,25 @@ input[type="button"] {
 	}
 }
 
+textarea {
+	border: 1px solid #ccc;
+	padding: 5px;
+	outline: none;
+	font-size: 12px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-style: sans-serif;
+	&:focus {
+		border: 1px solid #FFAC00;
+		
+	}
+}
+
 // In case the user does not have HTML5 Date input
 .nodate {
 	font-size: 14px;
 	color: #aaa;
+	display: block;
 }
 
 table {
@@ -363,5 +407,26 @@ table {
 		.empty {
 			opacity: 0.2;
 		}
+	}
+}
+
+.calendarIframe {
+	margin-top: 25px;
+}
+
+.manage-reservations {
+	margin-top: 10px;
+	
+	.deny-reservation {
+		background-color: $alertred;
+		&:hover {
+			cursor: pointer;
+		}
+	}
+	textarea {
+		height: 30px;
+	}
+	li {
+		padding: 2px;
 	}
 }

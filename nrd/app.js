@@ -10,6 +10,8 @@ var bcrypt = require('bcrypt');
 var Consolidate = require('consolidate');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var Model = require('./models/model');
+var reservations = require('./models/reservations');
 var hbs = require('hbs');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
@@ -24,6 +26,7 @@ var funding = require('./routes/funding');
 var minutes = require('./routes/minutes');
 var util = require('./routes/util');
 var site = require('./routes/site');
+var reservations = require('./routes/reservations');
 
 /**
  * Models
@@ -43,7 +46,7 @@ app.set('view options', {layout: false});
 
 hbs.registerPartials(__dirname + '/views/partials');
 
-app.use(express.favicon());
+app.use(express.favicon(__dirname + '/public/images/favicon.ico')); 
 app.use(express.cookieParser());
 app.use(express.logger('dev'));
 
@@ -112,6 +115,7 @@ app.post('/login',
   	failureRedirect: '/loginfail'
   }), user.loginsuccess
 );
+
 app.post('/pwreset', user.passwordreset);
 app.get('/login', user.login);
 app.get('/logout', user.logout);
@@ -149,9 +153,16 @@ app.post('/reviewapps', funding.edit);
  */
 app.get('/minutes', minutes.viewminutes);
 app.post('/minutes', minutes.editminutes);
-// TODO: make a post request
-app.get('/minutesdel', minutes.removeminutes);
+app.delete('/minutes', minutes.removeminutes);
 
+/*
+ * Room Reservation functions
+ */
+app.get('/roomreservations', reservations.view);
+app.post('/roomreservations', reservations.edit);
+app.delete('/roomreservations', reservations.delete);
+app.post('/roomreservationdeny', reservations.deny);
+app.get('/managereservations', reservations.manage);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

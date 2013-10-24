@@ -1,0 +1,9 @@
+{
+    "keyFile": "key.pem",
+        "expiresInMinuteas": 60,
+        "claim": {
+            "iss": "89011747307-1kahn4gnllj93v5k8senqn4tas7a6inb@developer.gserviceaccount.com",
+                "scope": "https://www.googleapis.com/auth/calendar",
+                "aud": "https://accounts.google.com/o/oauth2/token"
+        }
+}
