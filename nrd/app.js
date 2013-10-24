@@ -161,6 +161,7 @@ app.delete('/minutes', minutes.removeminutes);
 app.get('/roomreservations', reservations.view);
 app.post('/roomreservations', reservations.edit);
 app.delete('/roomreservations', reservations.delete);
+app.post('/roomreservationconfirm', reservations.confirm);
 app.post('/roomreservationdeny', reservations.deny);
 app.get('/managereservations', reservations.manage);
 

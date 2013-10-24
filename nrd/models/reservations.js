@@ -84,6 +84,18 @@ function insertEvent(access_token, params, callback) {
   }, callback);
 }
 
+function confirmEvent(access_token, id, callback) {
+  getEvent(access_token, id, function(err, res, body) {
+    var updateURL = calRoot + "calendars/" + calID + "/events/" + id + "?access_token=" + access_token;
+    body['status'] = 'confirmed';
+    request.put({
+      url: updateURL,
+      body: body,
+      json: true
+    }, callback);
+  });
+}
+
 function removeEvent(access_token, id, callback) {
   var delURL = calRoot + "calendars/" + calID + "/events/" + id + "?access_token=" + access_token;
   request.del({
@@ -101,23 +113,23 @@ Reservation.prototype.getEventsWithUser = function(user, callback) {
       var userEvents = [];
       var allEvents = [];
       // check if this is an event added by nextres, or by the GCalendar UI
-	      if (body.items) {
-	        for (var i = 0; i < body.items.length; i++) {
-	          console.log(body.items);
-      		   if(typeof body.items[i].attendees != 'undefined'){
-		          for (var j = 0; j < body.items[i].attendees.length; j++) {
-		            var creator = body.items[i].attendees[j];
-		            body.items[i].formattedTime = formatRFC3339(body.items[i].start.dateTime);
-		            console.log(body);
-		            if (creator && creator.email === user.kerberos + '@mit.edu') {
-		              userEvents.push(body.items[i]);
-		            }
-	     			 
-		          }
-	          }
-	          allEvents.push(body.items[i]);
-	        }
-	      }
+      if (body.items) {
+        body.items.sort(function(event1, event2) {
+          return event1.updated > event2.updated;
+        });
+        for (var i = 0; i < body.items.length; i++) {
+          if(typeof body.items[i].attendees != 'undefined'){
+            for (var j = 0; j < body.items[i].attendees.length; j++) {
+              var creator = body.items[i].attendees[j];
+              body.items[i].formattedTime = formatRFC3339(body.items[i].start.dateTime);
+              if (creator && creator.email === user.kerberos + '@mit.edu') {
+                userEvents.push(body.items[i]);
+              }
+            }
+          }
+          allEvents.push(body.items[i]);
+        }
+      }
       callback(userEvents, allEvents);
     });
   });
@@ -179,6 +191,14 @@ Reservation.prototype.reserve = function(user, params, callback) {
 Reservation.prototype.removeReservation = function(id, callback) {
   gaccount.auth(function (err, access_token) {
     removeEvent(access_token, id, function(err, res, body) {
+      callback(err);
+    });
+  });
+}
+
+Reservation.prototype.confirmReservation = function(id, callback) {
+  gaccount.auth(function (err, access_token) {
+    confirmEvent(access_token, id, function(err, res, body) {
       callback(err);
     });
   });

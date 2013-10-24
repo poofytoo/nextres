@@ -53,6 +53,16 @@ exports.delete = function(req, res) {
   }
 };
 
+exports.confirm = function(req, res) {
+  if (req.user !== undefined) {
+    reservationModel.confirmReservation(req.body.id, function(err) {
+      res.json({'okay': !err});
+    });
+  } else {
+    res.redirect('/login');
+  }
+};
+
 exports.deny = function(req, res) {
   if (req.user !== undefined) {
     reservationModel.denyReservation(req.body.id, req.body.reason, function(err) {
