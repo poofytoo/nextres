@@ -1,5 +1,6 @@
 var Database = require('./db');
 var mailer = require('./mailer');
+var logger = require('./logger');
 
 var exec = require('child_process').exec;
 
@@ -31,7 +32,7 @@ Funding.prototype.submitApp = function(id, responseFields, callback) {
 }
 
 Funding.prototype.getApp = function(id, callback) {
-  console.log(id);
+  logger.info(id);
   this.db.query().
     select(['*']).
     from('next-project-funding').
@@ -39,13 +40,13 @@ Funding.prototype.getApp = function(id, callback) {
     orderByDESC('Timestamp'); // Selects most recent application
   var db = this.db;
   this.db.execute(function(error, result) {
-    console.log(id);
+    logger.info(id);
     if (result==undefined) {
       db.execute(function(error, result) {
         callback(error, result);
       });
     } else {
-      console.log(result);
+      logger.info(result);
       callback(error, result[0]);
     }
   });
@@ -76,16 +77,16 @@ Funding.prototype.approveApp = function(timestamp, email, firstName, callback) {
     db.execute(function(error, result) {
       if (error) {
         returnError += error + "\n";
-        console.log('Error: ' + error);
+        logger.error('Error: ' + error);
       } else {
-        console.log('Application approved: ' + timestamp);
+        logger.info('Application approved: ' + timestamp);
         mailer.approveApplication(email, firstName);
       }
     callback(returnError);
     });    
     db.execute(function(error, result) {
       if (error) {
-        console.log('Error: ' + error);
+        logger.error('Error: ' + error);
       }
     });
 }
@@ -104,16 +105,16 @@ Funding.prototype.denyApp = function(timestamp, reason, email, firstName, callba
    db.execute(function(error, result) {
      if (error) {
         returnError += error + "\n";
-        console.log('Error: ' + error);
+        logger.error('Error: ' + error);
      } else {
-        console.log('Application denied: ' + timestamp);
+        logger.info('Application denied: ' + timestamp);
         mailer.denyApplication(email, firstName);
       }    
   callback(returnError);
   });
   db.execute(function(error, result) {
       if (error) {
-        console.log('Error: ' + error);
+        logger.error('Error: ' + error);
       }
   });
 }

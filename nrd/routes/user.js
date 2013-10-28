@@ -5,6 +5,7 @@ var User = require('../models/user');
 var userModel = new User();
 var Model = require('../models/model');
 var model = new Model();
+var logger = require('../models/logger');
 
 /*
  * GET users listing.
@@ -17,7 +18,7 @@ exports.listall = function(req, res){
 exports.list = function(req, res) {
   if (req.user !== undefined) {
     var id = req.user.id;
-    console.log(id);
+    logger.info(id);
     
     userModel.listUsers(id, function(error, result) {
       util.registerContent('allusers');
@@ -32,17 +33,17 @@ exports.list = function(req, res) {
 
 exports.editall = function(req, res) {
   users = req.body.massadd.split("\r\n");
-  console.log(users);
+  logger.info(users);
   var errorLog = "";
   var counter = users.length;
   for (key in users) {
     var user = users[key].replace(/ /g,'');
-    console.log(user);
+    logger.info(user);
     (function(u) {
     bcrypt.genSalt(10, function(err, salt) {
       var pw = util.randomPassword();
         bcrypt.hash(pw, salt, function(err, hash) {
-          console.log("ATTEMPTING TO CREATE USER FOR: " + u);
+          logger.info("ATTEMPTING TO CREATE USER FOR: " + u);
           userModel.createUser(u, hash, pw, function(error, result) {
             errorLog += error;
             counter --;
@@ -59,7 +60,7 @@ exports.editall = function(req, res) {
   var renderComplete = function(){
     if (req.user !== undefined) {
       var id = req.user.id;
-      console.log(id);
+      logger.info(id);
       
       userModel.listUsers(id, function(error, result) {
         util.registerContent('allusers');
@@ -90,7 +91,7 @@ exports.logout = function(req, res) {
 }
 
 exports.remove = function(req, res) {
-  console.log(req.body);
+  logger.info(req.body);
   if (req.user !== undefined) {
     userModel.removeUser(req.body.kerberos, function (error) {
       if (error) {
@@ -113,7 +114,7 @@ exports.loginsuccess = function(req, res) {
   if (req.user.id) {
   // If this function gets called, authentication was successful.
   // `req.user` contains the authenticated user.
-    console.log('login success: ' + req.user.username);
+    logger.info('login success: ' + req.user.username);
     util.registerContent('home');
     model.getPermissions(req.user.id, function(permissions) {
       res.render('base.html', {'user': req.user, 'permissions': permissions});
@@ -123,15 +124,15 @@ exports.loginsuccess = function(req, res) {
 
 // this is probably very unsecure..
 exports.passwordreset = function(req, res) {
-  console.log(req.body);
+  logger.info(req.body);
   if (req.user !== undefined) {
       kerberos = req.body.kerberos;
       userModel.getKerberos (kerberos, function(error, result) {
-        console.log(result);
+        logger.info(result);
         if (result!==undefined) {
         id = result['id'];
         var newPassword = util.randomPassword();
-        console.log(newPassword);
+        logger.info(newPassword);
         bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
                 userModel.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
@@ -150,7 +151,7 @@ exports.viewinfo = function(req, res) {
     userModel.getUser(req.user.id, function(error, result) {
       var info = result;
       util.registerContent('residentinfo');
-      console.log(info);
+      logger.info(JSON.stringify(info));
       model.getPermissions(req.user.id, function(permissions) {
         res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info});
       });
@@ -171,7 +172,7 @@ exports.editinfo = function(req, res) {
       userModel.getUser(req.user.id, function(error, result) {
         var info = result;
         util.registerContent('residentinfo');
-        console.log(info);
+        logger.info(JSON.stringify(info));
         model.getPermissions(req.user.id, function(permissions) {
           var success = "Your residence info has been updated."
           res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info, 'success': success});
@@ -186,7 +187,7 @@ exports.editinfo = function(req, res) {
 exports.viewpassword = function(req, res) {
   if (req.user !== undefined) {
     var id = req.user.id;
-    console.log(id);
+    logger.info(id);
     
     util.registerContent('changepassword');
     model.getPermissions(req.user.id, function(permissions) {
@@ -215,7 +216,7 @@ exports.editpassword = function(req, res) {
           } else {
           
             // THIS HERE IS A CALLBACK TREE. GOOD LUCK, FUTURE DEVS.
-            console.log('correct password');
+            logger.info('correct password');
             bcrypt.genSalt(10, function(err, salt) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
                 userModel.changePassword(id, hash, function(error, result) {

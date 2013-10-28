@@ -3,10 +3,11 @@ var Model = require('../models/model');
 var model = new Model();
 var GuestList = require('../models/guestlist');
 var guestlistModel = new GuestList();
+var logger = require('../models/logger');
 
 exports.view = function(req, res) {
   if (req.user !== undefined) {
-    console.log(req.user);
+    logger.info(req.user.id);
     guestlistModel.getGuests(req.user.id, function(error, result) {
       guests =[]
       for (var i = 1; i <= 3; i++) {
@@ -27,7 +28,7 @@ exports.view = function(req, res) {
 }
 
 exports.edit = function(req, res) {
-  console.log(req.user);
+  logger.info(req.user.id);
   if (req.user !== undefined) {
     guests = [];
     for (var i = 0; i < 3; i++) {
@@ -68,11 +69,10 @@ exports.edit = function(req, res) {
 
 exports.list = function(req, res) {
   if (req.user !== undefined) {
-    console.log(id);
     params = {};
-    var id = req.user.id
+    var id = req.user.id;
+    logger.info(id);
     guestlistModel.listGuests(id, params, function(error, result) {
-      console.log(result);
       util.registerContent('allguests');
       model.getPermissions(req.user.id, function(permissions) {
         res.render('base.html', {user: req.user, result: result, permissions: permissions});
@@ -87,7 +87,6 @@ exports.search = function(req, res) {
   var id = req.user.id;
   guestlistModel.listGuests(id, req.query, function(error, result) {
     if (result !== undefined){
-      console.log("this works");
       // Lol, I'm just going to render the HTML here.
       // TODO: CONVERT TO CLIENT SIDE HANDLEBAR PARSING
       html = ""

@@ -1,4 +1,5 @@
 var Database = require('./db');
+var logger = require('./logger');
 
 var exec = require('child_process').exec;
 
@@ -59,7 +60,7 @@ GuestList.prototype.addGuests = function(id, guests, callback) {
 }
 
 GuestList.prototype.getGuests = function(id, callback) {
-  console.log(id);
+  logger.info(id);
   this.db.query().
     select(['*']).
     from('next-guestlist').
@@ -76,7 +77,7 @@ GuestList.prototype.getGuests = function(id, callback) {
         callback(error, result);
       });
     } else {
-      console.log(result);
+      logger.info(result[0]);
       callback(error, result[0]);
     }
   });
@@ -84,7 +85,7 @@ GuestList.prototype.getGuests = function(id, callback) {
 
 GuestList.prototype.listGuests = function(id, params, callback) {
   if (params.search !== undefined){
-    console.log('searching');
+    logger.info('searching');
     var s = "%" + params.value + "%";
     this.db.query()
       .select(["*"])
@@ -94,7 +95,7 @@ GuestList.prototype.listGuests = function(id, params, callback) {
     .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s])
     .orderBy(params.sort);
     
-    console.log(this.db.queryString);
+    logger.info(this.db.queryString);
     this.db.execute(function(error, result) {
       callback(error, result)
     })
@@ -106,7 +107,9 @@ GuestList.prototype.listGuests = function(id, params, callback) {
       .rightJoin("next-guestlist")
       .on("`next-users`.id=`next-guestlist`.nextUser");
     this.db.execute(function(error, result) {
-      console.log(error);
+      if (error) {
+        logger.error(error);
+      }
       callback(error, result)
     });
   }

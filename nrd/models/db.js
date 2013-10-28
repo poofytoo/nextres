@@ -1,4 +1,5 @@
 var mysql = require('mysql2');
+var logger = require('./logger');
 
 // All these functions return the Query object back
 // so you can chain the functinos together like
@@ -60,7 +61,6 @@ Query.prototype.limit = function(limit) {
 }
 
 Query.prototype.insert = function(table, columns, values) {
-  console.log('insert query');
   this.queryString += 'INSERT INTO `' + table + '` ';
   this.queryString += '(' + columns.join() + ') ';
   this.queryString += 'VALUES (?) ';
@@ -142,11 +142,11 @@ Database.prototype.execute = function(callback) {
   if (queryString !== undefined && queryString.isDefined()) {
     this.pool.getConnection(function(err, connection) {
         if (err) {
-          console.log(err);
+          logger.error(err);
           callback(err);
         } else {
-          console.log(queryString.queryString);
-          console.log(queryString.arr);
+          logger.info(queryString.queryString);
+          logger.info(queryString.arr);
           connection.query(queryString.queryString, queryString.arr,
             function(err, rows, fields) {
               obj.queryString = undefined;

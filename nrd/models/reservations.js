@@ -14,6 +14,7 @@ var df = require('./dateformat');
 var mailer = require('./mailer');
 var User = require('./user');
 var userModel = new User();
+var logger = require('./logger');
 
 const calRoot = "https://www.googleapis.com/calendar/v3/";
 const calID = "87a94e6q5l0nb6bfphe3192uv8@group.calendar.google.com";
@@ -137,6 +138,7 @@ Reservation.prototype.getEventsWithUser = function(user, callback) {
 
 Reservation.prototype.reserve = function(user, params, callback) {
   params.resident1 = user.kerberos;
+  logger.info('Reservation request made. Params: ' + JSON.stringify(params));
   if (params.resident1 === params.resident2 ||
       params.resident1 === params.resident3 ||
       params.resident2 === params.resident3) {
@@ -173,9 +175,11 @@ Reservation.prototype.reserve = function(user, params, callback) {
                   }
                 }
               }
+              logger.info('Successful reservation');
               mailer.reserveRoom(params);
               /* Update Google Calendar */
               insertEvent(access_token, params, function(err, res, body) {
+                logger.info('Put on google calendar as id ' + body.id);
                 callback({'success': 'Room successfully reserved'});
               });
             });
@@ -188,7 +192,8 @@ Reservation.prototype.reserve = function(user, params, callback) {
 
 
 
-Reservation.prototype.removeReservation = function(id, callback) {
+Reservation.prototype.removeReservation = function(user, id, callback) {
+  logger.info(user.kerberos + ' removing reservation ' + id);
   gaccount.auth(function (err, access_token) {
     removeEvent(access_token, id, function(err, res, body) {
       callback(err);
@@ -196,7 +201,8 @@ Reservation.prototype.removeReservation = function(id, callback) {
   });
 }
 
-Reservation.prototype.confirmReservation = function(id, callback) {
+Reservation.prototype.confirmReservation = function(user, id, callback) {
+  logger.info(user.kerberos + ' confirming reservation ' + id);
   gaccount.auth(function (err, access_token) {
     confirmEvent(access_token, id, function(err, res, body) {
       callback(err);
@@ -204,7 +210,8 @@ Reservation.prototype.confirmReservation = function(id, callback) {
   });
 }
 
-Reservation.prototype.denyReservation = function(id, reason, callback) {
+Reservation.prototype.denyReservation = function(user, id, reason, callback) {
+  logger.info(user.kerberos + ' denying reservation ' + id + ' because ' + reason);
   gaccount.auth(function (err, access_token) {
     getEvent(access_token, id, function(err, res, body) {
       mailer.denyRoom(body, reason);

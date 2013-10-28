@@ -3,6 +3,7 @@ var Model = require('../models/model');
 var model = new Model();
 var Reservation = require('../models/reservations');
 var reservationModel = new Reservation();
+var logger = require('../models/logger');
 
 exports.view = function(req, res) {
   if (req.user !== undefined) {
@@ -45,7 +46,7 @@ exports.edit = function(req, res) {
 
 exports.delete = function(req, res) {
   if (req.user !== undefined) {
-    reservationModel.removeReservation(req.body.id, function(err) {
+    reservationModel.removeReservation(req.user, req.body.id, function(err) {
       res.json({'okay': !err});
     });
   } else {
@@ -55,7 +56,7 @@ exports.delete = function(req, res) {
 
 exports.confirm = function(req, res) {
   if (req.user !== undefined) {
-    reservationModel.confirmReservation(req.body.id, function(err) {
+    reservationModel.confirmReservation(req.user, req.body.id, function(err) {
       res.json({'okay': !err});
     });
   } else {
@@ -65,7 +66,7 @@ exports.confirm = function(req, res) {
 
 exports.deny = function(req, res) {
   if (req.user !== undefined) {
-    reservationModel.denyReservation(req.body.id, req.body.reason, function(err) {
+    reservationModel.denyReservation(req.user, req.body.id, req.body.reason, function(err) {
       res.json({'okay': !err});
     });
   } else {

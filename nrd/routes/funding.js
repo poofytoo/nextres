@@ -5,13 +5,13 @@ var User = require('../models/user');
 var userModel = new User();
 var Funding = require('../models/funding');
 var fundingModel = new Funding();
+var logger = require('../models/logger');
 
 // If application 'Pending', redirect and do not allow another submission. If most recent application 'Denied', notify user and allow resubmission.
 exports.application = function(req, res) {
-  console.log(req.user);
   if (req.user !== undefined) {
       fundingModel.getApp(req.user.id, function(error, result) {
-        console.log(result);     
+        logger.info(result);
         if (result !== undefined) {
            if (result['Status']=='Pending'){ 
              util.registerContent('appcompleted');
@@ -48,8 +48,7 @@ exports.application = function(req, res) {
 }
 
 exports.submit = function(req, res) {
-  console.log(req.user);
-  console.log(req.body);
+  logger.info(req.body);
   var id = req.user.id;
   if (req.user !== undefined) {
     var emptyFields = false;
@@ -90,7 +89,6 @@ exports.submit = function(req, res) {
 exports.view  = function(req, res) {
   if (req.user !== undefined) {
     var id = req.user.id;
-    console.log(id);
     fundingModel.listApps(id, function(error, result) {
       util.registerContent('reviewapps');
       if (result==undefined) {
@@ -109,11 +107,11 @@ exports.view  = function(req, res) {
 }
 
 exports.edit = function(req, res) {
-  console.log(req.body);
+  logger.info(req.body);
   if (req.user !== undefined) {
     var id = req.user.id;
     userModel.getUser (id, function(error, result) {
-    console.log(result);
+    logger.info(result);
     if (req.body['decision0'] == 'approve') {
       fundingModel.approveApp(req.body['timestamp0'], result['email'], result['firstName'], function (error) {  
         util.registerContent('reviewapps');

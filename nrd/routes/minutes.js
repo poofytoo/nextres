@@ -4,6 +4,7 @@ var Model = require('../models/model');
 var model = new Model();
 var Minutes = require('../models/meetingminutes')
 var minutesModel = new Minutes();
+var logger = require('../models/logger');
 
 exports.viewminutes = function(req, res) {
   if (req.user !== undefined) {
@@ -42,7 +43,7 @@ exports.editminutes = function(req, res) {
             error: error});
         });
       } else {
-        console.log('Uploading file ' + req.files.minute.name);
+        logger.info('Uploading file ' + req.files.minute.name);
         fs.readFile(req.files.minute.path, function(err, data) {
           var dest = "minutes/" + req.files.minute.name;
           minutesModel.addFile(req.files.minute.name, req.body.date, function(error) {
@@ -68,7 +69,7 @@ exports.removeminutes = function(req, res) {
     model.getPermissions(req.user.id, function(permissions) {
       if (!permissions.EDITMINUTES) {
         minutesModel.getFiles(function(error, files) {
-          console.log('files: ' + files);
+          logger.info('files: ' + files);
           res.render('base.html', {user: req.user,
             permissions: permissions,
             files: files,
@@ -77,7 +78,7 @@ exports.removeminutes = function(req, res) {
       } else if (req.body.id) {
         minutesModel.removeFile(req.body.id, function(error) {
           minutesModel.getFiles(function(error, files) {
-            console.log('files: ' + files);
+            logger.info('files: ' + files);
             res.render('base.html', {user: req.user,
               permissions: permissions,
               files: files,

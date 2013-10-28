@@ -1,5 +1,6 @@
 var Database = require('./db');
 var mailer = require('./mailer');
+var logger = require('./logger');
 
 var exec = require('child_process').exec;
 
@@ -35,14 +36,14 @@ User.prototype.listUsers = function(id, callback) {
 // Probs not that secure
 
 User.prototype.login = function(kerberos, callback) {
-  console.log('kerberos: ' + kerberos);
+  logger.info('kerberos: ' + kerberos);
   this.db.query().
       select(['*']).
       from('next-users').
       where('kerberos = ?', [ kerberos ]).
       limit(1);
   this.db.execute(function(error, result) {
-    console.log(result);
+    logger.info(result);
     callback(error, result[0]);
   });
 }
@@ -52,8 +53,10 @@ User.prototype.changePassword = function(id, newPassword, callback) {
     update('next-users', ['password'], [newPassword]).
     where('id = ?', [ id ]);
   this.db.execute(function(error, result) {
-    console.log(error);
-    console.log(result[0]);
+    if (error) {
+      logger.error(error);
+    }
+    logger.info(result[0]);
     callback(error, result[0]);
   })
 }
@@ -67,8 +70,10 @@ User.prototype.resetPassword = function(id, hash, rawPassword, kerberos, callbac
   mailer.resetPassword(kerberos, rawPassword);
 
   this.db.execute(function(error, result) {
-    console.log(error);
-    console.log(result[0]);
+    if (error) {
+      logger.error(error);
+    }
+    logger.info(result[0]);
     callback(error, result[0]);
   })
 }
@@ -122,11 +127,11 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
   
   this.db.execute(function (error, result) {
     if (error) {
-      console.log('INSERT ERROR: ' + error);
+      logger.error('INSERT ERROR: ' + error);
       returnError += error + "\n";
     } else {
       // success
-      console.log ('Created user: ' + kerberos);
+      logger.info('Created user: ' + kerberos);
       db.query().
         select(['*']).
         from('next-users').
@@ -139,9 +144,9 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
         db.execute(function (error, result) {
           if (error) {
             returnError += error + "\n";
-            console.log ('Error:' + error)
+            logger.error('Error:' + error)
           } else {
-            console.log ('User Properties Created: ' + kerberos);
+            logger.info('User Properties Created: ' + kerberos);
             mailer.newUser(kerberos, passwordRaw);
           }
         });
@@ -149,7 +154,7 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
     }
     
     callback(returnError, "");
-    console.log(userCreated)
+    logger.info(userCreated)
   });
 
 }
@@ -166,7 +171,7 @@ User.prototype.removeUser = function(kerberos, callback) {
   db.execute(function(error, result) {
     if (error) {
       returnError += error + "\n";
-      console.log('Error: ' + error);
+      logger.error('Error: ' + error);
       callback(returnError);
     } else {
       var nextUserId = result[0].id;
@@ -177,9 +182,9 @@ User.prototype.removeUser = function(kerberos, callback) {
       db.execute(function(error, result) {
         if (error) {
           returnError += error + "\n";
-          console.log('Error: ' + error);
+          logger.error('Error: ' + error);
         } else {
-          console.log('User Removed: ' + kerberos);
+          logger.info('User Removed: ' + kerberos);
         }
       callback(returnError);
       });
@@ -189,7 +194,7 @@ User.prototype.removeUser = function(kerberos, callback) {
         limit(1);
       db.execute(function(error, result) {
         if (error) {
-          console.log('Error: ' + error);
+          logger.error('Error: ' + error);
         }
       });
     }

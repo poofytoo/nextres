@@ -1,9 +1,10 @@
 var nodemailer = require('../node_modules/nodemailer');
+var logger = require('./logger');
 
 const NEXT_EXEC = "next-exec@mit.edu";  // change to next-exec@mit.edu
 
 function mail(receivers, subject, htmlEmail, textEmail) {
-  console.log('MAILING TO ' + receivers);
+  logger.info('MAILING TO ' + receivers);
   //contacting user
   var smtpTransport = nodemailer.createTransport("SMTP", {
     service: "Gmail",
@@ -24,9 +25,9 @@ function mail(receivers, subject, htmlEmail, textEmail) {
   smtpTransport.sendMail(mailOptions, function(error, response){
     if (error) {
       returnError += error + "\n";
-      console.log(error);
+      logger.error(error);
     } else {
-      console.log("Message sent: " + response.message);
+      logger.info("Message sent: " + response.message);
     }
   });
 }
@@ -116,7 +117,7 @@ exports.reserveRoom = function(reserveParams) {
 
 // item is a Google Calendar events resource
 exports.denyRoom = function(item, reason) {
-  var receivers = [NEXT_EXEC];
+  var receivers = [];
   for (var i = 0; i < item.attendees.length; i++) {
     receivers.push(item.attendees[i].email);
   }

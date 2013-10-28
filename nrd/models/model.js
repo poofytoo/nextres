@@ -1,6 +1,7 @@
 var Database = require('./db');
 var validation = require('./validation');
 var mailer = require('./mailer');
+var logger = require('./logger');
 
 var exec = require('child_process').exec;
 
@@ -11,7 +12,7 @@ function Model() {
 // Can probably use joins but i hate joins
 
 Model.prototype.getPermissions = function(id, callback) {
-  console.log(id);
+  logger.info(id);
   var db = this.db;
   this.db.query()
     .select(["group"])
