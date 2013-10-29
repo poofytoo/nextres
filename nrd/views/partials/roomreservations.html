@@ -148,32 +148,21 @@ $(document).ready(function(){
 	if (!Modernizr.inputtypes.date) {
 		$('.nodate').text('Format YYYY-MM-DD');
 	}
-	
+
   $('#startTime').timepicker({ 
-  	'timeFormat': 'H:i', 
 	'maxTime': '23:59',
   	'forceRoundTime': true 
   });
   $('#startTime').on('changeTime', function() {
 	stime = $(this).val();
-	if (stime == "24:00") {
-		$(this).val("23:59");
-	}
 	$('#endTime').timepicker('option', {'minTime': stime});
   });
   $('#endTime').timepicker({
-  	'timeFormat': 'H:i',
 	'minTime': '2:00pm',
 	'maxTime': '12:00am',
 	'showDuration': true,
 	'forceRoundTime': true 
   });
-  $('#endTime').on('changeTime', function() {
-	etime = $(this).val();
-	if (etime == "24:00") {
-		$(this).val("23:59");
-	};
-  })
   $('.deny-reservation').on('click', function(e) {
       event_id = e.target.id.substring('deny-reservation-'.length);
       reason = $('#deny-reservation-reason-' + event_id).val();

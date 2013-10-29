@@ -33,6 +33,24 @@ function toRFC3339(date, time) {
   }
 }
 
+function to24h(time) {
+  if (!time.match(/[0-9]:[0-5][0-9][ap]m/) && !time.match(/1[0-2]:[0-5][0-9][ap]m/)) {
+    return 'invalid';
+  }
+  var hours = time.substring(0, time.indexOf(":"));
+  var minutes = time.substring(time.indexOf(":") + 1, time.length - 2);
+  var suffix = time.substring(time.length - 2);
+  if (hours === '12') {
+    hours = (suffix === 'am' ? '0' : '12');
+  } else if (suffix === 'pm') {
+    hours = parseInt(hours) + 12 + '';
+  }
+  if (hours.length == 1) {
+    hours = '0' + hours;
+  }
+  return hours + ':' + minutes;
+}
+
 function formatRFC3339(str) {
   var parts = str.split('T');
   var day = parts[0], time = parts[1].substring(0, 5);
@@ -138,6 +156,8 @@ Reservation.prototype.getEventsWithUser = function(user, callback) {
 
 Reservation.prototype.reserve = function(user, params, callback) {
   params.resident1 = user.kerberos;
+  params.start = to24h(params.start);
+  params.end = to24h(params.end);
   logger.info('Reservation request made. Params: ' + JSON.stringify(params));
   if (params.resident1 === params.resident2 ||
       params.resident1 === params.resident3 ||
@@ -176,11 +196,16 @@ Reservation.prototype.reserve = function(user, params, callback) {
                 }
               }
               logger.info('Successful reservation');
-              mailer.reserveRoom(params);
               /* Update Google Calendar */
               insertEvent(access_token, params, function(err, res, body) {
-                logger.info('Put on google calendar as id ' + body.id);
-                callback({'success': 'Room successfully reserved'});
+                if (body['error']) {
+                  logger.info('Malformed request ' + JSON.stringify(params));
+                  callback({'error': 'Malformed request'});
+                } else {
+                  logger.info('Put on google calendar as id ' + body.id);
+                  callback({'success': 'Room successfully reserved'});
+                  mailer.reserveRoom(params);
+                }
               });
             });
           });
