@@ -24,18 +24,23 @@ function Reservation() {
 };
 
 function toRFC3339(date, time) {
-  // New York time zone is -04:00
+  // New York time zone is -05:00
   // TODO does this still work when daylight savings comes along?
   if (time) {
-    return df.dateFormat(date, "yyyy-mm-dd") + 'T' + time + ':00.000-04:00';
+    return df.dateFormat(date, "yyyy-mm-dd") + 'T' + time + ':00.000-05:00';
   } else {
-    return df.dateFormat(date, "yyyy-mm-dd'T'HH:MM") + ':00.000-04:00';
+    return df.dateFormat(date, "yyyy-mm-dd'T'HH:MM") + ':00.000-05:00';
   }
 }
 
 function to24h(time) {
   if (!time.match(/[0-9]:[0-5][0-9][ap]m/) && !time.match(/1[0-2]:[0-5][0-9][ap]m/)) {
     return 'invalid';
+  }
+  if (time === '12:00am') {
+      // Hack - for some reason lots of people want an event to end at midnight,
+      // but for Google Calendar reasons it needs to stay on the same day.
+      return '23:59';
   }
   var hours = time.substring(0, time.indexOf(":"));
   var minutes = time.substring(time.indexOf(":") + 1, time.length - 2);
