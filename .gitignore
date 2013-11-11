@@ -31,3 +31,4 @@ _testmain.go
 
 # Other files to ignore
 key.pem
+config.json

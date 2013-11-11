@@ -1,6 +1,8 @@
 var mysql = require('mysql2');
 var logger = require('./logger');
 
+var db_settings = require('./config').config_data['db_settings'];
+
 // All these functions return the Query object back
 // so you can chain the functinos together like
 // queryObject.select([ values])
@@ -121,13 +123,8 @@ function Database() {
 
   arguments.callee._singletonInstance = this;
 
-  this.sql_settings = { 
-    host: 'mysql://sql.mit.edu:3306/next+nextres',
-    user: 'next',
-    password: '645cf777'
-  };
-  // TODO read from file :D
-  this.sql_settings = 'mysql://sql.mit.edu:3306/next+nextres?user=next&password=645cf777';
+  this.sql_settings = db_settings['host'] + '?user=' + db_settings['user'] +
+      '&password=' + db_settings['password'];
   this.pool = mysql.createPool(this.sql_settings);
 }
 

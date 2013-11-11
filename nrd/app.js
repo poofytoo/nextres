@@ -15,6 +15,7 @@ var reservations = require('./models/reservations');
 var hbs = require('hbs');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
+var start_settings = require('./models/config').config_data['start_settings'];
 
 /**
  * Routes
@@ -38,7 +39,7 @@ var app = express();
 
 // all environments
 
-app.set('port', /*process.env.PORT || 3000*/ 8080);
+app.set('port', start_settings['port']);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
 app.engine('html', require('hbs').__express);

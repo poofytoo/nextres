@@ -1,7 +1,7 @@
 var nodemailer = require('../node_modules/nodemailer');
 var logger = require('./logger');
 
-const NEXT_EXEC = "next-exec@mit.edu";  // change to next-exec@mit.edu
+var mail_settings = require('./config').config_data['mail_settings'];
 
 function mail(receivers, subject, htmlEmail, textEmail) {
   logger.info('MAILING TO ' + receivers);
@@ -9,8 +9,8 @@ function mail(receivers, subject, htmlEmail, textEmail) {
   var smtpTransport = nodemailer.createTransport("SMTP", {
     service: "Gmail",
       auth: {
-        user: "sparkyroombot@gmail.com",
-        pass: "pencilpencil"
+        user: mail_settings["user"],
+        pass: mail_settings["password"],
       }
   });
 
@@ -112,7 +112,7 @@ exports.reserveRoom = function(reserveParams) {
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = htmlEmail;
-  mail(NEXT_EXEC, subject, htmlEmail, textEmail);
+  mail(mail_settings["admin-emails"].join(), subject, htmlEmail, textEmail);
 }
 
 // item is a Google Calendar events resource
