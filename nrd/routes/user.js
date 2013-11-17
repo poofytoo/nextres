@@ -20,10 +20,42 @@ exports.list = function(req, res) {
     var id = req.user.id;
     logger.info(id);
     
-    userModel.listUsers(id, function(error, result) {
+    userModel.listUsers(id, function(error, result, allroles) {
       util.registerContent('allusers');
       model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {user: req.user, result: result, permissions: permissions});
+        
+        // very inefficient way of determining which roles the user can be changed to
+        for (i in result){
+          user = result[i];
+          if (permissions.FULLPERMISSIONSCONTROL) {
+            // has full permission control - allow all roles
+          	result[i].possibleRoles = allroles.slice(0);
+          	result[i].possibleRoles.unshift({id: user.group, name: user.name});
+          } else if (permissions.MAKEUSERSNEXTEXEC) {
+            // allow changing users to next exec, desk worker, or desk captain
+            if (user.group != 1){
+              result[i].possibleRoles = [];
+        	    result[i].possibleRoles.push({id: 0, name:'USER'});
+        	    result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
+        	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+        	    result[i].possibleRoles.push({id: 3, name:'DESKCAPTAIN'});
+          	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
+        	  }
+          } else if (permissions.MAKEUSERSDESKWORKERS) {
+            // allow changing users to desk worker
+            if (user.group != 1 && user.group != 3){
+              result[i].possibleRoles = [];
+        	    result[i].possibleRoles.push({id: 0, name:'USER'});
+        	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+        	    result[i].possibleRoles.push({id: 3, name:'DESKCAPTAIN'});
+          	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
+        	  }
+          }
+        }
+        
+        res.render('base.html', {user: req.user, 
+        					               result: result, 
+        					               permissions: permissions});
       });
     });
   } else {

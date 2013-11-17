@@ -21,14 +21,23 @@ User.prototype.findUser = function(id, callback) {
   })
 }
 
+// Lists All Users
+
 User.prototype.listUsers = function(id, callback) {
   this.db.query()
   .select(["*"])
   .from('next-users')
   .rightJoin("next-groups")
   .on("`next-users`.group=`next-groups`.id");
+  var db = this.db;
   this.db.execute(function(error, result) {
-    callback(error, result)
+  	db.query()
+  	.select(["*"])
+  	.from('next-groups')
+  	db.execute(function(error, allroles){
+  	  console.log(allroles);
+      callback(error, result, allroles)
+  	})
   })
 }
 

@@ -2,14 +2,13 @@
   <div class="error-msg">{{error}}</div>
 {{/if}}
 <h1>All Residents</h1>
-<p>Fuck, this page is ugly. Fuck you Antonio. Don't look. I'm not done. </p>
-<p>
-	Mass Add: One kerberos per line
-	<form method="post" action="allusers">
-	<textarea name="massadd"></textarea>
-	<input type="submit" value="Create">
-	</form>
-	<hr size="1" />
+<p>Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
+<h2>Adding Users</h2>
+<p>One kerberos per line</p>
+<form method="post" action="allusers">
+<textarea name="massadd"></textarea>
+<input type="submit" value="Create">
+</form>
 </p>
 <!--
 <p>
@@ -19,7 +18,8 @@
 	</form>
 </p>
 -->
-<p>Fuck pagination, what even is a stonehenge.</p>
+<h2>All Users</h2>
+<p>Below is a list of all the users</p>
 <p>
   <table class="displaytable">
     <tr>
@@ -35,7 +35,17 @@
 	  <td>{{this.kerberos}}</td>
 	  <td>{{this.firstName}} {{this.lastName}}</td>
 	  <td>{{this.roomNumber}}</td>
-	  <td>{{this.name}}</td>
+	  <td>
+	    {{#if this.possibleRoles}}
+	  	<select>
+	  	  {{#each this.possibleRoles}}
+	  	  <option>{{this.name}}</option>
+	  	  {{/each}}
+	  	</select>
+	  	{{else}}
+	  	  {{this.name}}
+	  	{{/if}}
+	  </td>
           <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
 	  <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
 	</tr>
