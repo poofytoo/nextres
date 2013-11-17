@@ -38,7 +38,7 @@ exports.list = function(req, res) {
         	    result[i].possibleRoles.push({id: 0, name:'USER'});
         	    result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
         	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-        	    result[i].possibleRoles.push({id: 3, name:'DESKCAPTAIN'});
+        	    result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
           	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
         	  }
           } else if (permissions.MAKEUSERSDESKWORKERS) {
@@ -47,7 +47,7 @@ exports.list = function(req, res) {
               result[i].possibleRoles = [];
         	    result[i].possibleRoles.push({id: 0, name:'USER'});
         	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-        	    result[i].possibleRoles.push({id: 3, name:'DESKCAPTAIN'});
+        	    result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
           	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
         	  }
           }
@@ -134,6 +134,19 @@ exports.remove = function(req, res) {
     });
   } else {
     res.redirect('/login');
+  }
+}
+
+exports.changepermission = function(req, res) {
+  logger.info(req.body);
+  if (req.user !== undefined) {
+    userModel.changePermission(req.body.kerberos, req.body.permission, function (error) {
+      if (error) {
+        res.json({okay: false});
+      } else {
+        res.json({okay: true});
+      }
+    });
   }
 }
 

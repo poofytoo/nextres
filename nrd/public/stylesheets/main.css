@@ -97,6 +97,8 @@ body {
         background-color: #F0E7D1; }
       .sidenav ul li.deskworker {
         background-color: #E3F0D1; }
+      .sidenav ul li.deskcaptain {
+        background-color: #EFE0FF; }
       .sidenav ul li.spacer {
         height: 10px; }
 
@@ -290,6 +292,9 @@ table tr td {
 
 .calendarIframe {
   margin-top: 25px; }
+
+.permissionStatus {
+  float: right; }
 
 .manage-reservations {
   margin-top: 10px; }

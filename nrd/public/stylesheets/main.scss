@@ -134,6 +134,9 @@ body {
 			&.deskworker {
 				background-color: #E3F0D1;
 			}
+			&.deskcaptain {
+				background-color: #EFE0FF;
+			}
 			&.spacer {
 				height: 10px;
 			}
@@ -413,6 +416,11 @@ table {
 .calendarIframe {
 	margin-top: 25px;
 }
+
+.permissionStatus {
+	float: right;
+}
+
 
 .manage-reservations {
 	margin-top: 10px;

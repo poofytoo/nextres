@@ -121,6 +121,7 @@ app.post('/pwreset', user.passwordreset);
 app.get('/login', user.login);
 app.get('/logout', user.logout);
 app.post('/remove', user.remove);
+app.post('/changepermission', user.changepermission);
 app.get('/allusers', user.list);
 app.get('/users', user.listall);
 app.get('/residentinfo', user.viewinfo);

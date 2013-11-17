@@ -35,8 +35,7 @@ User.prototype.listUsers = function(id, callback) {
   	.select(["*"])
   	.from('next-groups')
   	db.execute(function(error, allroles){
-  	  console.log(allroles);
-      callback(error, result, allroles)
+      callback(error, result, allroles);
   	})
   })
 }
@@ -166,6 +165,19 @@ User.prototype.createUser = function(kerberos, passwordHash, passwordRaw, callba
     logger.info(userCreated)
   });
 
+}
+
+User.prototype.changePermission = function(kerberos, permission, callback) {
+  this.db.query().
+    update('next-users', ['group'], [permission]).
+    where('kerberos = ?', [ kerberos ]);
+  this.db.execute(function(error, result) {
+    if (error) {
+      logger.error(error);
+    }
+    logger.info(result[0]);
+    callback(error);
+  });
 }
 
 User.prototype.removeUser = function(kerberos, callback) {

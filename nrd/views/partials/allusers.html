@@ -2,22 +2,18 @@
   <div class="error-msg">{{error}}</div>
 {{/if}}
 <h1>All Residents</h1>
-<p>Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
+<p>User controls</p>
+
+{{#if permissions.CREATEUSER}}
 <h2>Adding Users</h2>
-<p>One kerberos per line</p>
-<form method="post" action="allusers">
-<textarea name="massadd"></textarea>
-<input type="submit" value="Create">
-</form>
+<p>One kerberos per line. Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
+  <form method="post" action="allusers">
+    <textarea name="massadd"></textarea>
+    <input type="submit" value="Create">
+  </form>
 </p>
-<!--
-<p>
-	<form method="post" action="signup">
-		<p>Add Single User: <input type="text" name="kerberos"></p>
-		<input type="submit">
-	</form>
-</p>
--->
+{{/if}}
+
 <h2>All Users</h2>
 <p>Below is a list of all the users</p>
 <p>
@@ -27,8 +23,10 @@
       <th width="240">Resident Name</th>
       <th>Room</th>
       <th>Role</th>
+      {{#if permissions.CREATEUSER}}
       <th>Reset Password</th>
       <th>Remove</th>
+      {{/if}}
     </tr>
     {{#each result}}
 	<tr id="{{this.kerberos}}-tr">
@@ -37,23 +35,27 @@
 	  <td>{{this.roomNumber}}</td>
 	  <td>
 	    {{#if this.possibleRoles}}
-	  	<select>
+	  	<select id="{{this.kerberos}}-changeperms">
 	  	  {{#each this.possibleRoles}}
-	  	  <option>{{this.name}}</option>
+	  	  <option value="{{this.id}}">{{this.name}}</option>
 	  	  {{/each}}
 	  	</select>
+	  	<span class="permissionStatus"></span>
 	  	{{else}}
 	  	  {{this.name}}
 	  	{{/if}}
+	  {{#if ../permissions.CREATEUSER}}
 	  </td>
           <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
 	  <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
+      {{/if}}
 	</tr>
   	{{/each}}
   </table>
 </p>
 
 <script type="text/javascript">
+  // removing a user
   $('.remove').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -68,9 +70,8 @@
     );
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
   });
-</script>
 
-<script type="text/javascript">
+  // resetting a password
   $('.pwreset').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -84,6 +85,23 @@
       function(e2) { $(e.target).html('reset pass'); }
     );
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+  });
+  
+  // changing a user permission
+  $('select').change(function(e) {
+  	var chosen = $(this).val();
+    var selectId = e.target.id;
+    kerberos = selectId.split('-')[0];
+  	$.post('/changepermission',{kerberos:kerberos, permission:chosen}, function(data) {
+  	  if (data.okay) {
+  	  	$flashmsg = $('#' + selectId).parent().find('.permissionStatus');
+  	  	$flashmsg.
+  	  		show().text('done').
+  	  		delay(1000).fadeOut(500);
+  	  } else {
+  	    $('#' + selectId).parent().find('.permissionStatus').text('error - contact nextres-dev@mit.edu');
+  	  }
+  	});
   });
 </script>
 
