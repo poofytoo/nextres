@@ -6,15 +6,13 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var bcrypt = require('bcrypt');
 var Consolidate = require('consolidate');
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var Model = require('./models/model');
 var reservations = require('./models/reservations');
 var hbs = require('hbs');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
+var initialize = require('./models/initialize');
 var start_settings = require('./models/config').config_data['start_settings'];
 
 /**
@@ -28,12 +26,6 @@ var minutes = require('./routes/minutes');
 var util = require('./routes/util');
 var site = require('./routes/site');
 var reservations = require('./routes/reservations');
-
-/**
- * Models
- */
-var User = require('./models/user');
-var userModel = new User();
 
 var app = express();
 
@@ -57,41 +49,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.session({ secret: 'SECRET' }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(initialize.router);
 app.use(app.router);
 
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    userModel.login(username, function(error, res) {
-      if (error !== null) { 
-      	return done(null, false); 
-      }
-      if (res !== undefined) {
-	      bcrypt.compare(password, res.password, function(err, authenticated) {
-	        if (!authenticated) {
-	          return done(null, false);
-	        } else {
-	          return done(null, {id: res.id.toString(),
-                             username: res.kerberos,
-                             firstName: res.firstName,
-                             lastName: res.lastName});
-	        }
-	      });
-      } else {
-      	return done(null, false);
-      }
-    });
-  })
-);
+passport.use(initialize.strategy);
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  userModel.findUser(id, function(error, user) {
-    return done(null, user);
-  });
-});
+passport.serializeUser(initialize.serializeUser);
+passport.deserializeUser(initialize.deserializeUser);
 
 // development only
 if ('development' == app.get('env')) {

@@ -15,31 +15,23 @@ exports.application = function(req, res) {
         if (result !== undefined) {
            if (result['Status']=='Pending'){ 
              util.registerContent('appcompleted');
-             model.getPermissions(req.user.id, function(permissions) {
              res.render('base.html', {'user': req.user,
-                                   'permissions': permissions});
-             });
+                                   'permissions': req.permissions});
            } else if (result['Status'].substring(0,6)=='Denied') { 
               util.registerContent('application');
-              model.getPermissions(req.user.id, function(permissions) {
               var message = "Note: Your most recent application for was denied (check e-mail for reasons). You have the option of reapplying.";
               res.render('base.html', {'user': req.user,
-                                       'permissions': permissions,
+                                       'permissions': req.permissions,
                                        'error': message});
-              });
            } else if (result['Status'].substring(0,8)=='Approved') { 
               util.registerContent('application');
-              model.getPermissions(req.user.id, function(permissions) {
               res.render('base.html', {'user': req.user,
-                                       'permissions': permissions});
-              });
+                                       'permissions': req.permissions});
             }
          } else {
            util.registerContent('application');
-           model.getPermissions(req.user.id, function(permissions) {
            res.render('base.html', {'user': req.user,
-                                   'permissions': permissions});
-           });
+                                   'permissions': req.permissions});
          }
       });
   } else {
@@ -59,12 +51,10 @@ exports.submit = function(req, res) {
     } // check that all required fields are completed
     if (emptyFields) {
       util.registerContent('application');
-        model.getPermissions(id, function(permissions) {
-          var error = '* Complete all required fields.';
-          res.render('base.html', {'user': req.user,
-              'permissions': permissions,
-              'error': error});
-        });
+      var error = '* Complete all required fields.';
+      res.render('base.html', {'user': req.user,
+          'permissions': req.permissions,
+          'error': error});
     }
     else {
       responses = []
@@ -73,12 +63,10 @@ exports.submit = function(req, res) {
       } 
       fundingModel.submitApp(id, responses, function(error, result) { 
         util.registerContent('appcompleted');
-        model.getPermissions(id, function(permissions) {
-          var success = 'Thank you! Your application has been submitted.';
-          res.render('base.html', {'user': req.user,
-              'permissions': permissions,
-              'success': success});
-        });
+        var success = 'Thank you! Your application has been submitted.';
+        res.render('base.html', {'user': req.user,
+            'permissions': req.permissions,
+            'success': success});
       });
     }
   } else {
@@ -92,13 +80,9 @@ exports.view  = function(req, res) {
     fundingModel.listApps(id, function(error, result) {
       util.registerContent('reviewapps');
       if (result==undefined) {
-        model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {user: req.user, result: result, permissions: permissions});
-        });
+        res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
       } else {
-        model.getPermissions(req.user.id, function(permissions) {
-          res.render('base.html', {user: req.user, result: result, permissions: permissions});
-        });
+        res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
       }
     });
   } else {
@@ -115,31 +99,25 @@ exports.edit = function(req, res) {
     if (req.body['decision0'] == 'approve') {
       fundingModel.approveApp(req.body['timestamp0'], result['email'], result['firstName'], function (error) {  
         util.registerContent('reviewapps');
-        model.getPermissions(id, function(permissions) {
-          var success = 'Application approved. Applicant has been notified.';
-          res.render('base.html', {'user': req.user,
-              'permissions': permissions,
-              'success': success});
-        });
+        var success = 'Application approved. Applicant has been notified.';
+        res.render('base.html', {'user': req.user,
+            'permissions': req.permissions,
+            'success': success});
       });
     } else if (req.body['decision0'] == 'deny') {
         fundingModel.denyApp(req.body['timestamp0'], req.body['reason0'], result['email'], result['firstName'], function (error) {  
           util.registerContent('reviewapps');
-          model.getPermissions(id, function(permissions) {
           var error = 'Application denied. Applicant has been notified.';
           res.render('base.html', {'user': req.user,
-              'permissions': permissions,
+              'permissions': req.permissions,
               'error': error});
-          });
         });
        } else if (req.body['decision0'] == undefined) {  
           util.registerContent('reviewapps');
-          model.getPermissions(id, function(permissions) {
           var error = 'Approve/deny not selected for first application listed. Please try again.' ;
           res.render('base.html', {'user': req.user,
-              'permissions': permissions,
+              'permissions': req.permissions,
               'error': error});
-          });
         }
      });
    } else {

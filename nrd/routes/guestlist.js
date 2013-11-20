@@ -16,11 +16,9 @@ exports.view = function(req, res) {
         guests.push(info);
       }
       util.registerContent('manage');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user,
-                                 'permissions': permissions,
-                                 'guests': guests});
-      });
+      res.render('base.html', {'user': req.user,
+                               'permissions': req.permissions,
+                               'guests': guests});
     });
   } else {
     res.redirect('/login');
@@ -42,24 +40,20 @@ exports.edit = function(req, res) {
         guestlistModel.addGuests(id, guests, function(error, result) {
           util.registerContent('manage');
           guestlistModel.onGuestList(id, guests, function(onGuestLists) {
-            model.getPermissions(id, function(permissions) {
-              var success = 'Your guest list has been updated.';
-              res.render('base.html', {'user': req.user,
-                'permissions': permissions,
-                'guests': guests,
-                'success': success,
-                'alreadyHere': onGuestLists});
-            });
+            var success = 'Your guest list has been updated.';
+            res.render('base.html', {'user': req.user,
+              'permissions': req.permissions,
+              'guests': guests,
+              'success': success,
+              'alreadyHere': onGuestLists});
           });
         });
       } else {
-        model.getPermissions(id, function(permissions) {
-          var error = 'Invalid kerberos: ' + invalids.join(', ');
-          res.render('base.html', {'user': req.user,
-            'permissions': permissions,
-            'guests': guests,
-            'error': error});
-        });
+        var error = 'Invalid kerberos: ' + invalids.join(', ');
+        res.render('base.html', {'user': req.user,
+          'permissions': req.permissions,
+          'guests': guests,
+          'error': error});
       }
     });
   } else {
@@ -74,9 +68,7 @@ exports.list = function(req, res) {
     logger.info(id);
     guestlistModel.listGuests(id, params, function(error, result) {
       util.registerContent('allguests');
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {user: req.user, result: result, permissions: permissions});
-      });
+      res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
     });
   } else {
     res.redirect('/login');

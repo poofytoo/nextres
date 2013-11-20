@@ -8,14 +8,12 @@ var logger = require('../models/logger');
 exports.view = function(req, res) {
   if (req.user !== undefined) {
     util.registerContent('roomreservations');
-    model.getPermissions(req.user.id, function(permissions) {
-      reservationModel.getEventsWithUser(req.user, function(userEvents, allEvents) {
-        res.render('base.html', {
-          user: req.user,
-          permissions: permissions,
-          userEvents: userEvents,
-          allEvents: allEvents
-        });
+    reservationModel.getEventsWithUser(req.user, function(userEvents, allEvents) {
+      res.render('base.html', {
+        user: req.user,
+        permissions: req.permissions,
+        userEvents: userEvents,
+        allEvents: allEvents
       });
     });
   } else {
@@ -27,15 +25,13 @@ exports.edit = function(req, res) {
   if (req.user !== undefined) {
     reservationModel.reserve(req.user, req.body, function(result) {
       util.registerContent('roomreservations');
-      model.getPermissions(req.user.id, function(permissions) {
-        reservationModel.getEventsWithUser(req.user, function(userEvents) {
-          res.render('base.html', {
-            user: req.user,
-            permissions: permissions,
-            success: result.success,
-            error: result.error,
-            userEvents: userEvents
-          });
+      reservationModel.getEventsWithUser(req.user, function(userEvents) {
+        res.render('base.html', {
+          user: req.user,
+          permissions: req.permissions,
+          success: result.success,
+          error: result.error,
+          userEvents: userEvents
         });
       });
     });
@@ -56,9 +52,13 @@ exports.delete = function(req, res) {
 
 exports.confirm = function(req, res) {
   if (req.user !== undefined) {
-    reservationModel.confirmReservation(req.user, req.body.id, function(err) {
-      res.json({'okay': !err});
-    });
+    if (req.permissions.EDIT_RESERVATIONS) {
+      reservationModel.confirmReservation(req.user, req.body.id, function(err) {
+        res.json({'okay': !err});
+      });
+    } else {
+      res.send(400, 'Invalid permissions to edit reservations.');
+    }
   } else {
     res.redirect('/login');
   }
@@ -77,14 +77,12 @@ exports.deny = function(req, res) {
 exports.manage =  function(req, res) {
   if (req.user !== undefined) {
     util.registerContent('managereservations');
-    model.getPermissions(req.user.id, function(permissions) {
-      reservationModel.getEventsWithUser(req.user, function(userEvents, allEvents) {
-        res.render('base.html', {
-          user: req.user,
-          permissions: permissions,
-          userEvents: userEvents,
-          allEvents: allEvents
-        });
+    reservationModel.getEventsWithUser(req.user, function(userEvents, allEvents) {
+      res.render('base.html', {
+        user: req.user,
+        permissions: req.permissions,
+        userEvents: userEvents,
+        allEvents: allEvents
       });
     });
   } else {

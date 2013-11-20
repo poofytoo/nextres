@@ -22,41 +22,39 @@ exports.list = function(req, res) {
     
     userModel.listUsers(id, function(error, result, allroles) {
       util.registerContent('allusers');
-      model.getPermissions(req.user.id, function(permissions) {
         
-        // very inefficient way of determining which roles the user can be changed to
-        for (i in result){
-          user = result[i];
-          if (permissions.FULLPERMISSIONSCONTROL) {
-            // has full permission control - allow all roles
-          	result[i].possibleRoles = allroles.slice(0);
-          	result[i].possibleRoles.unshift({id: user.group, name: user.name});
-          } else if (permissions.MAKEUSERSNEXTEXEC) {
-            // allow changing users to next exec, desk worker, or desk captain
-            if (user.group != 1){
-              result[i].possibleRoles = [];
-        	    result[i].possibleRoles.push({id: 0, name:'USER'});
-        	    result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
-        	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-        	    result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
-          	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
-        	  }
-          } else if (permissions.MAKEUSERSDESKWORKERS) {
-            // allow changing users to desk worker
-            if (user.group != 1 && user.group != 3){
-              result[i].possibleRoles = [];
-        	    result[i].possibleRoles.push({id: 0, name:'USER'});
-        	    result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-        	    result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
-          	  result[i].possibleRoles.unshift({id: user.group, name: user.name});
-        	  }
-          }
+      // very inefficient way of determining which roles the user can be changed to
+      for (i in result){
+        user = result[i];
+        if (req.permissions.FULLPERMISSIONSCONTROL) {
+          // has full permission control - allow all roles
+          result[i].possibleRoles = allroles.slice(0);
+          result[i].possibleRoles.unshift({id: user.group, name: user.name});
+        } else if (req.permissions.MAKEUSERSNEXTEXEC) {
+          // allow changing users to next exec, desk worker, or desk captain
+          if (user.group != 1){
+            result[i].possibleRoles = [];
+            result[i].possibleRoles.push({id: 0, name:'USER'});
+            result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
+            result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+            result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
+            result[i].possibleRoles.unshift({id: user.group, name: user.name});
+         }
+        } else if (req.permissions.MAKEUSERSDESKWORKERS) {
+          // allow changing users to desk worker
+          if (user.group != 1 && user.group != 3){
+            result[i].possibleRoles = [];
+            result[i].possibleRoles.push({id: 0, name:'USER'});
+            result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+            result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
+            result[i].possibleRoles.unshift({id: user.group, name: user.name});
+         }
         }
-        
-        res.render('base.html', {user: req.user, 
-        					               result: result, 
-        					               permissions: permissions});
-      });
+      }
+
+      res.render('base.html', {user: req.user,
+                      result: result,
+                      permissions: req.permissions});
     });
   } else {
     res.redirect('/login');
@@ -96,9 +94,7 @@ exports.editall = function(req, res) {
       
       userModel.listUsers(id, function(error, result) {
         util.registerContent('allusers');
-        model.getPermissions(req.user.id, function(permissions) {
-          res.render('base.html', {user: req.user, result: result, permissions: permissions, error: errorLog});
-        });
+        res.render('base.html', {user: req.user, result: result, permissions: req.permissions, error: errorLog});
       });
     } else {
       res.redirect('/login');
@@ -162,7 +158,8 @@ exports.loginsuccess = function(req, res) {
     logger.info('login success: ' + req.user.username);
     util.registerContent('home');
     model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {'user': req.user, 'permissions': permissions});
+      req.permissions = permissions;
+      res.render('base.html', {'user': req.user, 'permissions': req.permissions});
     });
   }
 }
@@ -197,9 +194,7 @@ exports.viewinfo = function(req, res) {
       var info = result;
       util.registerContent('residentinfo');
       logger.info(JSON.stringify(info));
-      model.getPermissions(req.user.id, function(permissions) {
-        res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info});
-      });
+      res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info});
     });
   } else {
     res.redirect('/login');
@@ -218,10 +213,8 @@ exports.editinfo = function(req, res) {
         var info = result;
         util.registerContent('residentinfo');
         logger.info(JSON.stringify(info));
-        model.getPermissions(req.user.id, function(permissions) {
-          var success = "Your residence info has been updated."
-          res.render('base.html', {'user': req.user, 'permissions': permissions, 'info': info, 'success': success});
-        });
+        var success = "Your residence info has been updated."
+        res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info, 'success': success});
       });
     });
   } else {
@@ -235,9 +228,7 @@ exports.viewpassword = function(req, res) {
     logger.info(id);
     
     util.registerContent('changepassword');
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {'user': req.user, 'permissions': permissions});
-    });
+    res.render('base.html', {'user': req.user, 'permissions': req.permissions});
   } else {
     res.redirect('/login');
   }
@@ -254,10 +245,8 @@ exports.editpassword = function(req, res) {
         bcrypt.compare(oldPassword, result.password, function(err, authenticated) {
           if (!authenticated) {
             util.registerContent('changepassword');
-            model.getPermissions(req.user.id, function(permissions) {
-              var error = "Your current password is incorrect!";
-              res.render('base.html', {'user': req.user, 'permissions': permissions, 'error' : error});
-            });
+            var error = "Your current password is incorrect!";
+            res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'error' : error});
           } else {
           
             // THIS HERE IS A CALLBACK TREE. GOOD LUCK, FUTURE DEVS.
@@ -266,10 +255,8 @@ exports.editpassword = function(req, res) {
               bcrypt.hash(newPassword, salt, function(err, hash) {
                 userModel.changePassword(id, hash, function(error, result) {
                   util.registerContent('changepassword');
-                  model.getPermissions(req.user.id, function(permissions) {
-                    var success = "Your password has been changed!";
-                    res.render('base.html', {'user': req.user, 'permissions': permissions, 'success' : success});
-                  });
+                  var success = "Your password has been changed!";
+                  res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'success' : success});
                 });
               });
             })
@@ -285,9 +272,7 @@ exports.editpassword = function(req, res) {
 exports.emaillists = function(req, res) {
   if (req.user !== undefined) {
     util.registerContent('emaillists');
-    model.getPermissions(req.user.id, function(permissions) {
-      res.render('base.html', {'user': req.user, 'permissions': permissions});
-    });
+    res.render('base.html', {'user': req.user, 'permissions': req.permissions});
   } else {
     res.render('login.html');
   }
