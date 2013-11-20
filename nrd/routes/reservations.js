@@ -52,7 +52,7 @@ exports.delete = function(req, res) {
 
 exports.confirm = function(req, res) {
   if (req.user !== undefined) {
-    if (req.permissions.EDIT_RESERVATIONS) {
+    if (req.permissions.EDITRESERVATIONS) {
       reservationModel.confirmReservation(req.user, req.body.id, function(err) {
         res.json({'okay': !err});
       });
