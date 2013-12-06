@@ -10,7 +10,7 @@ House.prototype.getFiles = function(callback) {
   this.db.query().
     select(['*']).
     from('next-minutes').
-    orderBy('date');
+    orderByDESC('date');
   this.db.execute(function(error, result) {
     callback(error, result);
   });
