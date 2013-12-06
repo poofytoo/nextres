@@ -3,7 +3,7 @@ var logger = require('./logger');
 
 var mail_settings = require('./config').config_data['mail_settings'];
 
-function mail(receivers, subject, htmlEmail, textEmail) {
+function mail(receivers, ccs, subject, htmlEmail, textEmail) {
   logger.info('MAILING TO ' + receivers);
   //contacting user
   var smtpTransport = nodemailer.createTransport("SMTP", {
@@ -17,6 +17,7 @@ function mail(receivers, subject, htmlEmail, textEmail) {
   var mailOptions = {
     from: "Next Resident Dashboard <sparkyroombot@gmail.com>", // sender address
     to: receivers, // list of receivers
+    cc: ccs, // list of ccs
     subject: subject, // Subject line
     text: textEmail, // plaintext body
     html: htmlEmail, // html body
@@ -49,7 +50,7 @@ exports.newUser = function(kerberos, passwordRaw) {
     "Cheers,<br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = "Hello! Your Next resident dashboard account has been created! Please go to <a href='next.mit.edu'>next.mit.edu</a>, and click the link on the top-right corner of the page. Login with your kerberos ID and the following password: " + passwordRaw + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-  mail(receiver, subject, htmlEmail, textEmail);
+  mail(receiver, '', subject, htmlEmail, textEmail);
 }
 
 exports.resetPassword = function(kerberos, rawPassword) {
@@ -65,7 +66,7 @@ exports.resetPassword = function(kerberos, rawPassword) {
       "Cheers,<br />" +
       "Sparky, the Next House Mailbot";
   var textEmail = "The password to your Next resident dashboard account has been reset. Login with your kerberos ID and the following password: " + rawPassword + "Once you have logged in, please change your password. If you have any questions, feel free to contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-  mail(receiver, subject, htmlEmail, textEmail);
+  mail(receiver, '', subject, htmlEmail, textEmail);
 }
 
 exports.approveApplication = function(email, firstName) {
@@ -77,7 +78,7 @@ exports.approveApplication = function(email, firstName) {
     "Cheers,<br />" +
     "NextExec";
   var textEmail = "Hello, "+firstName+"NextExec has approved your application for the small group project funding! If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
-  mail(email, subject, htmlEmail, textEmail);
+  mail(email, '', subject, htmlEmail, textEmail);
 }
 
 exports.denyApplication = function(email, firstName) {
@@ -92,7 +93,7 @@ exports.denyApplication = function(email, firstName) {
     "Cheers,<br />" +
     "NextExec";
   var textEmail = "Hello, "+firstName+"NextExec has denied your application for the following reason(s): " + reason + ". You have the option to reapply and submit another funding proposal. If you have any questions, feel free to contact nextres@mit.edu. Cheers, NextExec";
-  mail(email, subject, htmlEmail, textEmail);
+  mail(email, '', subject, htmlEmail, textEmail);
 }
 
 // reserveParams contains attributes of the reservation details
@@ -112,7 +113,7 @@ exports.reserveRoom = function(reserveParams) {
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = htmlEmail;
-  mail(mail_settings["admin-emails"].join(), subject, htmlEmail, textEmail);
+  mail(mail_settings["admin-emails"].join(), '', subject, htmlEmail, textEmail);
 }
 
 // item is a Google Calendar events resource
@@ -130,5 +131,5 @@ exports.denyRoom = function(item, reason) {
     "Cheers, <br />" +
     "NextExec";
   var textEmail = htmlEmail;
-  mail(receivers.join(), subject, htmlEmail, textEmail);
+  mail(receivers.join(), mail_settings["admin-emails"].join(), subject, htmlEmail, textEmail);
 }
