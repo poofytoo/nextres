@@ -147,7 +147,7 @@ Database.prototype.execute = function(callback) {
           connection.query(queryString.queryString, queryString.arr,
             function(err, rows, fields) {
               obj.queryString = undefined;
-              connection.end();
+              connection.release();
               callback(err, rows, fields);
             }
           );

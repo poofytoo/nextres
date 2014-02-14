@@ -98,22 +98,26 @@ exports.denyApplication = function(email, firstName) {
 
 // reserveParams contains attributes of the reservation details
 exports.reserveRoom = function(reserveParams) {
-  var subject = "Room Reservation made by " + reserveParams.resident1;
+  var subject = "[NextRes] " + reserveParams.room + " reserved by " + reserveParams.resident1;
   var htmlEmail = "Hello Next Exec, <br />" +
   	"<br />" +
     "A room reservation has been made. Here are the details: <br /><br />" +
+    "<b>Residents</b>: " + reserveParams.resident1 + ", " + reserveParams.resident2 + "<br />" +
     "<b>Room</b>: " + reserveParams.room + "<br />" +
     "<b>Date</b>: " + reserveParams.date + "<br />" + 
     "<b>Time</b>: " + reserveParams.start + " to " + reserveParams.end + "<br />" + 
     "<b>Description</b>: " + reserveParams.reason + "<br /><br />" +
     "If this looks ok, feel free to ignore this email. " + 
-    "If not, please go to <a href='http://nextres.mit.edu/managereservations'>NextRes</a> to view/deny... " + 
-    "after all, I don't know what looks good or not, I'm just a puppy! woof. <br />" +
+    "If not, please go to <a href='http://nextres.mit.edu/managereservations'>NextRes</a> to view/deny.<br />" +
     "<br />" +
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = htmlEmail;
-  mail(mail_settings["admin-emails"].join(), '', subject, htmlEmail, textEmail);
+  var residents = [reserveParams.resident1, reserveParams.resident2]
+  if (reserveParams.resident3 != undefined){
+    residents.push(reserveParams.resident3);
+  }
+  mail(mail_settings["admin-emails"].join(), residents, subject, htmlEmail, textEmail);
 }
 
 // item is a Google Calendar events resource
