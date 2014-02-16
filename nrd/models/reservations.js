@@ -85,12 +85,12 @@ function listEvents(access_token, timeMin, timeMax, callback) {
 
 function insertEvent(access_token, params, callback) {
   var postURL = calRoot + "calendars/" + calID + "/events?access_token=" + access_token;
-  var attendees = [{ 'email': params.resident1 + '@mit.edu' }];
+  params.attendees = [{ 'email': params.resident1 + '@mit.edu' }];
   if (params.resident2) {
-    attendees.push({ 'email': params.resident2 + '@mit.edu' });
+    params.attendees.push({ 'email': params.resident2 + '@mit.edu' });
   }
   if (params.resident3) {
-    attendees.push({ 'email': params.resident3 + '@mit.edu' });
+    params.attendees.push({ 'email': params.resident3 + '@mit.edu' });
   }
   request.post({
     url: postURL,
@@ -101,7 +101,7 @@ function insertEvent(access_token, params, callback) {
       'start': { 'dateTime': toRFC3339(params.date, params.start) },
       'end': { 'dateTime': toRFC3339(params.date, params.end) },
       'status': 'tentative',  // until exec confirms or denies
-      'attendees': attendees,
+      'attendees': params.attendees,
       'visibility': 'public'
     },
     json: true

@@ -113,9 +113,9 @@ exports.reserveRoom = function(reserveParams) {
     "Cheers, <br />" +
     "Sparky, the Next House Mailbot";
   var textEmail = htmlEmail;
-  var residents = [reserveParams.resident1, reserveParams.resident2]
-  if (reserveParams.resident3 != undefined){
-    residents.push(reserveParams.resident3);
+  var residents = [];
+  for (var i = 0; i < reserveParams.attendees.length; i++) {
+    residents.push(reserveParams.attendees[i].email);
   }
   mail(mail_settings["admin-emails"].join(), residents, subject, htmlEmail, textEmail);
 }
