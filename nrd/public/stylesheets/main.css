@@ -306,3 +306,64 @@ table tr td {
     height: 30px; }
   .manage-reservations li {
     padding: 2px; }
+
+.item-checkout {
+  margin-bottom: 50px; }
+  .item-checkout .barcode-toggle {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 10px; }
+    .item-checkout .barcode-toggle .manual-input {
+      color: #47a9c4; }
+  .item-checkout .item-checkout-box {
+    border: 1px solid #eee;
+    padding: 20px; }
+    .item-checkout .item-checkout-box .blinking-cursor {
+      font-weight: bold;
+      color: #999; }
+    .item-checkout .item-checkout-box input {
+      display: inline;
+      margin: 0; }
+    .item-checkout .item-checkout-box .hidden-textbox {
+      opacity: 0; }
+    .item-checkout .item-checkout-box .id-number {
+      color: #999;
+      margin-left: 5px; }
+    .item-checkout .item-checkout-box .active .blinking-cursor {
+      opacity: 1; }
+    .item-checkout .item-checkout-box .active em {
+      font-weight: 500;
+      color: #000; }
+    .item-checkout .item-checkout-box .active-noblink .blinking-cursor {
+      opacity: 0; }
+    .item-checkout .item-checkout-box .active-noblink em {
+      font-weight: 500;
+      color: #000; }
+    .item-checkout .item-checkout-box .inactive {
+      opacity: 0.1; }
+      .item-checkout .item-checkout-box .inactive .blinking-cursor {
+        opacity: 0; }
+      .item-checkout .item-checkout-box .inactive em {
+        font-weight: 100; }
+    .item-checkout .item-checkout-box .not-associated {
+      background-color: #faf5d9;
+      padding: 10px;
+      font-size: 12px;
+      margin: 5px 0 10px 18px;
+      line-height: 16px;
+      display: inline-block; }
+      .item-checkout .item-checkout-box .not-associated input {
+        display: block;
+        margin-top: 4px;
+        width: 100%; }
+      .item-checkout .item-checkout-box .not-associated em {
+        color: inherit;
+        font-weight: bold; }
+      .item-checkout .item-checkout-box .not-associated ul {
+        margin: 0;
+        border: none; }
+        .item-checkout .item-checkout-box .not-associated ul li {
+          border-bottom: 1px solid #f4eecc;
+          padding: 4px; }
+        .item-checkout .item-checkout-box .not-associated ul li:hover, .item-checkout .item-checkout-box .not-associated ul .arrow-selected {
+          background-color: rgba(255, 255, 255, 0.5); }

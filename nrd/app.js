@@ -26,6 +26,7 @@ var minutes = require('./routes/minutes');
 var util = require('./routes/util');
 var site = require('./routes/site');
 var reservations = require('./routes/reservations');
+var checkout = require('./routes/checkout');
 
 var app = express();
 
@@ -131,6 +132,11 @@ app.delete('/roomreservations', reservations.delete);
 app.post('/roomreservationconfirm', reservations.confirm);
 app.post('/roomreservationdeny', reservations.deny);
 app.get('/managereservations', reservations.manage);
+
+/*
+ * Item Checkout functions
+ */
+app.get('/checkout', checkout.view);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

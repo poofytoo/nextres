@@ -30,7 +30,7 @@ Show confirmed reservations: <input type="checkbox" id="hide-confirms">
 
 <iframe class="calendarIframeManage" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
 
-<script>
+<script type="text/javascript">
   $('.confirm-reservation').on('click', function(e) {
       event_id = e.target.id.substring('confirm-reservation-'.length);
       $.ajax('/roomreservationconfirm', {data: {id: event_id}, type: "POST"});

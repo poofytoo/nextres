@@ -1,0 +1,193 @@
+<h1>Next Desk Item Checkout</h1>
+<p>Check out stuff!</p>
+
+<div class="item-checkout">
+  <div class="item-checkout-box">
+    <div class="barcode-toggle">Barcode Scanner | <a class="manual-input" href="">Use Manual Input Instead?</a></div>
+    <div class="instruction mit-scan active">
+      1. <em>Scan an MIT ID to Begin</em> 
+      <span class="id-number"></span>
+      <span class="blinking-cursor">_</span>
+      <input id="id-number" class="hidden-textbox instructions-mitscan-textbox" name="userID" type="text">
+    </div>
+    <div class="instruction not-associated">
+      This MIT ID is not associated with a resident.<br />
+      Please enter the <em>Kerberos</em> of the resident.
+      <div id="id-to-kerberos-autocomplete-container">
+        <input id="id-to-kerberos" onkeydown="arrowSelector(this, event)" type="text"/>
+      </div>
+    </div>
+    <div class="instruction item-scan inactive">
+      2. <em>Scan an Item to Checkout</em> 
+      <span class="item-number"></span>
+      <span class="blinking-cursor">_</span>
+      <input id="item-number" class="hidden-textbox instructions-itemscan-textbox" name="userID" type="text">
+    </div>
+  </div>
+</div>
+
+<table class="displaytable">
+<tr>
+  <th>Title</th>
+  <th>Status</t>
+</tr>
+{{#each itemList}}
+<tr>
+  <td>{{this.title}}</td>
+  <td>{{this.status}}</td>
+</tr>
+{{/each}}
+</table>
+
+<script type="text/javascript">
+
+// Dear Kevin. Please fill out these functions.
+
+/**
+* Returns a username given the MIT ID, else returns false.
+*/
+var getUserByID = function(userId) {
+  $.post('/checkoutgetid', {id: userId})
+  .done(function(data) {
+    return data || false;
+  });
+}
+
+/**
+* Returns a list of kerberos given some search letters.
+*/
+var getCompleteKerberos = function(userString, callback) {
+  var output = [];
+  var fuckClosure = function(output){
+    return output
+  }
+  $.post('/checkoutgetkerberos', {id: userString})
+  .done(function(data) {
+    callback(data)
+  })
+  .fail(function(data) {
+    callback(['error']);
+  });
+
+}
+  
+/**
+* Associates Kerberos to MIT ID
+*/
+var captureKerberos = function(k) {
+  $.post('/checkoutsavekerberos', {id: k}, function(data) {
+    // TODO: Watch for errors
+  });
+  state = 'ITEM_SCAN';
+  $('.mit-scan').removeClass('active').addClass('inactive');
+  $('.instructions-itemscan-textbox').focus();
+  $('.item-scan').removeClass('inactive').addClass('active');
+  $('.not-associated').slideUp(400);
+}
+
+/**
+* Check out item given [userid, item-barcode-id]
+*/
+var checkoutItem = function(k, itemBarcode, callback) {
+  $.post('/checkoutitem', {userKerberos: k, itemBarcode: itemBarcode}, function(data) {
+    callback();
+  })
+  .fail(function(){
+    // TODO: Watch for errors
+    callback();
+  });
+}
+
+// Code below this point is unfortunately messy. Good luck, future devs.
+
+// TODO: make this autocomplete generator modular so we can use it in other places
+var acSelected = 0;
+var state = 'MIT_SCAN';
+
+function arrowSelector(sender, e) {
+  if (e.which == 38 || e.which == 40) {
+    acSelected += (parseInt(e.which) - 39);
+    if (acSelected <= 0){
+      acSelected = 0;
+      $('.ac-listitem').removeClass('arrow-selected');
+      $('#id-to-kerberos').focus();
+    } else if ($('.item-' + acSelected).length == 0){
+      --acSelected;
+    } else {    
+      $(document).focus();
+      $('.ac-listitem').removeClass('arrow-selected');
+      $('.item-' + acSelected).addClass('arrow-selected'); 
+    }
+  } else if (e.which == 13){
+    if (acSelected != 0) {
+      captureKerberos($('.item-' + acSelected).text());
+    } else {
+      captureKerberos($('#id-to-kerberos').val())
+    }
+  } else {
+    acSelected = 0;
+  }
+}
+
+$(document).ready(function(){
+  var blinkingCursor = function(){
+    var blink = setInterval(function() {
+      $('.blinking-cursor').toggle();
+      if (state == 'MIT_SCAN'){
+        $('.instructions-mitscan-textbox').focus();
+      } else if (state == 'ITEM_SCAN'){
+        $('.instructions-itemscan-textbox').focus();
+      }
+    }, 400);
+  };
+
+  // TODO: make this autocomplete generator modular so we can use it in other places
+  $('#id-to-kerberos-autocomplete-container').css({position: 'relative', overflow: 'visible'})
+  $('#id-to-kerberos').on('keypress', function(e){
+    var $this = $(this);
+    $('.' + $(this).attr('id') + '-autocomplete').remove();
+    var kerberosList = getCompleteKerberos($this.val(), function(kerberosList){
+      var $this = $('#id-to-kerberos');
+      var html = '<ul class="' + $this.attr('id') + '-autocomplete">';
+      var c = 1;
+      for (i in kerberosList) {
+        var kerberos = kerberosList[i];
+        html += '<li onclick="captureKerberos(\''+ kerberos +'\')" class="ac-listitem item-'+c+'" id="' + kerberos + '">' + kerberos + '</li>';
+        ++c;
+      }
+      $('#' + $this.attr('id') + '-autocomplete-container').append(html);
+    });
+  })
+  
+  $(document).on('keypress input','.hidden-textbox', function(e){
+    $('.' + $(this).attr('id')).text($(this).val());
+    if (e.which == 13) {
+      console.log(state);
+      
+      if (state == 'MIT_SCAN') {
+        if (!getUserByID($(this).val())) {
+        // MIT ID not associated with Kerberos
+          state = 'NEW_USER';
+          $('.mit-scan').removeClass('active').addClass('active-noblink');
+          $('.not-associated').slideDown(200, function(){
+            $('#id-to-kerberos').focus();
+          });
+        } else {
+          state = 'ITEM_SCAN';
+          $('.mit-scan').removeClass('active').addClass('inactive');
+          $('.instructions-itemscan-textbox').focus();
+          $('.item-scan').removeClass('inactive').addClass('active');
+        } 
+      } else if (state == 'ITEM_SCAN') {
+        checkoutItem($('.instructions-mitscan-textbox').val(), $('.instructions-itemscan-textbox').val(), function(){
+          console.log('DONE. HOORAY!');
+        });
+      }
+    }
+  });
+  
+  $('.instructions-mitscan-textbox').focus();
+  $('.not-associated').hide();
+  blinkingCursor();
+});
+</script>
