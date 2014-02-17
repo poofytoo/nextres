@@ -9,6 +9,7 @@ DO NOT COMMIT key.pem!
 var request = require('request');
 var gaccount = require('google-oauth-serviceaccount');
 var qs = require('qs');
+var time = require('time');
 var validation = require('./validation');
 var df = require('./dateformat');
 var mailer = require('./mailer');
@@ -23,14 +24,10 @@ const MAX_DAYS = 60;  // number of days in the future that room can be reserved
 function Reservation() {
 };
 
-function toRFC3339(date, time) {
-  // New York time zone is -05:00
-  // TODO does this still work when daylight savings comes along?
-  if (time) {
-    return df.dateFormat(date, "yyyy-mm-dd") + 'T' + time + ':00.000-05:00';
-  } else {
-    return df.dateFormat(date, "yyyy-mm-dd'T'HH:MM") + ':00.000-05:00';
-  }
+function toRFC3339(datetime) {
+  var ans =  df.dateFormat(time.Date(datetime, 'America/New_York'),
+          "yyyy-mm-dd'T'HH:MM:00.000o");
+  return ans;
 }
 
 function to24h(time) {
@@ -53,7 +50,7 @@ function to24h(time) {
   if (hours.length == 1) {
     hours = '0' + hours;
   }
-  return hours + ':' + minutes;
+  return [hours, minutes];
 }
 
 function formatRFC3339(str) {
@@ -98,8 +95,8 @@ function insertEvent(access_token, params, callback) {
       'summary': params.room + " - " + params.resident1,
       'location': params.room,
       'description': params.reason,
-      'start': { 'dateTime': toRFC3339(params.date, params.start) },
-      'end': { 'dateTime': toRFC3339(params.date, params.end) },
+      'start': { 'dateTime': params.timeMin },
+      'end': { 'dateTime': params.timeMax },
       'status': 'tentative',  // until exec confirms or denies
       'attendees': params.attendees,
       'visibility': 'public'
@@ -161,8 +158,7 @@ Reservation.prototype.getEventsWithUser = function(user, callback) {
 
 Reservation.prototype.reserve = function(user, params, callback) {
   params.resident1 = user.kerberos;
-  params.start = to24h(params.start);
-  params.end = to24h(params.end);
+
   logger.info('Reservation request made. Params: ' + JSON.stringify(params));
   if (params.resident1 === params.resident2 ||
       params.resident1 === params.resident3 ||
@@ -188,9 +184,17 @@ Reservation.prototype.reserve = function(user, params, callback) {
           callback({'error': 'Invalid kerberos for resident 3.'});
         } else {
           gaccount.auth(function(err, access_token) {
-            var timeMin = toRFC3339(params.date, params.start);
-            var timeMax = toRFC3339(params.date, params.end);
-            listEvents(access_token, timeMin, timeMax, function(err, res, body) {
+            // Set start and end datetimes.
+            var startTime = new Date(params.date);
+            startTimeTo24h = to24h(params.start);
+            startTime.setHours(startTimeTo24h[0]); startTime.setMinutes(startTimeTo24h[1]);
+            var endTime = new Date(params.date);
+            endTimeTo24h = to24h(params.end);
+            endTime.setHours(endTimeTo24h[0]); endTime.setMinutes(endTimeTo24h[1]);
+
+            params.timeMin = toRFC3339(startTime);
+            params.timeMax = toRFC3339(endTime);
+            listEvents(access_token, params.timeMin, params.timeMax, function(err, res, body) {
               /* Forbid conflicts */
               if (body.items) {
                 for (var i = 0; i < body.items.length; i++) {

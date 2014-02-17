@@ -18,6 +18,7 @@
     "nodemailer": "*",
     "request": "*",
     "google-oauth-serviceaccount": "*",
-    "qs": "*"
+    "qs": "*",
+    "time": "*"
   }
 }
