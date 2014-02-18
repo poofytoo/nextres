@@ -41,7 +41,7 @@ exports.getkerberos = function(req, res) {
 
 exports.savekerberos = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.saveKerberos(req.body.id, 'mitID here', function(error) {
+    checkoutModel.saveKerberos(req.body.id, req.body.mitID, function(error) {
       res.json(error);
     });
   } else {

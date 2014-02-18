@@ -27,7 +27,7 @@ Checkout.prototype.getUsername = function(id, callback) {
     if (err || res.length == 0) {
       callback(false);
     } else {
-      callback(res[0]);  // should be only one
+      callback(res[0].kerberos);  // should be only one
     }
   });
 }

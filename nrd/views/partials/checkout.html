@@ -74,8 +74,8 @@ var getCompleteKerberos = function(userString, callback) {
 /**
 * Associates Kerberos to MIT ID
 */
-var captureKerberos = function(k) {
-  $.post('/checkoutsavekerberos', {id: k}, function(data) {
+var captureKerberos = function(k, mitID) {
+  $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
     // TODO: Watch for errors
   });
   state = 'ITEM_SCAN';
@@ -120,9 +120,9 @@ function arrowSelector(sender, e) {
     }
   } else if (e.which == 13){
     if (acSelected != 0) {
-      captureKerberos($('.item-' + acSelected).text());
+      captureKerberos($('.item-' + acSelected).text(), $('#id-number').val());
     } else {
-      captureKerberos($('#id-to-kerberos').val())
+      captureKerberos($('#id-to-kerberos').val(), $('#id-number').val());
     }
   } else {
     acSelected = 0;
