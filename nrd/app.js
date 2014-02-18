@@ -137,6 +137,10 @@ app.get('/managereservations', reservations.manage);
  * Item Checkout functions
  */
 app.get('/checkout', checkout.view);
+app.post('/checkoutgetid', checkout.getusername);
+app.post('/checkoutgetkerberos', checkout.getkerberos);
+app.post('/checkoutsavekerberos', checkout.savekerberos);
+app.post('/checkoutitem', checkout.checkoutitem);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
