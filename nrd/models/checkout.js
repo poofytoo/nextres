@@ -22,7 +22,7 @@ Checkout.prototype.getUsername = function(id, callback) {
   this.db.query().
     select(['kerberos']).
     from('next-users').
-    where('mitID == ?', [id]);
+    where('mitID = ?', [id]);
   this.db.execute(function(err, res) {
     if (err || res.length == 0) {
       callback(false);

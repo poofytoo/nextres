@@ -46,10 +46,10 @@
 /**
 * Returns a username given the MIT ID, else returns false.
 */
-var getUserByID = function(userId) {
-  $.post('/checkoutgetid', {id: userId})
-  .done(function(data) {
-    return data || false;
+var getUserByID = function(userId, callback) {
+  $.post('/checkoutgetid', {id: userId}, function(data){
+    console.log(data);
+    callback(data || false);
   });
 }
 
@@ -58,9 +58,6 @@ var getUserByID = function(userId) {
 */
 var getCompleteKerberos = function(userString, callback) {
   var output = [];
-  var fuckClosure = function(output){
-    return output
-  }
   $.post('/checkoutgetkerberos', {id: userString})
   .done(function(data) {
     callback(data)
@@ -165,19 +162,21 @@ $(document).ready(function(){
       console.log(state);
       
       if (state == 'MIT_SCAN') {
-        if (!getUserByID($(this).val())) {
-        // MIT ID not associated with Kerberos
-          state = 'NEW_USER';
-          $('.mit-scan').removeClass('active').addClass('active-noblink');
-          $('.not-associated').slideDown(200, function(){
-            $('#id-to-kerberos').focus();
-          });
-        } else {
-          state = 'ITEM_SCAN';
-          $('.mit-scan').removeClass('active').addClass('inactive');
-          $('.instructions-itemscan-textbox').focus();
-          $('.item-scan').removeClass('inactive').addClass('active');
-        } 
+        getUserByID($(this).val(), function(result){    
+          if (!result){
+          // MIT ID not associated with Kerberos
+            state = 'NEW_USER';
+            $('.mit-scan').removeClass('active').addClass('active-noblink');
+            $('.not-associated').slideDown(200, function(){
+              $('#id-to-kerberos').focus();
+            });
+          } else {
+            state = 'ITEM_SCAN';
+            $('.mit-scan').removeClass('active').addClass('inactive');
+            $('.instructions-itemscan-textbox').focus();
+            $('.item-scan').removeClass('inactive').addClass('active');
+          }
+        });
       } else if (state == 'ITEM_SCAN') {
         checkoutItem($('.instructions-mitscan-textbox').val(), $('.instructions-itemscan-textbox').val(), function(){
           console.log('DONE. HOORAY!');
