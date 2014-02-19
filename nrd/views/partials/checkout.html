@@ -149,7 +149,6 @@ $(document).ready(function(){
   $('#id-to-kerberos-autocomplete-container').css({position: 'relative', overflow: 'visible'})
   $('#id-to-kerberos').on('keypress', function(e){
     var $this = $(this);
-    $('.' + $(this).attr('id') + '-autocomplete').remove();
     var kerberosList = getCompleteKerberos($this.val(), function(kerberosList){
       var $this = $('#id-to-kerberos');
       var html = '<ul class="' + $this.attr('id') + '-autocomplete">';
@@ -160,6 +159,7 @@ $(document).ready(function(){
         html += '<li onclick="captureKerberos(\''+ kerberos +'\', ' + id + ', ' + initiateItemScan + ')" class="ac-listitem item-'+c+'" id="' + kerberos + '">' + kerberos + '</li>';
         ++c;
       }
+      $('.' + $this.attr('id') + '-autocomplete').remove();
       $('#' + $this.attr('id') + '-autocomplete-container').append(html);
     });
   })
