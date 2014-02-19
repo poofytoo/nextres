@@ -41,8 +41,6 @@
 
 <script type="text/javascript">
 
-// Dear Kevin. Please fill out these functions.
-
 /**
 * Returns a username given the MIT ID, else returns false.
 */
@@ -72,6 +70,7 @@ var getCompleteKerberos = function(userString, callback) {
 * Associates Kerberos to MIT ID
 */
 var captureKerberos = function(k, mitID) {
+  kerberos = k;
   $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
     // TODO: Watch for errors
   });
@@ -172,13 +171,14 @@ $(document).ready(function(){
             });
           } else {
             state = 'ITEM_SCAN';
+            kerberos = result;
             $('.mit-scan').removeClass('active').addClass('inactive');
             $('.instructions-itemscan-textbox').focus();
             $('.item-scan').removeClass('inactive').addClass('active');
           }
         });
       } else if (state == 'ITEM_SCAN') {
-        checkoutItem($('.instructions-mitscan-textbox').val(), $('.instructions-itemscan-textbox').val(), function(){
+        checkoutItem(kerberos, $('.instructions-itemscan-textbox').val(), function(){
           console.log('DONE. HOORAY!');
         });
       }
