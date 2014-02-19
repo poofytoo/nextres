@@ -316,7 +316,7 @@ table tr td {
     .item-checkout .barcode-toggle .manual-input {
       color: #47a9c4; }
   .item-checkout .item-checkout-box {
-    border: 1px solid #eee;
+    border: 1px solid #ddd;
     padding: 20px; }
     .item-checkout .item-checkout-box .blinking-cursor {
       font-weight: bold;
@@ -325,7 +325,9 @@ table tr td {
       display: inline;
       margin: 0; }
     .item-checkout .item-checkout-box .hidden-textbox {
-      opacity: 0; }
+      opacity: 0;
+      width: 1px;
+      min-width: inherit; }
     .item-checkout .item-checkout-box .id-number {
       color: #999;
       margin-left: 5px; }
@@ -367,3 +369,11 @@ table tr td {
           padding: 4px; }
         .item-checkout .item-checkout-box .not-associated ul li:hover, .item-checkout .item-checkout-box .not-associated ul .arrow-selected {
           background-color: rgba(255, 255, 255, 0.5); }
+  .item-checkout .checkout-status {
+    display: none;
+    background-color: #ddd;
+    padding: 8px 0px 8px 20px;
+    font-size: 12px; }
+    .item-checkout .checkout-status .kerberos-checkout {
+      font-weight: bold;
+      color: #4db33c; }

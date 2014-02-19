@@ -24,6 +24,9 @@
       <input id="item-number" class="hidden-textbox instructions-itemscan-textbox" name="userID" type="text">
     </div>
   </div>
+  <div class="checkout-status">
+    Checking out item for: <span class="kerberos-checkout"></span>
+  </div>
 </div>
 
 <table class="displaytable">
@@ -69,16 +72,11 @@ var getCompleteKerberos = function(userString, callback) {
 /**
 * Associates Kerberos to MIT ID
 */
-var captureKerberos = function(k, mitID) {
-  kerberos = k;
+
+var captureKerberos = function(k, mitID, callback) {
   $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
-    // TODO: Watch for errors
+    callback(k);
   });
-  state = 'ITEM_SCAN';
-  $('.mit-scan').removeClass('active').addClass('inactive');
-  $('.instructions-itemscan-textbox').focus();
-  $('.item-scan').removeClass('inactive').addClass('active');
-  $('.not-associated').slideUp(400);
 }
 
 /**
@@ -116,13 +114,23 @@ function arrowSelector(sender, e) {
     }
   } else if (e.which == 13){
     if (acSelected != 0) {
-      captureKerberos($('.item-' + acSelected).text(), $('#id-number').val());
+      captureKerberos($('.item-' + acSelected).text(), $('#id-number').val(), initiateItemScan);
     } else {
-      captureKerberos($('#id-to-kerberos').val(), $('#id-number').val());
+      captureKerberos($('#id-to-kerberos').val(), $('#id-number').val(), initiateItemScan);
     }
   } else {
     acSelected = 0;
   }
+}
+
+var initiateItemScan = function(kerberos){
+  state = 'ITEM_SCAN';
+  $('.mit-scan').removeClass('active').addClass('inactive');
+  $('.instructions-itemscan-textbox').focus();
+  $('.item-scan').removeClass('inactive').addClass('active');
+  $('.not-associated').slideUp(400);
+  $('.kerberos-checkout').text(kerberos);
+  $('.checkout-status').slideDown(300);
 }
 
 $(document).ready(function(){
@@ -148,7 +156,8 @@ $(document).ready(function(){
       var c = 1;
       for (i in kerberosList) {
         var kerberos = kerberosList[i];
-        html += '<li onclick="captureKerberos(\''+ kerberos +'\')" class="ac-listitem item-'+c+'" id="' + kerberos + '">' + kerberos + '</li>';
+        var id = $('#id-number').val();
+        html += '<li onclick="captureKerberos(\''+ kerberos +'\', ' + id + ', ' + initiateItemScan + ')" class="ac-listitem item-'+c+'" id="' + kerberos + '">' + kerberos + '</li>';
         ++c;
       }
       $('#' + $this.attr('id') + '-autocomplete-container').append(html);
@@ -158,7 +167,6 @@ $(document).ready(function(){
   $(document).on('keypress input','.hidden-textbox', function(e){
     $('.' + $(this).attr('id')).text($(this).val());
     if (e.which == 13) {
-      console.log(state);
       
       if (state == 'MIT_SCAN') {
         getUserByID($(this).val(), function(result){    
@@ -170,16 +178,13 @@ $(document).ready(function(){
               $('#id-to-kerberos').focus();
             });
           } else {
-            state = 'ITEM_SCAN';
-            kerberos = result;
-            $('.mit-scan').removeClass('active').addClass('inactive');
-            $('.instructions-itemscan-textbox').focus();
-            $('.item-scan').removeClass('inactive').addClass('active');
+            initiateItemScan(result);
           }
         });
       } else if (state == 'ITEM_SCAN') {
-        checkoutItem(kerberos, $('.instructions-itemscan-textbox').val(), function(){
-          console.log('DONE. HOORAY!');
+        checkoutItem($('.instructions-mitscan-textbox').val(), $('.instructions-itemscan-textbox').val(), function(){
+          // DONE BEHAVIOR
+          console.log('DONE');
         });
       }
     }

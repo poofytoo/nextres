@@ -454,7 +454,7 @@ table {
   }
   
   .item-checkout-box {
-    border: 1px solid #eee;
+    border: 1px solid #ddd;
     padding: 20px;
     
     .blinking-cursor {
@@ -467,6 +467,8 @@ table {
     }
     .hidden-textbox {
       opacity: 0;
+      width: 1px;
+      min-width: inherit;
     }
     .id-number {
       color: #999;
@@ -529,6 +531,18 @@ table {
           background-color: rgba(255,255,255,0.5);
         }
       }
+    }
+  }
+  
+  .checkout-status {
+    display: none;
+    background-color: #ddd;
+    padding: 8px 0px 8px 20px;
+    font-size: 12px;
+    
+    .kerberos-checkout {
+      font-weight: bold;
+      color: #4db33c;
     }
   }
 }
