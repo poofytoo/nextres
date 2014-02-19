@@ -140,6 +140,7 @@ app.get('/checkout', checkout.view);
 app.post('/checkoutgetid', checkout.getusername);
 app.post('/checkoutgetkerberos', checkout.getkerberos);
 app.post('/checkoutsavekerberos', checkout.savekerberos);
+app.post('/checkinitem', checkout.checkinitem);
 app.post('/checkoutitem', checkout.checkoutitem);
 
 http.createServer(app).listen(app.get('port'), function(){

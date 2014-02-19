@@ -17,6 +17,8 @@ exports.view = function(req, res) {
   }
 };
 
+// POST {id: 98765}
+// res.json(kyc2915)
 exports.getusername = function(req, res) {
   if (req.user !== undefined) {
     checkoutModel.getUsername(req.body.id, function(username) {
@@ -27,6 +29,8 @@ exports.getusername = function(req, res) {
   }
 }
 
+// POST {id: ky}
+// res.json([kyc2915, kysomebodyelse])
 exports.getkerberos = function(req, res) {
   if (req.user !== undefined) {
     // Note: req.id is part of a kerberos, e.g. ky
@@ -39,6 +43,8 @@ exports.getkerberos = function(req, res) {
   }
 }
 
+// POST {id: kyc2915, mitID: 98765}
+// res.json(false)
 exports.savekerberos = function(req, res) {
   if (req.user !== undefined) {
     checkoutModel.saveKerberos(req.body.id, req.body.mitID, function(error) {
@@ -49,6 +55,20 @@ exports.savekerberos = function(req, res) {
   }
 }
 
+// POST {itemBarcode: 12345}
+// res.json(false)
+exports.checkinitem = function(req, res) {
+  if (req.user !== undefined) {
+    checkoutModel.checkoutItem("", req.body.itemBarcode, function(error) {
+      res.json(error);
+    });
+  } else {
+    res.redirect('/login');
+  }
+}
+
+// POST {userKerberos: kyc2915, itemBarcode: 12345}
+// res.json(false)
 exports.checkoutitem = function(req, res) {
   if (req.user !== undefined) {
     checkoutModel.checkoutItem(req.body.userKerberos, req.body.itemBarcode, function(error) {

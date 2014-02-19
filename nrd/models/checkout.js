@@ -15,6 +15,24 @@ Checkout.prototype.getItemsListing = function(user, callback) {
   });
 }
 
+// Returns (error, item status)
+//   item status: either a kerberos string, or empty string if no borrower.
+Checkout.prototype.getItemStatus = function(barcode, callback) {
+  this.db.query().
+    select(['borrower']).
+    from('next-checkout-items').
+    where('itemcode = ?', [barcode]);
+  this.db.execute(function(err, res) {
+    if (err) {
+      callback(err, "");
+    } else if (res.length == 0) {
+      callback(false, "");  // new item
+    } else {
+      callback(res[0].borrower);
+    }
+  });
+}
+
 // Get kerberos of user with given MIT ID.
 // Returns false if none found.
 Checkout.prototype.getUsername = function(id, callback) {
@@ -68,10 +86,11 @@ Checkout.prototype.saveKerberos = function(kerberos, mitID, callback) {
 }
 
 // Checks out the given item.
+// Use "" for kerberos if checking an item back in.
 Checkout.prototype.checkoutItem = function(kerberos, itemBarcode, callback) {
   logger.info("Checkout checkoutItem " + kerberos + " " + itemBarcode);
   this.db.query().
-    update('next-checkout-items', ['status'], ['checked out']).
+    update('next-checkout-items', ['borrower'], [kerberos]).
     where('itemcode = ?', [itemBarcode]);
   this.db.execute(function(err, res) {
     if (err) {
