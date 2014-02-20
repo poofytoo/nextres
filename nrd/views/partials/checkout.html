@@ -157,15 +157,16 @@ var initiateEverything = function() {
   $('#id-to-kerberos').val('');
   $('.not-associated').hide();
   $('.checkout-status').hide();
-  $('.mit-scan').removeClass('inactive').addClass('active');
+  $('.mit-scan').removeClass('inactive').removeClass('active-noblink').addClass('active');
+  $('.item-scan').removeClass('active').removeClass('active-noblink').addClass('inactive');
   $('#id-number-hidden').focus();
 }
 
 var initiateItemScan = function(kerberos){
   state = 'ITEM_SCAN';
-  $('.mit-scan').removeClass('active').addClass('inactive');
+  $('.mit-scan').removeClass('active').removeClass('active-noblink').addClass('inactive');
   $('#item-number-hidden').focus();
-  $('.item-scan').removeClass('inactive').addClass('active');
+  $('.item-scan').removeClass('inactive').removeClass('active-noblink').addClass('active');
   $('.capture-kerberos').slideUp(400);
   $('.checkout-status').html('Checking out item for: <span class="kerberos-checkout"></span>');
   $('.kerberos-checkout').text(kerberos);
