@@ -56,6 +56,18 @@ exports.savekerberos = function(req, res) {
 }
 
 // POST {itemBarcode: 12345}
+// res.json(kyc2915)  or "" if no one is borrowing this item
+exports.getitemstatus = function(req, res) {
+  if (req.user !== undefined) {
+    checkoutModel.getItemStatus(req.body.itemBarcode, function(itemStatus) {
+      res.json(itemStatus);
+    });
+  } else {
+    res.redirect('/login');
+  }
+}
+
+// POST {itemBarcode: 12345}
 // res.json(false)
 exports.checkinitem = function(req, res) {
   if (req.user !== undefined) {
