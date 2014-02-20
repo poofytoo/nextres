@@ -209,7 +209,7 @@ $(document).ready(function(){
 
   // TODO: make this autocomplete generator modular so we can use it in other places
   $('#id-to-kerberos-autocomplete-container').css({position: 'relative', overflow: 'visible'})
-  $('#id-to-kerberos').on('keypress', function(e){
+  $('#id-to-kerberos').on('input', function(e){
     var $this = $(this);
     var kerberosList = getCompleteKerberos($this.val(), function(kerberosList){
       var $this = $('#id-to-kerberos');
