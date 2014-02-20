@@ -6,7 +6,7 @@ $warningyellow: #faf5d9;
 
 body {
 	font-family: sans-serif;
-	min-width: 720px;
+	min-width: 960px;
 }
 
 .header {
@@ -324,7 +324,7 @@ input[type="button"] {
 		&:hover {
     		background-color: #E3F0D1;
 		}
-    }
+  }
     
 	&:hover {
 		background-color: #ddd;
@@ -440,11 +440,19 @@ table {
 	}
 }
 
+/*** ITEM-CHECKOUT ***/
+
 .item-checkout {
   margin-bottom: 50px;
     
+  h3 {
+    font-size: 14px; 
+    color: #000;
+    margin: 10px;
+  }
+  
   .barcode-toggle {
-    font-size: 11px;
+    font-size: 12px;
     color: #999;
     margin-bottom: 10px;
     
@@ -453,14 +461,56 @@ table {
     }
   }
   
-  .item-checkout-box {
+  .box-container {
+    overflow: auto;
+    width: 100%;
     border: 1px solid #ddd;
-    padding: 20px;
+  }
+  
+  .blinking-cursor {
+    font-weight: bold;
+    color: #999;
+  }
+  
+  .instruction {
+    margin: 10px;
+  }
+  .active {
+    .blinking-cursor {
+      opacity: 1;
+    }
+    em {
+      font-weight: 500;
+      color: #000;
+    }
+  }
+  .active-noblink {
+    .blinking-cursor {
+      opacity: 0;
+    }
+    em {
+      font-weight: 500;
+      color: #000;
+    }
+  } 
+  .inactive {
+    opacity: 0.1;
+    display: none;
     
     .blinking-cursor {
-      font-weight: bold;
-      color: #999;
+      opacity: 0;
     }
+    em {
+      font-weight: 100; 
+    }
+  }  
+  
+  .item-checkout-box {
+    border: 1px solid #ddd;
+    border-width: 0 1px 0 0;
+    width: 50%;
+    float: left;
+
     input {
       display: inline;
       margin: 0;
@@ -473,34 +523,6 @@ table {
     .id-number {
       color: #999;
       margin-left: 5px;
-    }
-    .active {
-      .blinking-cursor {
-        opacity: 1;
-      }
-      em {
-        font-weight: 500;
-        color: #000;
-      }
-    }
-    .active-noblink {
-      .blinking-cursor {
-        opacity: 0;
-      }
-      em {
-        font-weight: 500;
-        color: #000;
-      }
-    }
-    .inactive {
-      opacity: 0.1;
-    
-      .blinking-cursor {
-        opacity: 0;
-      }
-      em {
-        font-weight: 100; 
-      }
     }
     .not-associated {
       background-color: $warningyellow;
@@ -534,6 +556,10 @@ table {
     }
   }
   
+  .item-checkin-box {
+    float: left;
+  }
+    
   .checkout-status {
     display: none;
     background-color: #ddd;
