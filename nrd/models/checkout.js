@@ -70,7 +70,7 @@ Checkout.prototype.getItemStatus = function(barcode, callback) {
     } else if (res.length == 0) {
       callback(false, "");  // new item
     } else {
-      callback(res[0].borrower);
+      callback(res[0]);
     }
   });
 }
@@ -130,6 +130,7 @@ Checkout.prototype.saveKerberos = function(kerberos, mitID, callback) {
 // Checks out the given item.
 // Use "" for kerberos if checking an item back in.
 Checkout.prototype.checkoutItem = function(kerberos, itemBarcode, callback) {
+  var it = this;
   logger.info("Checkout checkoutItem " + kerberos + " " + itemBarcode);
   var itemStatus = 'available';
   if (kerberos) {
@@ -142,7 +143,7 @@ Checkout.prototype.checkoutItem = function(kerberos, itemBarcode, callback) {
     if (err) {
       callback(err);
     } else {
-      callback(false);
+      it.getItemStatus(itemBarcode, callback);
     }
   });
 }
