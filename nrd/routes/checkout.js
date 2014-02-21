@@ -17,6 +17,20 @@ exports.view = function(req, res) {
   }
 };
 
+// POST {itemBarcode: 12345}
+// or POST {itemBarcode: 12345, description: Back to the Future} (manually entered)
+// res.json({description: Back to the Future})
+// or res.json({error: 'Item not found'})
+exports.additem = function(req, res) {
+  if (req.user !== undefined) {
+    checkoutModel.addItem(req.body.itemBarcode, req.body.description, function(result) {
+      res.json(result);
+    });
+  } else {
+    res.redirect('/login');
+  }
+}
+
 // POST {id: 98765}
 // res.json(kyc2915)
 exports.getusername = function(req, res) {
