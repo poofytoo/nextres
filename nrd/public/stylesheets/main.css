@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  min-width: 960px; }
+  min-width: 720px; }
 
 .header {
   background-color: #f8f8f8;
@@ -307,50 +307,21 @@ table tr td {
   .manage-reservations li {
     padding: 2px; }
 
-/*** ITEM-CHECKOUT ***/
+/** Item Checkout **/
 .item-checkout {
   margin-bottom: 50px; }
-  .item-checkout h3 {
-    font-size: 14px;
-    color: #000;
-    margin: 10px; }
   .item-checkout .barcode-toggle {
-    font-size: 12px;
+    font-size: 11px;
     color: #999;
     margin-bottom: 10px; }
     .item-checkout .barcode-toggle .manual-input {
       color: #47a9c4; }
-  .item-checkout .box-container {
-    overflow: auto;
-    width: 100%;
-    border: 1px solid #ddd; }
-  .item-checkout .blinking-cursor {
-    font-weight: bold;
-    color: #999; }
-  .item-checkout .instruction {
-    margin: 10px; }
-  .item-checkout .active .blinking-cursor {
-    opacity: 1; }
-  .item-checkout .active em {
-    font-weight: 500;
-    color: #000; }
-  .item-checkout .active-noblink .blinking-cursor {
-    opacity: 0; }
-  .item-checkout .active-noblink em {
-    font-weight: 500;
-    color: #000; }
-  .item-checkout .inactive {
-    opacity: 0.1;
-    display: none; }
-    .item-checkout .inactive .blinking-cursor {
-      opacity: 0; }
-    .item-checkout .inactive em {
-      font-weight: 100; }
   .item-checkout .item-checkout-box {
     border: 1px solid #ddd;
-    border-width: 0 1px 0 0;
-    width: 50%;
-    float: left; }
+    padding: 20px; }
+    .item-checkout .item-checkout-box .blinking-cursor {
+      font-weight: bold;
+      color: #999; }
     .item-checkout .item-checkout-box input {
       display: inline;
       margin: 0; }
@@ -361,6 +332,22 @@ table tr td {
     .item-checkout .item-checkout-box .id-number {
       color: #999;
       margin-left: 5px; }
+    .item-checkout .item-checkout-box .active .blinking-cursor {
+      opacity: 1; }
+    .item-checkout .item-checkout-box .active em {
+      font-weight: 500;
+      color: #000; }
+    .item-checkout .item-checkout-box .active-noblink .blinking-cursor {
+      opacity: 0; }
+    .item-checkout .item-checkout-box .active-noblink em {
+      font-weight: 500;
+      color: #000; }
+    .item-checkout .item-checkout-box .inactive {
+      opacity: 0.1; }
+      .item-checkout .item-checkout-box .inactive .blinking-cursor {
+        opacity: 0; }
+      .item-checkout .item-checkout-box .inactive em {
+        font-weight: 100; }
     .item-checkout .item-checkout-box .not-associated {
       background-color: #faf5d9;
       padding: 10px;
@@ -383,8 +370,6 @@ table tr td {
           padding: 4px; }
         .item-checkout .item-checkout-box .not-associated ul li:hover, .item-checkout .item-checkout-box .not-associated ul .arrow-selected {
           background-color: rgba(255, 255, 255, 0.5); }
-  .item-checkout .item-checkin-box {
-    float: left; }
   .item-checkout .checkout-status {
     display: none;
     background-color: #ddd;

@@ -1,45 +1,40 @@
 <h1>Next Desk Item Checkout</h1>
-<div class="item-checkout">
+<p>Check out stuff!</p>
 
-  <div class="barcode-toggle">Barcode Scanner | <a class="manual-input" href="">Use Manual Input Instead?</a></div>
-  
-  <div class="box-container">
-    <div class="item-checkout-box">
-      <h3>Checkout Item</h3>
-      <div class="instruction mit-scan active">
-        <em>Scan an MIT ID to Begin</em> 
-        <span class="id-number"></span>
-        <span class="blinking-cursor">_</span>
-        <input id="id-number" class="hidden-textbox instructions-mitscan-textbox" name="userID" type="text">
-      </div>
-      <div class="instruction not-associated">
-        This MIT ID is not associated with a resident.<br />
-        Please enter the <em>Kerberos</em> of the resident.
-        <div id="id-to-kerberos-autocomplete-container">
-          <input id="id-to-kerberos" onkeydown="arrowSelector(this, event)" type="text"/>
-        </div>
-      </div>
-      <div class="instruction item-scan inactive">
-        <em>Scan an Item to Checkout</em> 
-        <span class="item-number"></span>
-        <span class="blinking-cursor">_</span>
-        <input id="item-number" class="hidden-textbox instructions-itemscan-textbox" name="userID" type="text">
+<div class="item-checkout">
+  <div class="item-checkout-box">
+    <div class="barcode-toggle">Barcode Scanner | <a class="manual-input" href="">Use Manual Input Instead?</a></div>
+    <div class="instruction mit-scan active">
+      1. <em>Scan an MIT ID to Begin</em> 
+      <span id="id-number"></span>
+      <span class="blinking-cursor">_</span>
+      <input id="id-number-hidden" class="hidden-textbox" name="userID" type="text">
+    </div>
+    <div class="instruction not-associated capture-kerberos">
+      This MIT ID is not associated with a resident.<br />
+      Please enter the <em>Kerberos</em> of the resident.
+      <div id="id-to-kerberos-autocomplete-container">
+        <input id="id-to-kerberos" onkeydown="arrowSelector(this, event)" type="text"/>
       </div>
     </div>
-    <div class="item-checkin-box">
-      <h3>Return Item</h3>
-      <div class="instruction mit-scan active">
-        <em>Scan Item to Return</em> 
-        <span class="blinking-cursor">_</span>
+    <div class="instruction item-scan inactive">
+      2. <em>Scan an Item to Checkout</em> 
+      <span id="item-number"></span>
+      <span class="blinking-cursor">_</span>
+      <input id="item-number-hidden" class="hidden-textbox" name="userID" type="text">
+    </div>
+    <div class="instruction not-associated ask-checkin">
+      This item is currently checked out by <span id="kerberos-checkedout"></span>.
+      <div>
+        <input id="checkin" onclick="checkin()" type="button" value="Check-in"/>
+        <input id="recheckout" onclick="continueCheckout()" type="button" value="Checkout Anyway"/>
       </div>
-    </div>
-    </div>
-    
-    <div class="checkout-status">
-      Checking out item for: <span class="kerberos-checkout"></span>
     </div>
   </div>
-
+  <div class="checkout-status">
+    Checking out item for: <span class="kerberos-checkout"></span>
+  </div>
+</div>
 
 <table class="displaytable">
 <tr>
@@ -54,6 +49,5 @@
 {{/each}}
 </table>
 
-</div>
 
 <script src="js/checkout.js"></script>
