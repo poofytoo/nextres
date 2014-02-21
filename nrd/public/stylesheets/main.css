@@ -308,73 +308,86 @@ table tr td {
     padding: 2px; }
 
 /** Item Checkout **/
-.item-checkout {
-  margin-bottom: 50px; }
-  .item-checkout .barcode-toggle {
-    font-size: 11px;
-    color: #999;
-    margin-bottom: 10px; }
-    .item-checkout .barcode-toggle .manual-input {
-      color: #47a9c4; }
-  .item-checkout .item-checkout-box {
-    border: 1px solid #ddd;
-    padding: 20px; }
-    .item-checkout .item-checkout-box .blinking-cursor {
+.item-checkout .scan-box {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center; }
+  .item-checkout .scan-box em {
+    font-weight: bold; }
+  .item-checkout .scan-box .scan-circle {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    line-height: 60px;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 100;
+    position: relative; }
+    .item-checkout .scan-box .scan-circle .st {
+      color: #fff; }
+    .item-checkout .scan-box .scan-circle.wait {
+      background-color: #e9370e; }
+    .item-checkout .scan-box .scan-circle.go {
+      background-color: #56c444; }
+      .item-checkout .scan-box .scan-circle.go .scan-effect {
+        position: absolute;
+        top: 0px;
+        left: -20px;
+        width: 7px;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.2);
+        animation: scaneffect 5s infinite;
+        -webkit-animation: scaneffect 5s infinite;
+        animation-timing-function: ease-in-out;
+        -webkit-animation-timing-function: ease-in-out; }
+  .item-checkout .scan-box .scan-instructions {
+    margin-top: 10px;
+    line-height: normal; }
+    .item-checkout .scan-box .scan-instructions .checkout-notice {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 4px; }
+    .item-checkout .scan-box .scan-instructions .kerberos {
       font-weight: bold;
       color: #999; }
-    .item-checkout .item-checkout-box input {
-      display: inline;
-      margin: 0; }
-    .item-checkout .item-checkout-box .hidden-textbox {
-      opacity: 0;
-      width: 1px;
-      min-width: inherit; }
-    .item-checkout .item-checkout-box .id-number {
-      color: #999;
-      margin-left: 5px; }
-    .item-checkout .item-checkout-box .active .blinking-cursor {
-      opacity: 1; }
-    .item-checkout .item-checkout-box .active em {
-      font-weight: 500;
-      color: #000; }
-    .item-checkout .item-checkout-box .active-noblink .blinking-cursor {
-      opacity: 0; }
-    .item-checkout .item-checkout-box .active-noblink em {
-      font-weight: 500;
-      color: #000; }
-    .item-checkout .item-checkout-box .inactive {
-      opacity: 0.1; }
-      .item-checkout .item-checkout-box .inactive .blinking-cursor {
-        opacity: 0; }
-      .item-checkout .item-checkout-box .inactive em {
-        font-weight: 100; }
-    .item-checkout .item-checkout-box .not-associated {
-      background-color: #faf5d9;
-      padding: 10px;
-      font-size: 12px;
-      margin: 5px 0 10px 18px;
-      line-height: 16px;
-      display: inline-block; }
-      .item-checkout .item-checkout-box .not-associated input {
-        display: block;
-        margin-top: 4px;
-        width: 100%; }
-      .item-checkout .item-checkout-box .not-associated em {
-        color: inherit;
-        font-weight: bold; }
-      .item-checkout .item-checkout-box .not-associated ul {
-        margin: 0;
-        border: none; }
-        .item-checkout .item-checkout-box .not-associated ul li {
-          border-bottom: 1px solid #f4eecc;
-          padding: 4px; }
-        .item-checkout .item-checkout-box .not-associated ul li:hover, .item-checkout .item-checkout-box .not-associated ul .arrow-selected {
-          background-color: rgba(255, 255, 255, 0.5); }
-  .item-checkout .checkout-status {
-    display: none;
-    background-color: #ddd;
-    padding: 8px 0px 8px 20px;
-    font-size: 12px; }
-    .item-checkout .checkout-status .kerberos-checkout {
-      font-weight: bold;
-      color: #4db33c; }
+    .item-checkout .scan-box .scan-instructions .checkout-kerberos {
+      display: none; }
+    .item-checkout .scan-box .scan-instructions .init {
+      display: block; }
+  .item-checkout .scan-box .feedback-bar {
+    margin-top: 10px;
+    display: none; }
+    .item-checkout .scan-box .feedback-bar.success {
+      color: #a4d654; }
+    .item-checkout .scan-box .feedback-bar.fail {
+      color: #c94f4f; }
+.item-checkout .hidden-textbox {
+  opacity: 0;
+  width: 0;
+  min-width: 0 !important;
+  display: inline;
+  position: fixed;
+  top: 0px;
+  left: 0px; }
+
+@keyframes scaneffect {
+  30% {
+    left: -10px; }
+
+  60% {
+    left: 60px; }
+
+  90% {
+    left: -10px; } }
+
+@-webkit-keyframes scaneffect {
+  30% {
+    left: -10px; }
+
+  60% {
+    left: 60px; }
+
+  90% {
+    left: -10px; } }

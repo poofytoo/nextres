@@ -7,6 +7,7 @@
 _obj
 _test
 nrd/node_modules
+.sass-cache
 
 # Architecture specific extensions/prefixes
 *.[568vq]
