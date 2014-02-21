@@ -137,6 +137,7 @@ app.get('/managereservations', reservations.manage);
  * Item Checkout functions
  */
 app.get('/checkout', checkout.view);
+app.get('/additempage', checkout.additempage);
 app.post('/additem', checkout.additem);
 app.post('/checkoutgetid', checkout.getusername);
 app.post('/checkoutgetkerberos', checkout.getkerberos);

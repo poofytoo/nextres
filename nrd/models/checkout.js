@@ -43,12 +43,14 @@ Checkout.prototype.addItem = function(barcode, description, callback) {
         if (error || response.statusCode != 200) {
           callback({'error': error});
           return;
-        } else if (!result.valid) {
-          callback({'error': 'Item not found'});
-          return;
+        } else {
+          var result = JSON.parse(body);
+          if (!result.valid) {
+            callback({'error': 'Item not found'});
+          } else {
+            finishAddItem(barcode, result.description);
+          }
         }
-        var result = JSON.parse(body);
-        finishAddItem(barcode, result.description);
       });
   } else {
     finishAddItem(barcode, description);

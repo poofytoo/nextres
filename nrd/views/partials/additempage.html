@@ -1,0 +1,51 @@
+<h1>Next Desk Item Checkout</h1>
+<p>Add items.</p>
+
+<div class="input-box">
+    <p>Scan item barcode:</p>
+    <input type="text" id="barcode">
+    <input type="button" id="submit-barcode" value="Add">
+</div>
+
+<div class="enter-description">
+    <p>Unknown item. Enter description:</p>
+    <input type="text" id="description">
+    <input type="button" id="submit-description" value="Add">
+</div>
+
+<div class="status">
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.enter-description').hide();
+        $('#submit-barcode').on('click', function() {
+            $.post('/additem', {itemBarcode: $('#barcode').val()})
+            .done(function(data) {
+                if (data.error) {
+                    $('#description').focus();
+                    $('.input-box').hide();
+                    $('.enter-description').show();
+                } else {
+                    $('#barcode').val('');
+                    $('#barcode').focus();
+                    $('.status').text('Added ' + data.description);
+                }
+            });
+        });
+        $('#submit-description').on('click', function() {
+            $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
+            .done(function(data) {
+                $('.status').text('Added ' + data.description);
+                $('.input-box').show();
+                $('.enter-description').hide();
+                $('#barcode').val('');
+                $('#description').val('');
+                $('#barcode').focus();
+            });
+        });
+
+        $('#barcode').focus();
+    });
+</script>
+

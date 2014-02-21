@@ -17,6 +17,18 @@ exports.view = function(req, res) {
   }
 };
 
+exports.additempage = function(req, res) {
+  if (req.user !== undefined) {
+    util.registerContent('additempage');
+    res.render('base.html', {
+      user: req.user,
+      permissions: req.permissions,
+    });
+  } else {
+    res.redirect('/login');
+  }
+};
+
 // POST {itemBarcode: 12345}
 // or POST {itemBarcode: 12345, description: Back to the Future} (manually entered)
 // res.json({description: Back to the Future})
