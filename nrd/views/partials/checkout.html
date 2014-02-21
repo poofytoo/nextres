@@ -1,38 +1,26 @@
 <h1>Next Desk Item Checkout</h1>
-<p>Check out stuff!</p>
+<p>Deskworker Checkout Page</p>
 
 <div class="item-checkout">
-  <div class="item-checkout-box">
-    <div class="barcode-toggle">Barcode Scanner | <a class="manual-input" href="">Use Manual Input Instead?</a></div>
-    <div class="instruction mit-scan active">
-      1. <em>Scan an MIT ID to Begin</em> 
-      <span id="id-number"></span>
-      <span class="blinking-cursor">_</span>
-      <input id="id-number-hidden" class="hidden-textbox" name="userID" type="text">
+  <div class="scan-box">
+    <div class="scan-circle go">
+      <span class="st">scan</span>
+      <div class="scan-effect"></div>
     </div>
-    <div class="instruction not-associated capture-kerberos">
-      This MIT ID is not associated with a resident.<br />
-      Please enter the <em>Kerberos</em> of the resident.
-      <div id="id-to-kerberos-autocomplete-container">
-        <input id="id-to-kerberos" onkeydown="arrowSelector(this, event)" type="text"/>
+    <div class="scan-instructions">
+      <div class="scan-command init">
+        Scan an MIT ID to begin <em>checkout</em><br />
+        Scan an item to <em>return</em>
       </div>
-    </div>
-    <div class="instruction item-scan inactive">
-      2. <em>Scan an Item to Checkout</em> 
-      <span id="item-number"></span>
-      <span class="blinking-cursor">_</span>
-      <input id="item-number-hidden" class="hidden-textbox" name="userID" type="text">
-    </div>
-    <div class="instruction not-associated ask-checkin">
-      This item is currently checked out by <span id="kerberos-checkedout"></span>.
-      <div>
-        <input id="checkin" onclick="checkin()" type="button" value="Check-in"/>
-        <input id="recheckout" onclick="continueCheckout()" type="button" value="Checkout Anyway"/>
+      <div class="scan-command checkout-kerberos">
+        <div class="checkout-notice">Checkout item for <span class="kerberos"></span></div>
+        Scan an item to <em>checkout</em>
       </div>
+      <div class="feedback-bar fail">
+        Feedback Bar
+      </div>
+      <input class="hidden-textbox" type="text"/>
     </div>
-  </div>
-  <div class="checkout-status">
-    Checking out item for: <span class="kerberos-checkout"></span>
   </div>
 </div>
 
