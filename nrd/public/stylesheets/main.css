@@ -329,6 +329,8 @@ table tr td {
       color: #fff; }
     .item-checkout .scan-box .scan-circle.wait {
       background-color: #e9370e; }
+    .item-checkout .scan-box .scan-circle.hold {
+      background-color: #f2e22a; }
     .item-checkout .scan-box .scan-circle.go {
       background-color: #56c444; }
       .item-checkout .scan-box .scan-circle.go .scan-effect {
@@ -337,9 +339,9 @@ table tr td {
         left: -20px;
         width: 7px;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.2);
-        animation: scaneffect 5s infinite;
-        -webkit-animation: scaneffect 5s infinite;
+        background-color: rgba(255, 255, 255, 0.3);
+        animation: scaneffect 3s infinite;
+        -webkit-animation: scaneffect 3s infinite;
         animation-timing-function: ease-in-out;
         -webkit-animation-timing-function: ease-in-out; }
   .item-checkout .scan-box .scan-instructions {
@@ -352,7 +354,7 @@ table tr td {
     .item-checkout .scan-box .scan-instructions .kerberos {
       font-weight: bold;
       color: #999; }
-    .item-checkout .scan-box .scan-instructions .checkout-kerberos {
+    .item-checkout .scan-box .scan-instructions .checkout-kerberos, .item-checkout .scan-box .scan-instructions .restart, .item-checkout .scan-box .scan-instructions .first-checkout {
       display: none; }
     .item-checkout .scan-box .scan-instructions .init {
       display: block; }
@@ -364,16 +366,14 @@ table tr td {
     .item-checkout .scan-box .feedback-bar.fail {
       color: #c94f4f; }
 .item-checkout .hidden-textbox {
-  opacity: 0;
   width: 0;
-  min-width: 0 !important;
   display: inline;
   position: fixed;
   top: 0px;
   left: 0px; }
 
 @keyframes scaneffect {
-  30% {
+  20% {
     left: -10px; }
 
   60% {
@@ -383,7 +383,7 @@ table tr td {
     left: -10px; } }
 
 @-webkit-keyframes scaneffect {
-  30% {
+  20% {
     left: -10px; }
 
   60% {

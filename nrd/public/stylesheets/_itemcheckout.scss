@@ -25,6 +25,9 @@
       &.wait {
         background-color: #e9370e;
       }
+      &.hold {
+        background-color: #f2e22a;
+      }
       &.go {
         background-color: #56c444;
         
@@ -34,9 +37,9 @@
           left: -20px;
           width: 7px;
           height: 100%;
-          background-color: rgba(255,255,255,0.2);
-          animation: scaneffect 5s infinite;
-          -webkit-animation: scaneffect 5s infinite;
+          background-color: rgba(255,255,255,0.3);
+          animation: scaneffect 3s infinite;
+          -webkit-animation: scaneffect 3s infinite;
           animation-timing-function: ease-in-out;
           -webkit-animation-timing-function: ease-in-out;
         }
@@ -55,7 +58,7 @@
         font-weight: bold;
         color: #999;
       }
-      .checkout-kerberos {
+      .checkout-kerberos, .restart, .first-checkout {
         display: none;
       }
       .init {
@@ -76,9 +79,9 @@
   }
   
   .hidden-textbox {
-    opacity: 0;
+    // opacity: 0;
     width: 0;
-    min-width: 0 !important;
+    // min-width: 0 !important;
     display: inline;
     position: fixed;
     top: 0px;
@@ -88,12 +91,12 @@
 
 
 @keyframes scaneffect {
-  30%   {left: -10px;}
+  20%   {left: -10px;}
   60%  {left: 60px;}
   90% {left: -10px;}
 }
 @-webkit-keyframes scaneffect {
-  30%   {left: -10px;}
+  20%   {left: -10px;}
   60%  {left: 60px;}
   90% {left: -10px;}
 }
