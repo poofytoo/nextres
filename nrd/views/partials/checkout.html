@@ -32,13 +32,17 @@
 
 <table class="displaytable">
 <tr>
+  <th>Barcode</th>
   <th>Title</th>
-  <th>Status</t>
+  <th>Status</th>
+  <th>Checked out by</th>
 </tr>
 {{#each itemList}}
 <tr>
+  <td>{{this.itemcode}}</td>
   <td>{{this.title}}</td>
   <td>{{this.status}}</td>
+  <td>{{this.borrower}}</td>
 </tr>
 {{/each}}
 </table>

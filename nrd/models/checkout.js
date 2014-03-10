@@ -57,20 +57,20 @@ Checkout.prototype.addItem = function(barcode, description, callback) {
   }
 }
 
-// Returns (error, item status)
+// Returns (error, {title: Starbucks, itemcode: 12345, borrower: kyc2915})
 //   item status: either a kerberos string, or empty string if no borrower.
 Checkout.prototype.getItemStatus = function(barcode, callback) {
   this.db.query().
-    select(['borrower']).
+    select(['title', 'itemcode', 'borrower']).
     from('next-checkout-items').
     where('itemcode = ?', [barcode]);
   this.db.execute(function(err, res) {
     if (err) {
       callback(err, "");
     } else if (res.length == 0) {
-      callback(false, "");  // new item
+      callback(false, false);  // new item
     } else {
-      callback(res[0]);
+      callback(false, res[0]);
     }
   });
 }

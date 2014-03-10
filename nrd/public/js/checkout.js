@@ -45,6 +45,7 @@ var getItemStatus = function(barcode, callback) {
  */
 var checkinItem = function(itemBarcode, callback) {
   $.post('/checkinitem', {itemBarcode: itemBarcode}, function(data) {
+    // TODO: Watch for errors
     callback(data);
   });
 }
@@ -84,13 +85,13 @@ var toggleScanStatus = function(status) {
 var eventHandlers = function(){
   $('.hidden-textbox').on('keypress', function(e) {
     $this = $(this);
-    if (e.which == 13) {
+    if (e.which == 13) {  // press enter key
       switch(state) {
       case 'NEW_INPUT':
         toggleScanStatus('wait');
-        if ($this.val().length == 9) {
+        if ($this.val().length == 9) {  // deskworker scanner a kerberos ID
           // Check Out Item
-          getUserByID($this.val(), function(data) {
+          getUserByID($this.val(), function(data) {  // data = kerberos
             toggleScanStatus();
             state = 'ITEM_CHECKOUT';
             if (data) {
@@ -105,16 +106,16 @@ var eventHandlers = function(){
               $('.first-checkout').slideDown(200);
             }
           });
-        } else {
+        } else {  // deskworker scanned a item ID
           // Return Item
-          checkinItem($this.val(), function(data) {
+          checkinItem($this.val(), function(data) {  // data = item json
             toggleScanStatus();
             if (data) {
-              console.log(data);
+              console.log('item data: ' + data);
               $('.feedback-bar')
                 .stop()
                 .removeClass('fail').addClass('success')
-                .text('[ITEM NAME]' + ' has been returned.')
+                .text(data.title + ' has been returned.')
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);
@@ -133,14 +134,14 @@ var eventHandlers = function(){
       case 'ITEM_CHECKOUT':
         console.log('itemcheckout');
         toggleScanStatus('wait');
-        checkoutItem(borrowerID, $this.val(), function(data){
+        checkoutItem(borrowerID, $this.val(), function(data){  // data = item json
           toggleScanStatus();
           if (data) {
             $('.feedback-bar')
               .removeClass('fail').addClass('success')
               .stop()
               .slideUp(100)
-              .text('[ITEM NAME] checked out! Scan another to continue')
+              .text(data.title + ' checked out! Scan another to continue')
               .slideDown(200)
               .delay(5000)
               .slideUp(400);

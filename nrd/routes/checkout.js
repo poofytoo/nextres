@@ -97,8 +97,12 @@ exports.getitemstatus = function(req, res) {
 // res.json(false)
 exports.checkinitem = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.checkoutItem("", req.body.itemBarcode, function(error) {
-      res.json(error);
+    checkoutModel.checkoutItem("", req.body.itemBarcode, function(err, data) {
+      if (err) {
+        res.json({'error': err});
+      } else {
+        res.json(data);
+      }
     });
   } else {
     res.redirect('/login');
@@ -109,8 +113,12 @@ exports.checkinitem = function(req, res) {
 // res.json(false)
 exports.checkoutitem = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.checkoutItem(req.body.userKerberos, req.body.itemBarcode, function(error) {
-      res.json(error);
+    checkoutModel.checkoutItem(req.body.userKerberos, req.body.itemBarcode, function(err, data) {
+      if (err) {
+        res.json({'error': err});
+      } else {
+        res.json(data);
+      }
     });
   } else {
     res.redirect('/login');
