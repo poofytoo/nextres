@@ -125,7 +125,7 @@ function removeEvent(access_token, id, callback) {
   }, callback);
 }
 
-Reservation.prototype.getEventsWithUser = function(user, callback) {
+function getEventsWithUser(user, callback) {
   gaccount.auth(function(err, access_token) {
     var now = new Date();
     now.setDate(now.getDate() - 1); var timeMin = toRFC3339(now);
@@ -156,67 +156,76 @@ Reservation.prototype.getEventsWithUser = function(user, callback) {
   });
 }
 
+Reservation.prototype.getEventsWithUser = getEventsWithUser;
+
 Reservation.prototype.reserve = function(user, params, callback) {
   params.resident1 = user.kerberos;
 
   logger.info('Reservation request made. Params: ' + JSON.stringify(params));
-  if (params.resident1 === params.resident2 ||
-      params.resident1 === params.resident3 ||
-      params.resident2 === params.resident3) {
-        callback({'error': 'Duplicate resident field.'});
-        return;
-      }
-  function isAllowed(kerberos, callback) {
-    if (kerberos === '') {
-      callback(true);
-    } else {
-      userModel.getKerberos(kerberos, function(error, user) {
-        callback(user);
-      });
-    }
-  };
-  isAllowed(params.resident2, function(user) {
-    if (!user) {
-      callback({'error': 'Invalid kerberos for resident 2.'});
-    } else {
-      isAllowed(params.resident3, function(user_) {
-        if (!user_) {
-          callback({'error': 'Invalid kerberos for resident 3.'});
-        } else {
-          gaccount.auth(function(err, access_token) {
-            // Set start and end datetimes.
-            var startTime = new Date(params.date);
-            startTimeTo24h = to24h(params.start);
-            startTime.setHours(startTimeTo24h[0]); startTime.setMinutes(startTimeTo24h[1]);
-            var endTime = new Date(params.date);
-            endTimeTo24h = to24h(params.end);
-            endTime.setHours(endTimeTo24h[0]); endTime.setMinutes(endTimeTo24h[1]);
 
-            params.timeMin = toRFC3339(startTime);
-            params.timeMax = toRFC3339(endTime);
-            listEvents(access_token, params.timeMin, params.timeMax, function(err, res, body) {
-              /* Forbid conflicts */
-              if (body.items) {
-                for (var i = 0; i < body.items.length; i++) {
-                  if (body.items[i].location === params.room) {
-                    callback({'error': 'Reservation conflict'});
-                    return;
+  getEventsWithUser(user, function(userEvents) {
+    if (userEvents.length >= 3) {
+      callback({'error': 'Error: you may have no more than 3 outstanding reservations.'});
+    } else {
+      if (params.resident1 === params.resident2 ||
+          params.resident1 === params.resident3 ||
+          params.resident2 === params.resident3) {
+            callback({'error': 'Duplicate resident field.'});
+            return;
+          }
+      function isAllowed(kerberos, callback) {
+        if (kerberos === '') {
+          callback(true);
+        } else {
+          userModel.getKerberos(kerberos, function(error, user) {
+            callback(user);
+          });
+        }
+      };
+      isAllowed(params.resident2, function(user) {
+        if (!user) {
+          callback({'error': 'Invalid kerberos for resident 2.'});
+        } else {
+          isAllowed(params.resident3, function(user_) {
+            if (!user_) {
+              callback({'error': 'Invalid kerberos for resident 3.'});
+            } else {
+              gaccount.auth(function(err, access_token) {
+                // Set start and end datetimes.
+                var startTime = new Date(params.date);
+                startTimeTo24h = to24h(params.start);
+                startTime.setHours(startTimeTo24h[0]); startTime.setMinutes(startTimeTo24h[1]);
+                var endTime = new Date(params.date);
+                endTimeTo24h = to24h(params.end);
+                endTime.setHours(endTimeTo24h[0]); endTime.setMinutes(endTimeTo24h[1]);
+
+                params.timeMin = toRFC3339(startTime);
+                params.timeMax = toRFC3339(endTime);
+                listEvents(access_token, params.timeMin, params.timeMax, function(err, res, body) {
+                  /* Forbid conflicts */
+                  if (body.items) {
+                    for (var i = 0; i < body.items.length; i++) {
+                      if (body.items[i].location === params.room) {
+                        callback({'error': 'Reservation conflict'});
+                        return;
+                      }
+                    }
                   }
-                }
-              }
-              logger.info('Successful reservation');
-              /* Update Google Calendar */
-              insertEvent(access_token, params, function(err, res, body) {
-                if (body['error']) {
-                  logger.info('Malformed request ' + JSON.stringify(params));
-                  callback({'error': 'Malformed request'});
-                } else {
-                  logger.info('Put on google calendar as id ' + body.id);
-                  callback({'success': 'Room successfully reserved'});
-                  mailer.reserveRoom(params);
-                }
+                  logger.info('Successful reservation');
+                  /* Update Google Calendar */
+                  insertEvent(access_token, params, function(err, res, body) {
+                    if (body['error']) {
+                      logger.info('Malformed request ' + JSON.stringify(params));
+                      callback({'error': 'Malformed request'});
+                    } else {
+                      logger.info('Put on google calendar as id ' + body.id);
+                      callback({'success': 'Room successfully reserved'});
+                      mailer.reserveRoom(params);
+                    }
+                  });
+                });
               });
-            });
+            }
           });
         }
       });
