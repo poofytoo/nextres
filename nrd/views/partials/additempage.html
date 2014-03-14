@@ -5,12 +5,14 @@
     <p>Scan item barcode:</p>
     <input type="text" id="barcode">
     <input type="button" id="submit-barcode" value="Add">
+    <input type="button" id="cancel-barcode" value="Cancel">
 </div>
 
 <div class="enter-description">
     <p>Unknown item. Enter description:</p>
     <input type="text" id="description">
     <input type="button" id="submit-description" value="Add">
+    <input type="button" id="cancel-description" value="Cancel">
 </div>
 
 <div class="status">
@@ -19,34 +21,64 @@
 <script>
     $(document).ready(function() {
         $('.enter-description').hide();
-        $('#submit-barcode').on('click', function() {
+        $('#submit-barcode').on('click', submitBarcodeClickHandler);
+        function submitBarcodeClickHandler() {
             $('.status').text('Uploading...');
             $.post('/additem', {itemBarcode: $('#barcode').val()})
             .done(function(data) {
                 if (data.error) {
                     $('#description').focus();
-                    $('.input-box').hide();
+                    $('#submit-barcode').hide();
+                    $('#cancel-barcode').hide();
                     $('.enter-description').show();
                     $('.status').text('');
                 } else {
-                    $('#barcode').val('');
-                    $('#barcode').focus();
                     $('.status').text('Added ' + data.description);
+                    setBarcodeLayout();
                 }
             });
+        }
+        $('#barcode').keypress(function(e) {
+            // Look for enter key
+            if(e.which == 10 || e.which == 13) {
+                if (! $('#submit-description').is(':visible')) {
+                    submitBarcodeClickHandler();
+                }
+            }
         });
-        $('#submit-description').on('click', function() {
+
+        $('#submit-description').on('click', submitDescriptionClickHandler);
+        function submitDescriptionClickHandler() {
             $('.status').text('Uploading...');
             $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
             .done(function(data) {
                 $('.status').text('Added ' + data.description);
-                $('.input-box').show();
-                $('.enter-description').hide();
-                $('#barcode').val('');
-                $('#description').val('');
-                $('#barcode').focus();
+                setBarcodeLayout();
             });
+        }
+        $('#description').keypress(function(e) {
+            // Look for enter key
+            if(e.which == 10 || e.which == 13) {
+                submitDescriptionClickHandler();
+            }
         });
+
+        $('#cancel-barcode').on('click', function() {
+            setBarcodeLayout()
+        });
+        $('#cancel-description').on('click', function() {
+            setBarcodeLayout();
+        });
+
+        // Clears forms and prepares webpage for barcode entry
+        function setBarcodeLayout() {
+            $('#submit-barcode').show();
+            $('#cancel-barcode').show();
+            $('.enter-description').hide();
+            $('#barcode').val('');
+            $('#description').val('');
+            $('#barcode').focus();
+        }
 
         $('#barcode').focus();
     });
