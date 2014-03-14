@@ -23,25 +23,30 @@
         $('.enter-description').hide();
         $('#submit-barcode').on('click', submitBarcodeClickHandler);
         function submitBarcodeClickHandler() {
-            $('.status').text('Uploading...');
-            $.post('/additem', {itemBarcode: $('#barcode').val()})
-            .done(function(data) {
-                if (data.error) {
-                    $('#description').focus();
-                    $('#submit-barcode').hide();
-                    $('#cancel-barcode').hide();
-                    $('.enter-description').show();
-                    $('.status').text('');
-                } else {
-                    $('.status').text('Added ' + data.description);
-                    setBarcodeLayout();
-                }
-            });
+            var barcode = $('#barcode').val()
+            if(isNaN(barcode)) {
+                $('.status').text('Invalid barcode.')
+            } else {
+                $('.status').text('Uploading...');
+                $.post('/additem', {itemBarcode: barcode})
+                .done(function(data) {
+                    if (data.error) {
+                        $('#description').focus();
+                        $('#submit-barcode').hide();
+                        $('#cancel-barcode').hide();
+                        $('.enter-description').show();
+                        $('.status').text('');
+                    } else {
+                        $('.status').text('Added ' + data.description);
+                        setBarcodeLayout();
+                    }
+                });
+            }
         }
         $('#barcode').keypress(function(e) {
             // Look for enter key
             if(e.which == 10 || e.which == 13) {
-                if (! $('#submit-description').is(':visible')) {
+                if (!$('#submit-description').is(':visible')) {
                     submitBarcodeClickHandler();
                 }
             }
@@ -49,12 +54,17 @@
 
         $('#submit-description').on('click', submitDescriptionClickHandler);
         function submitDescriptionClickHandler() {
-            $('.status').text('Uploading...');
-            $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
-            .done(function(data) {
-                $('.status').text('Added ' + data.description);
-                setBarcodeLayout();
-            });
+            var barcode = $('#barcode').val();
+            if (isNaN(barcode)) {
+                $('.status').text('Invalid barcode');
+            } else {
+                $('.status').text('Uploading...');
+                $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
+                .done(function(data) {
+                    $('.status').text('Added ' + data.description);
+                    setBarcodeLayout();
+                });
+            }
         }
         $('#description').keypress(function(e) {
             // Look for enter key
