@@ -136,12 +136,12 @@ var eventHandlers = function(){
         toggleScanStatus('wait');
         checkoutItem(borrowerID, $this.val(), function(data){  // data = item json
           toggleScanStatus();
-          if (data) {
+          if (!data.error) {
             $('.feedback-bar')
               .removeClass('fail').addClass('success')
               .stop()
               .slideUp(100)
-              .text(data.name + ' checked out! Scan another to continue')
+              .text(data.result.name + ' checked out! Scan another to continue')
               .slideDown(200)
               .delay(5000)
               .slideUp(400);
@@ -153,7 +153,7 @@ var eventHandlers = function(){
               .slideUp(100, function(){
               $(this).removeClass('success').addClass('fail')
               .delay(100)
-              .text('Item not found. Try again')
+              .text(data.error)
               .slideDown(200)
               .delay(5000)
               .slideUp(400);

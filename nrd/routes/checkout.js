@@ -86,12 +86,23 @@ exports.checkinitem = function(req, res) {
 }
 
 // POST {userKerberos: kyc2915, itemBarcode: 12345}
-// res.json(false)
+// res.json({error: error}) or res.json({result: Item}
 exports.checkoutitem = function(req, res) {
-  checkoutModel.checkoutItem(req.body.itemBarcode,
-      req.body.userKerberos, 'deskworker', function() {
-    checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-      res.json(item);
-    });
+  var kerberos = req.body.userKerberos;
+  checkoutModel.getCheckedOutItems(kerberos, function(items) {
+    if (items.length >= 3) {
+      // Too many items checked out! Error
+      res.json({'error': 'This user has too many checked out items. Please return some items'});
+    } else {
+      checkoutModel.checkoutItem(req.body.itemBarcode, kerberos, 'deskworker', function() {
+        checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
+          if (item) {
+            res.json({'result': item});
+          } else {
+            res.json({'error': 'Item not found. Please try again'});
+          }
+        });
+      });
+    }
   });
 }
