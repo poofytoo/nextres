@@ -115,7 +115,7 @@ var eventHandlers = function(){
               $('.feedback-bar')
                 .stop()
                 .removeClass('fail').addClass('success')
-                .text(data.title + ' has been returned.')
+                .text(data.name + ' has been returned.')
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);
@@ -141,7 +141,7 @@ var eventHandlers = function(){
               .removeClass('fail').addClass('success')
               .stop()
               .slideUp(100)
-              .text(data.title + ' checked out! Scan another to continue')
+              .text(data.name + ' checked out! Scan another to continue')
               .slideDown(200)
               .delay(5000)
               .slideUp(400);

@@ -33,15 +33,13 @@
 <table class="displaytable">
 <tr>
   <th>Barcode</th>
-  <th>Title</th>
-  <th>Status</th>
+  <th>Name</th>
   <th>Checked out by</th>
 </tr>
 {{#each itemList}}
 <tr>
-  <td>{{this.itemcode}}</td>
-  <td>{{this.title}}</td>
-  <td>{{this.status}}</td>
+  <td>{{this.barcode}}</td>
+  <td>{{this.name}}</td>
   <td>{{this.borrower}}</td>
 </tr>
 {{/each}}

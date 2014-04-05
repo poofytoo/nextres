@@ -5,7 +5,7 @@ var checkoutModel = new Checkout();
 exports.view = function(req, res) {
   if (req.user !== undefined) {
     util.registerContent('checkout');
-    checkoutModel.getItemsListing(req.user, function(itemList) {
+    checkoutModel.getAllItems(function(itemList) {
       res.render('base.html', {
         user: req.user,
         permissions: req.permissions,
@@ -35,9 +35,19 @@ exports.additempage = function(req, res) {
 // or res.json({error: 'Item not found'})
 exports.additem = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.addItem(req.body.itemBarcode, req.body.description, function(result) {
-      res.json(result);
-    });
+    if (req.body.description) {
+      checkoutModel.addItem(req.body.itemBarcode, req.body.description, function() {});
+      res.json({'description': req.body.description});
+    } else {
+      checkoutModel.getUPCItem(req.body.itemBarcode, function(barcode, name) {
+        if (name) {
+          checkoutModel.addItem(req.body.itemBarcode, name, function() {});
+          res.json({'description': name});
+        } else {
+          res.json({'error': 'Item not found'});
+        }
+      });
+    };
   } else {
     res.redirect('/login');
   }
@@ -82,11 +92,11 @@ exports.savekerberos = function(req, res) {
 }
 
 // POST {itemBarcode: 12345}
-// res.json(kyc2915)  or "" if no one is borrowing this item
+// res.json(Item), or res.json(false) if no item has the specified barcode
 exports.getitemstatus = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.getItemStatus(req.body.itemBarcode, function(itemStatus) {
-      res.json(itemStatus);
+    checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
+      res.json(item);
     });
   } else {
     res.redirect('/login');
@@ -94,15 +104,13 @@ exports.getitemstatus = function(req, res) {
 }
 
 // POST {itemBarcode: 12345}
-// res.json(false)
+// res.json(Item)
 exports.checkinitem = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.checkoutItem("", req.body.itemBarcode, function(err, data) {
-      if (err) {
-        res.json({'error': err});
-      } else {
-        res.json(data);
-      }
+    checkoutModel.checkinItem(req.body.itemBarcode, 'deskworker', function() {
+      checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
+        res.json(item);
+      });
     });
   } else {
     res.redirect('/login');
@@ -113,12 +121,11 @@ exports.checkinitem = function(req, res) {
 // res.json(false)
 exports.checkoutitem = function(req, res) {
   if (req.user !== undefined) {
-    checkoutModel.checkoutItem(req.body.userKerberos, req.body.itemBarcode, function(err, data) {
-      if (err) {
-        res.json({'error': err});
-      } else {
-        res.json(data);
-      }
+    checkoutModel.checkoutItem(req.body.itemBarcode,
+        req.body.userKerberos, 'deskworker', function() {
+      checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
+        res.json(item);
+      });
     });
   } else {
     res.redirect('/login');
