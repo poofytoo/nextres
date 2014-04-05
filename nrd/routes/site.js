@@ -8,10 +8,6 @@ exports.index = function(req, res) {
 }
 
 exports.home = function(req, res) {
-  if (req.user !== undefined) {
-    util.registerContent('home');
-    res.render('base.html', {'user': req.user, 'permissions': req.permissions});
-  } else {
-    res.render('login.html');
-  }
+  util.registerContent('home');
+  res.render('base.html', {'user': req.user, 'permissions': req.permissions});
 }

@@ -6,73 +6,61 @@ var guestlistModel = new GuestList();
 var logger = require('../models/logger');
 
 exports.view = function(req, res) {
-  if (req.user !== undefined) {
-    logger.info(req.user.id);
-    guestlistModel.getGuests(req.user.id, function(error, result) {
-      guests =[]
-      for (var i = 1; i <= 3; i++) {
-        info = {name: result['guest' + i + 'Name'],
-                kerberos: result['guest' + i + 'Kerberos']};
-        guests.push(info);
-      }
-      util.registerContent('manage');
-      res.render('base.html', {'user': req.user,
-                               'permissions': req.permissions,
-                               'guests': guests});
-    });
-  } else {
-    res.redirect('/login');
-  }
+  logger.info(req.user.id);
+  guestlistModel.getGuests(req.user.id, function(error, result) {
+    guests =[]
+    for (var i = 1; i <= 3; i++) {
+      info = {name: result['guest' + i + 'Name'],
+              kerberos: result['guest' + i + 'Kerberos']};
+      guests.push(info);
+    }
+    util.registerContent('manage');
+    res.render('base.html', {'user': req.user,
+                             'permissions': req.permissions,
+                             'guests': guests});
+  });
 }
 
 exports.edit = function(req, res) {
   logger.info(req.user.id);
-  if (req.user !== undefined) {
-    guests = [];
-    for (var i = 0; i < 3; i++) {
-      info = {name: req.body['guest' + i + 'Name'],
-              kerberos: req.body['guest' + i + 'Kerberos']};
-      guests.push(info);
-    }
-    model.validateKerberos(guests, function(invalids) {
-      var id = req.user.id;
-      if (invalids.length == 0) {
-        guestlistModel.addGuests(id, guests, function(error, result) {
-          util.registerContent('manage');
-          guestlistModel.onGuestList(id, guests, function(onGuestLists) {
-            var success = 'Your guest list has been updated.';
-            res.render('base.html', {'user': req.user,
-              'permissions': req.permissions,
-              'guests': guests,
-              'success': success,
-              'alreadyHere': onGuestLists});
-          });
-        });
-      } else {
-        var error = 'Invalid kerberos: ' + invalids.join(', ');
-        res.render('base.html', {'user': req.user,
-          'permissions': req.permissions,
-          'guests': guests,
-          'error': error});
-      }
-    });
-  } else {
-    res.redirect('/login');
+  guests = [];
+  for (var i = 0; i < 3; i++) {
+    info = {name: req.body['guest' + i + 'Name'],
+            kerberos: req.body['guest' + i + 'Kerberos']};
+    guests.push(info);
   }
+  model.validateKerberos(guests, function(invalids) {
+    var id = req.user.id;
+    if (invalids.length == 0) {
+      guestlistModel.addGuests(id, guests, function(error, result) {
+        util.registerContent('manage');
+        guestlistModel.onGuestList(id, guests, function(onGuestLists) {
+          var success = 'Your guest list has been updated.';
+          res.render('base.html', {'user': req.user,
+            'permissions': req.permissions,
+            'guests': guests,
+            'success': success,
+            'alreadyHere': onGuestLists});
+        });
+      });
+    } else {
+      var error = 'Invalid kerberos: ' + invalids.join(', ');
+      res.render('base.html', {'user': req.user,
+        'permissions': req.permissions,
+        'guests': guests,
+        'error': error});
+    }
+  });
 }
 
 exports.list = function(req, res) {
-  if (req.user !== undefined) {
-    params = {};
-    var id = req.user.id;
-    logger.info(id);
-    guestlistModel.listGuests(id, params, function(error, result) {
-      util.registerContent('allguests');
-      res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
-    });
-  } else {
-    res.redirect('/login');
-  }
+  params = {};
+  var id = req.user.id;
+  logger.info(id);
+  guestlistModel.listGuests(id, params, function(error, result) {
+    util.registerContent('allguests');
+    res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
+  });
 }
 
 exports.search = function(req, res) {

@@ -16,49 +16,45 @@ exports.listall = function(req, res){
 };
 
 exports.list = function(req, res) {
-  if (req.user !== undefined) {
-    var id = req.user.id;
-    logger.info(id);
-    
-    userModel.listUsers(id, function(error, result, allroles) {
-      util.registerContent('allusers');
-        
-      // very inefficient way of determining which roles the user can be changed to
-      for (i in result){
-        user = result[i];
-        if (req.permissions.FULLPERMISSIONSCONTROL) {
-          // has full permission control - allow all roles
-          result[i].possibleRoles = allroles.slice(0);
+  var id = req.user.id;
+  logger.info(id);
+  
+  userModel.listUsers(id, function(error, result, allroles) {
+    util.registerContent('allusers');
+      
+    // very inefficient way of determining which roles the user can be changed to
+    for (i in result){
+      user = result[i];
+      if (req.permissions.FULLPERMISSIONSCONTROL) {
+        // has full permission control - allow all roles
+        result[i].possibleRoles = allroles.slice(0);
+        result[i].possibleRoles.unshift({id: user.group, name: user.name});
+      } else if (req.permissions.MAKEUSERSNEXTEXEC) {
+        // allow changing users to next exec, desk worker, or desk captain
+        if (user.group != 1){
+          result[i].possibleRoles = [];
+          result[i].possibleRoles.push({id: 0, name:'USER'});
+          result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
+          result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+          result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
           result[i].possibleRoles.unshift({id: user.group, name: user.name});
-        } else if (req.permissions.MAKEUSERSNEXTEXEC) {
-          // allow changing users to next exec, desk worker, or desk captain
-          if (user.group != 1){
-            result[i].possibleRoles = [];
-            result[i].possibleRoles.push({id: 0, name:'USER'});
-            result[i].possibleRoles.push({id: 1, name:'NEXTEXEC'});
-            result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-            result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
-            result[i].possibleRoles.unshift({id: user.group, name: user.name});
-         }
-        } else if (req.permissions.MAKEUSERSDESKWORKERS) {
-          // allow changing users to desk worker
-          if (user.group != 1 && user.group != 3){
-            result[i].possibleRoles = [];
-            result[i].possibleRoles.push({id: 0, name:'USER'});
-            result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
-            result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
-            result[i].possibleRoles.unshift({id: user.group, name: user.name});
-         }
-        }
+       }
+      } else if (req.permissions.MAKEUSERSDESKWORKERS) {
+        // allow changing users to desk worker
+        if (user.group != 1 && user.group != 3){
+          result[i].possibleRoles = [];
+          result[i].possibleRoles.push({id: 0, name:'USER'});
+          result[i].possibleRoles.push({id: 2, name:'DESKWORKER'});
+          result[i].possibleRoles.push({id: 4, name:'DESKCAPTAIN'});
+          result[i].possibleRoles.unshift({id: user.group, name: user.name});
+       }
       }
+    }
 
-      res.render('base.html', {user: req.user,
-                      result: result,
-                      permissions: req.permissions});
-    });
-  } else {
-    res.redirect('/login');
-  }
+    res.render('base.html', {user: req.user,
+                    result: result,
+                    permissions: req.permissions});
+  });
 }
 
 exports.editall = function(req, res) {
@@ -120,30 +116,24 @@ exports.logout = function(req, res) {
 
 exports.remove = function(req, res) {
   logger.info(req.body);
-  if (req.user !== undefined) {
-    userModel.removeUser(req.body.kerberos, function (error) {
-      if (error) {
-        res.json({okay:false});
-      } else {
-        res.json({okay:true});
-      }
-    });
-  } else {
-    res.redirect('/login');
-  }
+  userModel.removeUser(req.body.kerberos, function (error) {
+    if (error) {
+      res.json({okay:false});
+    } else {
+      res.json({okay:true});
+    }
+  });
 }
 
 exports.changepermission = function(req, res) {
   logger.info(req.body);
-  if (req.user !== undefined) {
-    userModel.changePermission(req.body.kerberos, req.body.permission, function (error) {
-      if (error) {
-        res.json({okay: false});
-      } else {
-        res.json({okay: true});
-      }
-    });
-  }
+  userModel.changePermission(req.body.kerberos, req.body.permission, function (error) {
+    if (error) {
+      res.json({okay: false});
+    } else {
+      res.json({okay: true});
+    }
+  });
 }
 
 //TODO: fix this to actually use FailureFlash
@@ -167,113 +157,88 @@ exports.loginsuccess = function(req, res) {
 // this is probably very unsecure..
 exports.passwordreset = function(req, res) {
   logger.info(req.body);
-  if (req.user !== undefined) {
-      kerberos = req.body.kerberos;
-      userModel.getKerberos (kerberos, function(error, result) {
-        logger.info(result);
-        if (result!==undefined) {
-        id = result['id'];
-        var newPassword = util.randomPassword();
-        logger.info(newPassword);
-        bcrypt.genSalt(10, function(err, salt) {
-              bcrypt.hash(newPassword, salt, function(err, hash) {
-                userModel.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
-              }); 
-        });
-        } else {
-          }
-         });
-   } else {
-    res.render('login.html'); 
-   } 
+  kerberos = req.body.kerberos;
+  userModel.getKerberos (kerberos, function(error, result) {
+    logger.info(result);
+    if (result!==undefined) {
+      id = result['id'];
+      var newPassword = util.randomPassword();
+      logger.info(newPassword);
+      bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(newPassword, salt, function(err, hash) {
+          userModel.resetPassword(id, hash, newPassword, kerberos, function(error, result) {});
+        }); 
+      });
+    }
+  });
 }
 
 exports.viewinfo = function(req, res) {
-  if (req.user !== undefined) {
+  userModel.getUser(req.user.id, function(error, result) {
+    var info = result;
+    util.registerContent('residentinfo');
+    logger.info(JSON.stringify(info));
+    res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info});
+  });
+}
+
+exports.editinfo = function(req, res) {
+  info = {};
+  info.firstName = req.body.firstname;
+  info.lastName = req.body.lastname;
+  info.roomNumber = req.body.roomnumber;
+  
+  userModel.updateUser(req.user.id, info, function(error, result) {
     userModel.getUser(req.user.id, function(error, result) {
       var info = result;
       util.registerContent('residentinfo');
       logger.info(JSON.stringify(info));
-      res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info});
+      var success = "Your residence info has been updated."
+      res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info, 'success': success});
     });
-  } else {
-    res.redirect('/login');
-  }
-}
-
-exports.editinfo = function(req, res) {
-  if (req.user !== undefined) {
-    info = {};
-    info.firstName = req.body.firstname;
-    info.lastName = req.body.lastname;
-    info.roomNumber = req.body.roomnumber;
-    
-    userModel.updateUser(req.user.id, info, function(error, result) {
-      userModel.getUser(req.user.id, function(error, result) {
-        var info = result;
-        util.registerContent('residentinfo');
-        logger.info(JSON.stringify(info));
-        var success = "Your residence info has been updated."
-        res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'info': info, 'success': success});
-      });
-    });
-  } else {
-    res.redirect('/login');
-  }
+  });
 }
 
 exports.viewpassword = function(req, res) {
-  if (req.user !== undefined) {
-    var id = req.user.id;
-    logger.info(id);
-    
-    util.registerContent('changepassword');
-    res.render('base.html', {'user': req.user, 'permissions': req.permissions});
-  } else {
-    res.redirect('/login');
-  }
+  var id = req.user.id;
+  logger.info(id);
+  
+  util.registerContent('changepassword');
+  res.render('base.html', {'user': req.user, 'permissions': req.permissions});
 }
 
 exports.editpassword = function(req, res) {
-  if (req.user !== undefined) {
-    var id = req.user.id;
-    var oldPassword = req.body.oldpassword;
-    var newPassword = req.body.newpassword;
+  var id = req.user.id;
+  var oldPassword = req.body.oldpassword;
+  var newPassword = req.body.newpassword;
 
-    userModel.login(req.user.kerberos, function(error, result) {
-      if (result !== undefined) {
-        bcrypt.compare(oldPassword, result.password, function(err, authenticated) {
-          if (!authenticated) {
-            util.registerContent('changepassword');
-            var error = "Your current password is incorrect!";
-            res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'error' : error});
-          } else {
-          
-            // THIS HERE IS A CALLBACK TREE. GOOD LUCK, FUTURE DEVS.
-            logger.info('correct password');
-            bcrypt.genSalt(10, function(err, salt) {
-              bcrypt.hash(newPassword, salt, function(err, hash) {
-                userModel.changePassword(id, hash, function(error, result) {
-                  util.registerContent('changepassword');
-                  var success = "Your password has been changed!";
-                  res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'success' : success});
-                });
+  userModel.login(req.user.kerberos, function(error, result) {
+    if (result !== undefined) {
+      bcrypt.compare(oldPassword, result.password, function(err, authenticated) {
+        if (!authenticated) {
+          util.registerContent('changepassword');
+          var error = "Your current password is incorrect!";
+          res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'error' : error});
+        } else {
+        
+          // THIS HERE IS A CALLBACK TREE. GOOD LUCK, FUTURE DEVS.
+          logger.info('correct password');
+          bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(newPassword, salt, function(err, hash) {
+              userModel.changePassword(id, hash, function(error, result) {
+                util.registerContent('changepassword');
+                var success = "Your password has been changed!";
+                res.render('base.html', {'user': req.user, 'permissions': req.permissions, 'success' : success});
               });
-            })
-          }
-        });
-      }
-    });
-  } else {
-    res.redirect('/login');
-  }
+            });
+          })
+        }
+      });
+    }
+  });
 }
 
 exports.emaillists = function(req, res) {
-  if (req.user !== undefined) {
-    util.registerContent('emaillists');
-    res.render('base.html', {'user': req.user, 'permissions': req.permissions});
-  } else {
-    res.render('login.html');
-  }
+  util.registerContent('emaillists');
+  res.render('base.html', {'user': req.user, 'permissions': req.permissions});
 }

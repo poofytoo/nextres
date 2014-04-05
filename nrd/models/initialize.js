@@ -18,7 +18,12 @@ module.exports.router = function(req, res, next) {
     });
   } else {
     logger.info("[Unknown user] " + req.url);
-    next();  // call app.router
+    // only allow certain urls to go through
+    if (req.url === '/login' || req.url === '/loginfail' || req.url === 'logout') {
+      next();  // call app.router
+    } else {
+      res.redirect('/login');
+    }
   }
 };
 
