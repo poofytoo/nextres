@@ -110,12 +110,12 @@ var eventHandlers = function(){
           // Return Item
           checkinItem($this.val(), function(data) {  // data = item json
             toggleScanStatus();
-            if (data) {
+            if (!data.error) {
               console.log('item data: ' + data);
               $('.feedback-bar')
                 .stop()
                 .removeClass('fail').addClass('success')
-                .text(data.name + ' has been returned.')
+                .text(data.result.name + ' has been returned.')
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);
@@ -123,7 +123,7 @@ var eventHandlers = function(){
               $('.feedback-bar')
                 .stop()
                 .removeClass('success').addClass('fail')
-                .text('Invalid Barcode. Please try again.')
+                .text(data.error)
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);

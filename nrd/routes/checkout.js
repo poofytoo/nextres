@@ -80,7 +80,11 @@ exports.getitemstatus = function(req, res) {
 exports.checkinitem = function(req, res) {
   checkoutModel.checkinItem(req.body.itemBarcode, 'deskworker', function() {
     checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-      res.json(item);
+      if (item) {
+        res.json({'result': item});
+      } else {
+        res.json({'error': 'Invalid barcode. Please try again.'});
+      }
     });
   });
 }
