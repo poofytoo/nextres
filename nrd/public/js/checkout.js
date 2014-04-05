@@ -82,6 +82,22 @@ var toggleScanStatus = function(status) {
   }
 }
 
+var updateDisplayTable = function(itemList) {
+  var html = '<tr>';
+  html += '<th>Barcode</th>';
+  html += '<th>Name</th>';
+  html += '<th>Checked out by</th>';
+  html += '</tr>';
+  for (var i = 0; i < itemList.length; i++) {
+    html += '<tr>';
+    html += '<td>' + itemList[i].barcode + '</td>';
+    html += '<td>' + itemList[i].name + '</td>';
+    html += '<td>' + itemList[i].borrower + '</td>';
+    html += '</tr>';
+  }
+  $('.displaytable').html(html);
+}
+
 var eventHandlers = function(){
   $('.hidden-textbox').on('keypress', function(e) {
     $this = $(this);
@@ -119,6 +135,7 @@ var eventHandlers = function(){
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);
+              updateDisplayTable(data.itemList);
             } else {
               $('.feedback-bar')
                 .stop()
@@ -147,6 +164,7 @@ var eventHandlers = function(){
               .slideUp(400);
             $('.restart')
               .slideDown(200);
+            updateDisplayTable(data.itemList);
           } else {
             $('.feedback-bar')
               .stop()

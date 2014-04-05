@@ -79,12 +79,14 @@ exports.getitemstatus = function(req, res) {
 // res.json(Item)
 exports.checkinitem = function(req, res) {
   checkoutModel.checkinItem(req.body.itemBarcode, 'deskworker', function() {
-    checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-      if (item) {
-        res.json({'result': item});
-      } else {
-        res.json({'error': 'Invalid barcode. Please try again.'});
+    checkoutModel.getAllItems(function(items) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].barcode === req.body.itemBarcode) {
+          res.json({'result': items[i], 'itemList': items});
+          return;
+        }
       }
+      res.json({'error': 'Invalid barcode. Please try again.'});
     });
   });
 }
@@ -99,12 +101,14 @@ exports.checkoutitem = function(req, res) {
       res.json({'error': 'This user has too many checked out items. Please return some items'});
     } else {
       checkoutModel.checkoutItem(req.body.itemBarcode, kerberos, 'deskworker', function() {
-        checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-          if (item) {
-            res.json({'result': item});
-          } else {
-            res.json({'error': 'Item not found. Please try again'});
+        checkoutModel.getAllItems(function(items) {
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].barcode === req.body.itemBarcode) {
+              res.json({'result': items[i], 'itemList': items});
+              return;
+            }
           }
+          res.json({'error': 'Item not found. Please try again'});
         });
       });
     }
