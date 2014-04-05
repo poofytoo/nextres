@@ -195,6 +195,21 @@ var eventHandlers = function(){
     $('.feedback-bar').stop().slideUp(200);
     $('.hidden-textbox').val('');
   });
+
+  $('.remove').on('click', function(e) {
+    var yes = $('<a>').html('yes').on('click',
+      function(e2) {
+        itemcode = e.target.id;
+        itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
+        $.ajax('/removeitem',{data:{itemBarcode:itemcode}, type:"POST"});
+        $('#'+itemcode+'-tr').remove();
+      }
+    );
+    var no = $('<a>').html('no').on('click',
+      function(e2) { $(e.target).html('X'); }
+    );
+    $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+  });
 }
 
 var state = '';

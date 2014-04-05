@@ -30,20 +30,24 @@
   </div>
 </div>
 
-<table class="displaytable">
-<tr>
-  <th>Barcode</th>
-  <th>Name</th>
-  <th>Checked out by</th>
-</tr>
-{{#each itemList}}
-<tr>
-  <td>{{this.barcode}}</td>
-  <td>{{this.name}}</td>
-  <td>{{this.borrower}}</td>
-</tr>
-{{/each}}
-</table>
+<p>
+  <table class="displaytable">
+  <tr>
+    <th>Barcode</th>
+    <th>Name</th>
+    <th>Checked out by</th>
+    <th>Remove</th>
+  </tr>
+  {{#each itemList}}
+  <tr id="{{this.barcode}}-tr">
+    <td>{{this.barcode}}</td>
+    <td>{{this.name}}</td>
+    <td>{{this.borrower}}</td>
+    <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
+  </tr>
+  {{/each}}
+  </table>
+</p>
 
 
 <script src="js/checkout.js"></script>

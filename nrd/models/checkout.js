@@ -61,7 +61,6 @@ function get(db, whereClause, whereArgs, callback) {
 }
 
 // Read functions
-
 Checkout.prototype.getAllItems = function(callback) {
   get(this.db, 'true', [], callback);
 }

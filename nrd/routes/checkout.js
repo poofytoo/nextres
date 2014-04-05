@@ -41,6 +41,14 @@ exports.additem = function(req, res) {
   };
 }
 
+// POST {itemBarcode: 12345}
+// or res.json(false)
+exports.removeitem = function(req, res) {
+  checkoutModel.removeItem(req.body.itemBarcode, function() {
+    res.json(false)
+  });
+}
+
 // POST {id: 98765}
 // res.json(kyc2915)
 exports.getusername = function(req, res) {
