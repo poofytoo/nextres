@@ -37,7 +37,7 @@ function to24h(time) {
   if (time === '12:00am') {
       // Hack - for some reason lots of people want an event to end at midnight,
       // but for Google Calendar reasons it needs to stay on the same day.
-      return '23:59';
+      return [23, 59];
   }
   var hours = time.substring(0, time.indexOf(":"));
   var minutes = time.substring(time.indexOf(":") + 1, time.length - 2);
