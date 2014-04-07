@@ -143,6 +143,11 @@ exports.loginfail = function(req, res) {
 
 exports.loginsuccess = function(req, res) {
   if (req.user.id) {
+    if (req.session.returnTo) {
+      res.redirect(req.session.returnTo);
+      req.session.returnTo = false;
+      return;
+    }
   // If this function gets called, authentication was successful.
   // `req.user` contains the authenticated user.
     logger.info('login success: ' + req.user.username);

@@ -22,6 +22,7 @@ module.exports.router = function(req, res, next) {
     if (req.url === '/login' || req.url === '/loginfail' || req.url === 'logout') {
       next();  // call app.router
     } else {
+      req.session.returnTo = req.url;
       res.redirect('/login');
     }
   }
