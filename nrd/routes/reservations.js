@@ -18,7 +18,7 @@ exports.view = function(req, res) {
 };
 
 exports.edit = function(req, res) {
-  reservationModel.reserve(req.user, req.body, function(result) {
+  reservationModel.reserve(req.user, req.body, req.permissions, function(result) {
     util.registerContent('roomreservations');
     reservationModel.getEventsWithUser(req.user, function(userEvents) {
       res.render('base.html', {

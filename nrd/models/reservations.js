@@ -158,14 +158,14 @@ function getEventsWithUser(user, callback) {
 
 Reservation.prototype.getEventsWithUser = getEventsWithUser;
 
-Reservation.prototype.reserve = function(user, params, callback) {
+Reservation.prototype.reserve = function(user, params, permissions, callback) {
   params.resident1 = user.kerberos;
 
   logger.info('Reservation request made. Params: ' + JSON.stringify(params));
 
   getEventsWithUser(user, function(userEvents) {
-    if (userEvents.length >= 3) {
-      callback({'error': 'Error: you may have no more than 3 outstanding reservations.'});
+    if (userEvents.length >= 3 && !permissions.EDITRESERVATIONS) {
+      callback({'error': 'Error: you have more than 3 outstanding reservations. If you wish to reserve more rooms, please contact next-exec@mit.edu'});
     } else {
       if (params.resident1 === params.resident2 ||
           params.resident1 === params.resident3 ||
