@@ -1,118 +1,191 @@
-var Database = require('./db');
+/*
+ * GUESTLIST API
+ *
+ * A GuestList object contains the following fields:
+ *      id: unique int id
+ *      userID: id of User who owns this guestlist
+ *      guest1Name: name of 1st guest
+ *      guest1Kerberos: kerberos of 1st guest
+ *      guest2Name
+ *      guest2Kerberos
+ *      ...
+ *
+ * The maximum number of guests is given by MAX_NUM_GUESTS.
+ *
+ * e.g. {id: 1, userID: 1, guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
+ */
+
 var logger = require('./logger');
+var db = require('./db').Database;
 
-var exec = require('child_process').exec;
+const MAX_NUM_GUESTS = 10;
 
-function GuestList() {
-  this.db = new Database();
+function GuestLists() {
+  this.MAX_NUM_GUESTS = MAX_NUM_GUESTS;
 }
 
-// Returns whether given kerberos is guest of someone at Next
-GuestList.prototype.onGuestList = function(id, guests, callback) {
-  var count = guests.length;
-  var onGuestLists = [];
-  var db = this.db;
-  for (var i = 0; i < guests.length; i++) {
-    var kerberos = guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, "");
-    if (kerberos === '') {
-        count--;
-    } else {
-      (function(kerberos) {
-        db.query()
-        .select(["firstName", "lastName"])
-        .from("next-guestlist")
-        .rightJoin("next-users")
-        .on("`next-guestlist`.nextUser=`next-users`.id")
-        .where("`next-users`.id != ? AND " +
-            "( guest1Kerberos LIKE ? OR guest2Kerberos LIKE ? OR guest3Kerberos LIKE ? )",
-                [id, kerberos, kerberos, kerberos]);
-        db.execute(function(err, res) {
-          if (res && res.length > 0) {
-            res[0].kerberos = kerberos;
-              onGuestLists.push(res[0]);
-          }
-          if (--count == 0) {
-            callback(onGuestLists);
-          }
-        });
-      })(kerberos);
-    }
+function nameField(index) {
+  return 'guest' + index + 'Name';
+}
+
+function kerberosField(index) {
+  return 'guest' + index + 'Kerberos';
+}
+
+GuestLists.prototype.nameField = nameField;
+GuestLists.prototype.kerberosField = kerberosField;
+
+function GuestList(guestlist) {
+  this.id = guestlist.id;
+  this.userID = guestlist.userID;
+  for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
+    this[nameField(i)] = guestlist[nameField(i)];
+    this[kerberosField(i)] = guestlist[kerberosField(i)];
   }
 }
 
-GuestList.prototype.addGuests = function(id, guests, callback) {
-  columns = [];
-  guestValues = [];
-  for (var i = 0; i < 3; i++) {
-    columns.push('guest' + (i + 1) + 'Name');
-    columns.push('guest' + (i + 1) + 'Kerberos');
-    guestValues.push(guests[i].name.replace(/[^a-zA-Z0-9\-_ ]/g, ""));
-    guestValues.push(guests[i].kerberos.replace(/[^a-zA-Z0-9\-_ ]/g, ""));
-  }
-  this.db.query().
-    update('next-guestlist',
-           columns,
-           guestValues).
-    where('nextUser = ?', [ id ]);
-  this.db.execute(function(error, result) {
-    callback(error, result);
-  });
-}
+/******************************************************************************
+ *
+ * READ FUNCTIONS
+ *
+ ******************************************************************************/
 
-GuestList.prototype.getGuests = function(id, callback) {
-  logger.info(id);
-  this.db.query().
-    select(['*']).
-    from('next-guestlist').
-    where('nextUser = ?', [ id ]).
-    limit(1);
-  var db = this.db;
-  this.db.execute(function(error, result) {
-    if (result==undefined) {
-      db.query().
-        insert('next-guestlist',
-               ['nextUser'],
-               [id]);
-      db.execute(function(error, result) {
-        callback(error, result);
-      });
-    } else {
-      logger.info(result[0]);
-      callback(error, result[0]);
-    }
-  });
-}
-
-GuestList.prototype.listGuests = function(id, params, callback) {
-  if (params.search !== undefined){
-    logger.info('searching');
-    var s = "%" + params.value + "%";
-    this.db.query()
-      .select(["*"])
-      .from("next-users")
-      .rightJoin("next-guestlist")
-    .on("`next-users`.id=`next-guestlist`.nextUser")
-    .where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', [s, s, s])
-    .orderBy(params.sort);
-    
-    logger.info(this.db.queryString);
-    this.db.execute(function(error, result) {
-      callback(error, result)
-    })
-    
-  } else {
-    this.db.query()
-      .select(["*"])
-      .from("next-users")
-      .rightJoin("next-guestlist")
-      .on("`next-users`.id=`next-guestlist`.nextUser");
-    this.db.execute(function(error, result) {
-      if (error) {
-        logger.error(error);
+/*
+ * Returns the GuestList with the given ID, or false if nonexistent
+ */
+GuestLists.prototype.getGuestList = function(id, callback) {
+  db.query().select(['*']).from('next-guestlist').where('id = ?', [id])
+    .execute(function(err, rows) {
+      if (err) {
+        callback(err);
+      } else if (rows.length === 0) {
+        callback('No guest list found.');
+      } else {
+        callback(false, new GuestList(rows[0]));
       }
-      callback(error, result)
     });
+}
+
+/*
+ * Returns the GuestList with the given userID, or false if nonexistent
+ */
+GuestLists.prototype.getGuestListOfUser = function(userID, callback) {
+  db.query().select(['*']).from('next-guestlist').where('userID = ?', [userID])
+    .execute(function(err, rows) {
+      if (err) {
+        callback(err);
+      } else if (rows.length === 0) {
+        callback('No guest list found.');
+      } else {
+        callback(false, new GuestList(rows[0]));
+      }
+    });
+}
+
+/*
+ * Returns a list of objects representing each GuestList and its user info.
+ *   params contains an optional hostSearchPattern parameter or
+ *   guestSearchPattern parameter, as well as an optional sortBy parameter.
+ *   e.g. params = {hostSearchPattern: 'kyc', sortBy: 'firstName'}
+ *     or params = {guestSearchPattern: 'becky'}
+ *
+ * Each object in the result contains all the fields of a User and GuestList
+ *   object (but is not either one of the objects),
+ *   e.g. callback(error, [{userID: 1, kerberos: 'kyc2915',
+ *     guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi', ...}, ...])
+ */
+GuestLists.prototype.listGuests = function(params, callback) {
+  var query = db.query().select(['*']).from('next-users')
+    .rightJoin('next-guestlist').on('`next-users`.id=`next-guestlist`.userID');
+  if (params && params.hostSearchPattern) {
+    var pattern = '%' + params.hostSearchPattern + '%';
+    query = query.where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', 
+        [pattern, pattern, pattern]);
+  } else if (params && params.guestSearchPattern) {
+    var pattern = '%' + params.guestSearchPattern + '%';
+    var whereClause = [];
+    var whereArgs = [];
+    for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
+      whereClause.push(nameField(i) + ' LIKE ?');
+      whereClause.push(kerberosField(i) + ' LIKE ?');
+      whereArgs.push(pattern);
+      whereArgs.push(pattern);
+    }
+    query = query.where(whereClause.join(' OR '), whereArgs);
+  }
+  if (params && params.sortBy) {
+    query = query.orderBy(params.sortBy);
+  }
+  query.execute(callback);
+}
+
+/*
+ * Returns all guests that are already on the guestlist, but not
+ *   on the guestlist of the specified user.
+ * callback(error, [{guest: 'runbobby', host: [User object]}, ...])
+ */
+GuestLists.prototype.findRepeatedGuests = function(guestlist, user, callback) {
+  var repeatedGuests = [];
+  var count = MAX_NUM_GUESTS;
+  var listGuests = this.listGuests;
+  for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
+    if (guestlist[kerberosField(i)]) {
+      var loop = function(guest) {
+        listGuests({guestSearchPattern: guest},
+          function(err, guestlists) {
+            if (err) {
+              count = -1;
+              callback(err);
+            }
+            // Make sure we are not checking user's own guestlist.
+            for (var j = 0; j < 2; j++) {
+              if (guestlists[j] &&
+                guestlists[j].kerberos !== user.kerberos) {
+                  repeatedGuests.push({guest: guest, host: guestlists[j]});
+                  break;
+                }
+            }
+            if (--count == 0) {
+              repeatedGuests.sort();
+              callback(false, repeatedGuests);
+            }
+          });
+      }
+      loop(guestlist[kerberosField(i)]);
+    } else {
+      count--;
+    }
+  }
+  if (count == 0) {  // if no loops are called
+    callback(false, repeatedGuests);
   }
 }
 
-module.exports = GuestList
+/******************************************************************************
+ *
+ * OBJECT FUNCTIONS (must be called on a GuestList object)
+ *
+ ******************************************************************************/
+
+/*
+ * Updates the guests on this guest list.
+ * The guests object contains fields of the GuestList object
+ *   (excluding the id and userID)
+ * e.g. {guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
+ */
+GuestList.prototype.updateGuests = function(guests, callback) {
+  columns = [];
+  values = [];
+  for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
+    if (guests[kerberosField(i)] != null) {
+      columns.push(nameField(i));
+      columns.push(kerberosField(i));
+      values.push(guests[nameField(i)] || '');
+      values.push(guests[kerberosField(i)] || '');
+    }
+  }
+  db.query().update('next-guestlist', columns, values)
+    .where('id = ?', [this.id]).execute(callback);
+}
+
+module.exports.GuestLists = new GuestLists();

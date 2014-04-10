@@ -2,29 +2,23 @@
 /**
  * Module dependencies.
  */
-
 var express = require('express');
+var flash = require('connect-flash');
 var http = require('http');
 var path = require('path');
-var Consolidate = require('consolidate');
 var passport = require('passport');
-var reservations = require('./models/reservations');
 var hbs = require('hbs');
-var fs = require('fs');
-var nodemailer = require('nodemailer');
-var initialize = require('./models/initialize');
 var start_settings = require('./models/config').config_data['start_settings'];
+var util = require('./models/util');
+var enforce = util.enforce;
 
 /**
  * Routes
  */
-var routes = require('./routes');
 var user = require('./routes/user');
+var emaillist = require('./routes/emaillist');
 var guestlist = require('./routes/guestlist');
-var funding = require('./routes/funding');
 var minutes = require('./routes/minutes');
-var util = require('./routes/util');
-var site = require('./routes/site');
 var reservations = require('./routes/reservations');
 var checkout = require('./routes/checkout');
 
@@ -48,16 +42,16 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.session({ secret: 'SECRET' }));
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(initialize.router);
+app.use(util.router);
 app.use(app.router);
 
-passport.use(initialize.strategy);
-
-passport.serializeUser(initialize.serializeUser);
-passport.deserializeUser(initialize.deserializeUser);
+passport.use(util.strategy);
+passport.serializeUser(util.serializeUser);
+passport.deserializeUser(util.deserializeUser);
 
 // development only
 if ('development' == app.get('env')) {
@@ -67,85 +61,78 @@ if ('development' == app.get('env')) {
 /*
  * Main site
  */
-app.get('/', 
-	passport.authenticate('local', { successRedirect: '/base.html',
-                                   failureRedirect: '/login' }),
-  site.index);
-app.get('/home', site.home);
+app.get('/', user.viewprofile);
+app.get('/home', user.viewprofile);
 
 /*
  * User functions
  */
-app.get('/loginfail', user.loginfail);
-app.post('/login',
-  passport.authenticate('local', {
-  	failureRedirect: '/loginfail'
-  }), user.loginsuccess
-);
-
-app.post('/pwreset', user.passwordreset);
 app.get('/login', user.login);
+app.post('/login',
+    passport.authenticate('local',
+      {failureRedirect: '/login', failureFlash: 'Invalid login'}),
+    user.loginsuccess
+);
 app.get('/logout', user.logout);
-app.post('/remove', user.remove);
-app.post('/changepermission', user.changepermission);
-app.get('/allusers', user.list);
-app.get('/users', user.listall);
-app.get('/residentinfo', user.viewinfo);
-app.post('/residentinfo', user.editinfo);
-app.get('/changepassword', user.viewpassword);
-app.post('/changepassword', user.editpassword);
-app.post('/allusers', user.editall);
-app.get('/emaillists', user.emaillists);
-// TODO: client sends individual POST request for each person, and as each response is returned the page updates live
+app.get('/users', user.list);
+app.post('/users', enforce('CREATE_USER'), user.massadd);
+app.post('/removeuser', enforce('CREATE_USER'), user.remove);
+app.get('/residentinfo', user.viewprofile);
+app.post('/residentinfo', user.editprofile);
+app.get('/password', user.viewpassword);
+app.post('/password', user.editpassword);
+app.post('/resetpassword', enforce('CREATE_USER'), user.resetpassword);
+app.post('/changepermission', enforce('MAKE_USERS_DESKWORKERS'), user.changepermission);
+app.post('/findmitid', enforce('CHECKOUT_ITEMS'), user.findmitid);
+app.post('/searchkerberos', enforce('CHECKOUT_ITEMS'), user.searchkerberos);
+app.post('/savekerberos', enforce('CHECKOUT_ITEMS'), user.savekerberos);
+
+
+/*
+ * Email lists
+ */
+app.get('/emaillists', emaillist.view);
 
 
 /*
  * Guestlist functions
  */
-app.get('/manage', guestlist.view);
-app.post('/manage', guestlist.edit);
-app.get('/allguests', guestlist.list);
-app.get('/searchguestlist', guestlist.search);
+app.get('/allguests', enforce('VIEW_GUEST_LISTS'), guestlist.list);
+app.get('/searchguests', enforce('VIEW_GUEST_LISTS'), guestlist.search);
+app.get('/guestlist', guestlist.view);
+app.post('/guestlist', guestlist.edit);
 
-
-/*
- * Funding functions
- */
-app.get('/application', funding.application);
-app.post('/application', funding.submit);
-app.get('/reviewapps', funding.view);
-app.post('/reviewapps', funding.edit);
 
 /*
  * House/Exec functions
  */
-app.get('/minutes', minutes.viewminutes);
-app.post('/minutes', minutes.editminutes);
-app.delete('/minutes', minutes.removeminutes);
+app.get('/minutes', minutes.list);
+app.get('/minutes/:minute', minutes.view);
+app.post('/minutes', enforce('EDIT_MINUTES'), minutes.edit);
+app.delete('/minutes', enforce('EDIT_MINUTES'), minutes.remove);
+
 
 /*
  * Room Reservation functions
  */
-app.get('/roomreservations', reservations.view);
-app.post('/roomreservations', reservations.edit);
-app.delete('/roomreservations', reservations.delete);
-app.post('/roomreservationconfirm', reservations.confirm);
-app.post('/roomreservationdeny', reservations.deny);
-app.get('/managereservations', reservations.manage);
+app.get('/roomreservations', reservations.list);
+app.post('/roomreservations', reservations.add);
+app.delete('/roomreservations', reservations.remove);
+app.post('/roomreservationconfirm', enforce('EDIT_RESERVATIONS'), reservations.confirm);
+app.post('/roomreservationdeny', enforce('EDIT_RESERVATIONS'), reservations.deny);
+app.get('/managereservations', enforce('EDIT_RESERVATIONS'), reservations.manage);
 
 /*
  * Item Checkout functions
  */
-app.get('/checkout', checkout.view);
-app.get('/additempage', checkout.additempage);
-app.post('/additem', checkout.additem);
-app.post('/removeitem', checkout.removeitem)
-app.post('/checkoutgetid', checkout.getusername);
-app.post('/checkoutgetkerberos', checkout.getkerberos);
-app.post('/checkoutsavekerberos', checkout.savekerberos);
-app.post('/checkoutitemstatus', checkout.getitemstatus);
-app.post('/checkinitem', checkout.checkinitem);
-app.post('/checkoutitem', checkout.checkoutitem);
+app.get('/checkout', enforce('CHECKOUT_ITEMS'), checkout.list);
+app.get('/additempage', enforce('CHECKOUT_ITEMS'), checkout.additempage);
+app.post('/additem', enforce('CHECKOUT_ITEMS'), checkout.add);
+app.post('/removeitem', enforce('CHECKOUT_ITEMS'), checkout.remove);
+app.post('/getrecentlyaddeditems', enforce('CHECKOUT_ITEMS'), checkout.listrecent);
+app.post('/checkoutitemstatus', enforce('CHECKOUT_ITEMS'), checkout.get);
+app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
+app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

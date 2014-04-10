@@ -1,159 +1,230 @@
+/*
+ * Database API
+ *
+ * Allows for convenient commands to the MySQL database.
+ *
+ * To construct a query using this API, first call the query() command to get
+ *   a new query string object. Each function corresponding to a MySQL
+ *   command (select, from, etc.) returns the query string back, so these
+ *   functions can be chained together (see below). Finally, call execute.
+ *
+ * A convenience method Database.execute(command, callback) allows for
+ *   execution of an arbitrary MySQL command.
+ *
+ * Example:
+ * var Database = require('db').Database;
+ * Database.query().select([values])
+ *                 .from(table)
+ *                 .where("something=?", [value])
+ *                 .limit(1)
+ *                 .execute(function(err, rows, fields) {
+ *                   ...
+ *                 });
+ *
+ * Database.execute('CREATE TABLE next-users...', function(err, rows, fields) {
+ *   ...
+ * });
+ */
+
 var mysql = require('mysql2');
 var logger = require('./logger');
 
-var db_settings = require('./config').config_data['db_settings'];
+var db_settings = require('./config').config_data.db_settings;
+var db_url = 'mysql://' + db_settings.host + ':' +
+        (db_settings.port || 3306) + '/' + db_settings.name +
+        '?user=' + db_settings.user + '&password=' + db_settings.password;
+var pool = mysql.createPool(db_url);
 
-// All these functions return the Query object back
-// so you can chain the functinos together like
-// queryObject.select([ values])
-//            .from(table)
-//            .where("something=?", [value])
-//            .limit(1)
-
-// To execute sql query, construct the query
-// then call db.execute(callback)
-// see model.js for examples
-
-
-
-function Query() {
-  this.queryString = '';
-  this.arr = [];
+function Database() {
 }
 
-Query.prototype.select = function(arr) {
-  this.queryString += 'SELECT ';
-  for (var i = 0; i < arr.length - 1; i++) {
-    if (arr[i] !== '*') {
-      this.queryString += '`' + arr[i] + '`, ';
+function Query() {
+  this.query = '';
+  this.args = [];
+}
+
+/*
+ * Function to construct a new query.
+ * e.g. Database.query().select(...
+ */
+Database.prototype.query = function() {
+  return new Query();
+}
+
+/*
+ * Convenience function to execute any query.
+ * query is any string with ESCAPED characters
+ * callback(error, rows, fields)
+ */
+Database.prototype.execute = function(command, callback) {
+  var query = new Query();
+  query.query = command;
+  query.execute(callback);
+}
+
+/*
+ * Select the given columns; should be followed with a .from().
+ * args is a list of column names
+ * e.g. select(['id', 'name'])
+ */
+Query.prototype.select = function(args) {
+  this.query += 'SELECT ';
+  for (var i = 0; i < args.length - 1; i++) {
+    if (args[i] !== '*') {
+      this.query += '`' + args[i] + '`, ';
     } else {
-      this.queryString += arr[i] + ', ';
+      this.query += args[i] + ', ';
     }
   }
-  if (arr[arr.length - 1] !== '*') {
-    this.queryString += '`' + arr[arr.length-1] + '` ';
+  if (args[args.length - 1] !== '*') {
+    this.query += '`' + args[args.length-1] + '` ';
   } else {
-    this.queryString += arr[arr.length - 1] + ' ' ;
+    this.query += args[args.length - 1] + ' ' ;
   }
   return this;
 }
 
+/*
+ * Delete from the specified table.
+ * e.g. deleteFrom('next-users')
+ */
 Query.prototype.deleteFrom = function(table) {
-  this.queryString += 'DELETE ';
+  this.query += 'DELETE ';
   return this.from(table);
 }
 
+/*
+ * Clause from the specified table; should be preceded with .select().
+ * e.g. from('next-users')
+ */
 Query.prototype.from = function(table) {
-  this.queryString += 'FROM ?? ';
-  this.arr.push(table);
+  this.query += 'FROM ?? ';
+  this.args.push(table);
   return this;
 }
 
-Query.prototype.where = function(rules, arr) {
-  this.queryString += 'WHERE ' + rules + ' ';
-  for (var i = 0; i < arr.length; ++i) {
-    this.arr.push(arr[i]);
+/*
+ * Insert where clause with the given rules and arguments.
+ * rules: a clause containing '?' symbols to be replaced by...
+ * arguments: a list of parameters (not necessarily escaped)
+ * e.g. where('id = ?', [0])
+ */
+Query.prototype.where = function(rules, args) {
+  this.query += 'WHERE ' + rules + ' ';
+  for (var i = 0; i < args.length; ++i) {
+    this.args.push(args[i]);
   }
   return this;
 }
 
+/*
+ * Limit clause
+ * e.g. limit(100)
+ */
 Query.prototype.limit = function(limit) {
-  this.queryString += 'LIMIT ' + limit + ' ';
+  this.query += 'LIMIT ' + limit + ' ';
   return this;
 }
 
+/*
+ * Insert given values into the columns in the table
+ * e.g. insert('next-users', ['id', 'name'], [2915, 'kyc'])
+ */
 Query.prototype.insert = function(table, columns, values) {
-  this.queryString += 'INSERT INTO `' + table + '` ';
-  this.queryString += '(' + columns.join() + ') ';
-  this.queryString += 'VALUES (?) ';
-  this.arr.push(values);
+  this.query += 'INSERT INTO `' + table + '` ';
+  this.query += '(' + columns.join() + ') ';
+  this.query += 'VALUES (?) ';
+  this.args.push(values);
   return this;
 }
 
+/*
+ * Update given values in the columns in the table
+ * e.g. insert('next-users', ['id', 'name'], [2915, 'kyc'])
+ */
 Query.prototype.update = function(table, columns, values) {
-  this.queryString += "UPDATE `" + table + "` SET ";
+  this.query += "UPDATE `" + table + "` SET ";
   for (var i = 0; i < columns.length-1; ++i) {
-    this.queryString += "??=?, ";
-    this.arr.push(columns[i],values[i]);
+    this.query += "??=?, ";
+    this.args.push(columns[i],values[i]);
   }
-  this.queryString += "??=? ";
-  this.arr.push(columns[columns.length-1],values[columns.length-1]);
+  this.query += "??=? ";
+  this.args.push(columns[columns.length-1],values[columns.length-1]);
   return this;
 }
 
+/*
+ * Right join on the given table
+ * e.g. rightJoin('next-users')
+ */
 Query.prototype.rightJoin = function(table) {
-  this.queryString += "RIGHT JOIN ?? ";
-  this.arr.push(table);
+  this.query += "RIGHT JOIN ?? ";
+  this.args.push(table);
   return this;
 }
 
+/*
+ * Left join on the given table
+ * e.g. leftJoin('next-users')
+ */
 Query.prototype.leftJoin = function(table) {
-  this.queryString += "LEFT JOIN ?? ";
-  this.arr.push(table);
+  this.query += "LEFT JOIN ?? ";
+  this.args.push(table);
   return this;
 }
 
+/*
+ * Order by the given column
+ * e.g. orderBy('id')
+ */
 Query.prototype.orderBy = function(column) {
-  this.queryString += 'ORDER BY ?? ';
-  this.arr.push(column);
-}
-
-Query.prototype.orderByDESC = function(column) {
-  this.orderBy(column);
-  this.queryString += 'DESC ';
-}
-
-Query.prototype.on = function(conditions) {
-  this.queryString += "ON " + conditions + " ";
+  this.query += 'ORDER BY ?? ';
+  this.args.push(column);
   return this;
 }
 
-Query.prototype.isDefined = function() {
-  return this.queryString !== undefined && this.queryString.length > 0;
+/*
+ * Order by the given column, in decreasing order
+ * e.g. orderByDesc('id')
+ */
+Query.prototype.orderByDesc = function(column) {
+  this.orderBy(column);
+  this.query += 'DESC ';
+  return this;
 }
 
-Query.prototype.raw = function(query) {
-  this.queryString = query;
-  return this.queryString
+/*
+ * On clause, should be preceded by join().
+ * e.g. on('`next-users`.id = `next-guestlist`.nextUser')
+ */
+Query.prototype.on = function(conditions) {
+  this.query += "ON " + conditions + " ";
+  return this;
 }
 
-function Database() {
-  if ( arguments.callee._singletonInstance )
-    return arguments.callee._singletonInstance;
-
-  arguments.callee._singletonInstance = this;
-
-  this.sql_settings = db_settings['host'] + '?user=' + db_settings['user'] +
-      '&password=' + db_settings['password'];
-  this.pool = mysql.createPool(this.sql_settings);
-}
-
-Database.prototype.query = function () {
-  this.queryString = new Query();
-  return this.queryString;
-}
-
-Database.prototype.execute = function(callback) {
-  var obj = this;
-  var queryString = this.queryString;
-  if (queryString !== undefined && queryString.isDefined()) {
-    this.pool.getConnection(function(err, connection) {
-        if (err) {
-          logger.error(err);
-          callback(err);
-        } else {
-          logger.info(queryString.queryString);
-          logger.info(queryString.arr);
-          connection.query(queryString.queryString, queryString.arr,
-            function(err, rows, fields) {
-              obj.queryString = undefined;
-              connection.release();
-              callback(err, rows, fields);
-            }
-          );
-        }
+/*
+ * Execute a given query.
+ * e.g. Database.query().select(...).from(...).execute(callback)
+ * callback(error, rows, fields)
+ */
+Query.prototype.execute = function(callback) {
+  var query = this.query;
+  var args = this.args;
+  if (query) {
+    pool.getConnection(function(err, connection) {
+      if (err) {
+        logger.error(err);
+        callback(err);
+      } else {
+        logger.info(query);
+        logger.info(args);
+        connection.query(query, args, function(err, rows, fields) {
+          connection.release();
+          callback(err, rows, fields);
+        });
+      }
     });
   }
 }
 
-module.exports = Database
+module.exports.Database = new Database();

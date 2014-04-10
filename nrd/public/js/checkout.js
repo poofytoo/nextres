@@ -3,8 +3,8 @@
 * Returns a kerberos given the MIT ID, else returns false.
 */
 var getUserByID = function(userId, callback) {
-  $.post('/checkoutgetid', {id: userId}, function(data){
-    callback(data || false);
+  $.post('/findmitid', {mitID: userId}, function(data){
+    callback(data.error ? false : data);
   });
 }
 
@@ -13,7 +13,7 @@ var getUserByID = function(userId, callback) {
 */
 var getCompleteKerberos = function(userString, callback) {
   var output = [];
-  $.post('/checkoutgetkerberos', {id: userString}, function(data) {
+  $.post('/searchkerberos', {kerberosSearchPattern: userString}, function(data) {
     callback(data)
   })
   .fail(function(data) {
@@ -26,35 +26,34 @@ var getCompleteKerberos = function(userString, callback) {
 */
 
 var captureKerberos = function(k, mitID, callback) {
-  $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
+  $.post('/savekerberos', {kerberos: k, mitID: mitID}, function(data) {
     callback(k);
   });
 }
 
 /**
- * Get status of an item given the barcode
+ * Get item given the barcode, or false
  */
 var getItemStatus = function(barcode, callback) {
-  $.post('/checkoutitemstatus', {itemBarcode: barcode}, function(data) {
-    callback(data)
+  $.post('/checkoutitemstatus', {barcode: barcode}, function(data) {
+    callback(data.error ? false : data)
   });
 }
 
 /**
-  Check in item given item-barcode
+  Check in item given item-barcode; returns the Item
  */
 var checkinItem = function(itemBarcode, callback) {
-  $.post('/checkinitem', {itemBarcode: itemBarcode}, function(data) {
-    // TODO: Watch for errors
+  $.post('/checkinitem', {barcode: itemBarcode}, function(data) {
     callback(data);
   });
 }
 
 /**
-* Check out item given [userid, item-barcode-id]
+* Check out item given [userid, item-barcode-id]; returns the Item
 */
 var checkoutItem = function(k, itemBarcode, callback) {
-  $.post('/checkoutitem', {userKerberos: k, itemBarcode: itemBarcode}, function(data) {
+  $.post('/checkoutitem', {kerberos: k, barcode: itemBarcode}, function(data) {
     callback(data);
   })
   .fail(function(data){
@@ -85,6 +84,7 @@ var toggleScanStatus = function(status) {
 var updateDisplayTable = function(item) {
   var barcode = item.barcode;
   $('#' + barcode + '-borrower').html(item.borrower);
+  $('#' + barcode + '-daydiff').html(item.daydiff);
 }
 
 var eventHandlers = function(){
@@ -96,13 +96,13 @@ var eventHandlers = function(){
         toggleScanStatus('wait');
         if ($this.val().length == 9) {  // deskworker scanner a kerberos ID
           // Check Out Item
-          getUserByID($this.val(), function(data) {  // data = kerberos
+          getUserByID($this.val(), function(data) {  // data.kerberos
             toggleScanStatus();
             state = 'ITEM_CHECKOUT';
             if (data) {
-              borrowerID = data;
+              borrowerID = data.kerberos;
               $('.init').slideUp(200);
-              $('.kerberos').text(data);
+              $('.kerberos').text(data.kerberos);
               $('.checkout-kerberos').slideDown(200);
             } else {
               // New User
@@ -120,11 +120,11 @@ var eventHandlers = function(){
               $('.feedback-bar')
                 .stop()
                 .removeClass('fail').addClass('success')
-                .text(data.result.name + ' has been returned.')
+                .text(data.name + ' has been returned.')
                 .slideDown(200)
                 .delay(3000)
                 .slideUp(400);
-              updateDisplayTable(data.result);
+              updateDisplayTable(data);
             } else {
               $('.feedback-bar')
                 .stop()
@@ -147,13 +147,13 @@ var eventHandlers = function(){
               .removeClass('fail').addClass('success')
               .stop()
               .slideUp(100)
-              .text(data.result.name + ' checked out! Scan another to continue')
+              .text(data.name + ' checked out! Scan another to continue')
               .slideDown(200)
               .delay(5000)
               .slideUp(400);
             $('.restart')
               .slideDown(200);
-            updateDisplayTable(data.result);
+            updateDisplayTable(data);
           } else {
             $('.feedback-bar')
               .stop()

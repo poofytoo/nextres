@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "connect-flash": "*",
     "express": "3.4.0",
     "jade": "*",
     "consolidate": "*",
@@ -19,6 +20,7 @@
     "request": "*",
     "google-oauth-serviceaccount": "*",
     "qs": "*",
-    "time": "*"
+    "time": "*",
+    "jasmine-node": "2.0"
   }
 }

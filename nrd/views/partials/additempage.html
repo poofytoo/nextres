@@ -17,6 +17,34 @@
 
 <div class="status">
 </div>
+<h2> Recently Added Items </h2>
+<p>
+  <table class="displaytable">
+  <tr>
+    <th>Barcode</th>
+    <th>Name</th>
+    <th>Checked out by</th>
+    <th>Days since checkout</th>
+    <th>Remove</th>
+  </tr>
+  <script id="item-list" type="text/x-handlebars-template">
+  {{!--\ before each {{}} so server-side handlebars does not compile --}}
+  \{{#each itemList}}
+  <tr id="\{{this.barcode}}-tr">
+    <td>\{{this.barcode}}</td>
+    <td>\{{this.name}}</td>
+    <td id="\{{this.barcode}}-borrower">\{{this.borrower}}</td>
+    \{{#if this.overdue}}
+      <td id="\{{this.barcode}}-daydiff" class="overdue">\{{this.daydiff}} (overdue)</td>
+    \{{else}}
+      <td id="\{{this.barcode}}-daydiff">\{{this.daydiff}}</td>
+    \{{/if}}
+    <td><a id="\{{this.barcode}}-remove" class="remove">X</a></td>
+  </tr>
+  \{{/each}}
+  </script>
+  </table>
+</p>
 
 <script>
     $(document).ready(function() {
@@ -28,7 +56,7 @@
                 $('.status').text('Invalid barcode.')
             } else {
                 $('.status').text('Uploading...');
-                $.post('/additem', {itemBarcode: barcode})
+                $.post('/additem', {barcode: barcode})
                 .done(function(data) {
                     if (data.error) {
                         $('#description').focus();
@@ -37,7 +65,8 @@
                         $('.enter-description').show();
                         $('.status').text('');
                     } else {
-                        $('.status').text('Added ' + data.description);
+                        $('.status').text('Added ' + data.name);
+                        getRecentlyAddedItems();
                         setBarcodeLayout();
                     }
                 });
@@ -59,9 +88,10 @@
                 $('.status').text('Invalid barcode');
             } else {
                 $('.status').text('Uploading...');
-                $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
+                $.post('/additem', {barcode: $('#barcode').val(), description: $('#description').val()})
                 .done(function(data) {
-                    $('.status').text('Added ' + data.description);
+                    $('.status').text('Added ' + data.name);
+                    getRecentlyAddedItems();
                     setBarcodeLayout();
                 });
             }
@@ -80,6 +110,24 @@
             setBarcodeLayout();
         });
 
+        $(document.body).on('click', '.remove', function(e) {
+            var yes = $('<a>').html('yes').on('click',
+                function(e2) {
+                    itemcode = e.target.id;
+                    itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
+                    $.ajax('/removeitem',{data:{barcode:itemcode}, type:"POST"})
+                    .done(function() {
+                      $('#'+itemcode+'-tr').remove();
+                      getRecentlyAddedItems();
+                    });
+                }
+            );
+            var no = $('<a>').html('no').on('click',
+                function(e2) { $(e.target).html('X'); }
+            );
+            $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+        });
+
         // Clears forms and prepares webpage for barcode entry
         function setBarcodeLayout() {
             $('#submit-barcode').show();
@@ -90,6 +138,16 @@
             $('#barcode').focus();
         }
 
+        function getRecentlyAddedItems() {
+            $.post('/getrecentlyaddeditems')
+            .done(function(data) {
+                $('.displaytable td').parent().remove();
+                var template = Handlebars.compile($('#item-list').html());
+                $('.displaytable tr:last').after(template({itemList: data}))
+            });
+        }
+
+        getRecentlyAddedItems();
         $('#barcode').focus();
     });
 </script>

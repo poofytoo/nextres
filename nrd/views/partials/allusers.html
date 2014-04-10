@@ -1,14 +1,11 @@
-{{#if error}}
-  <div class="error-msg">{{error}}</div>
-{{/if}}
 <h1>All Residents</h1>
 <p>User controls</p>
 
-{{#if permissions.CREATEUSER}}
+{{#if permissions.CREATE_USER}}
 <h2>Adding Users</h2>
 <p>One kerberos per line. Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
-  <form method="post" action="allusers">
-    <textarea name="massadd"></textarea>
+  <form method="post" action="users">
+    <textarea name="kerberosList"></textarea>
     <input type="submit" value="Create">
   </form>
 </p>
@@ -23,36 +20,43 @@
       <th width="240">Resident Name</th>
       <th>Room</th>
       <th>Role</th>
-      {{#if permissions.CREATEUSER}}
+      {{#if permissions.CREATE_USER}}
       <th>Reset Password</th>
       <th>Remove</th>
       {{/if}}
     </tr>
-    {{#each result}}
-	<tr id="{{this.kerberos}}-tr">
-	  <td>{{this.kerberos}}</td>
-	  <td>{{this.firstName}} {{this.lastName}}</td>
-	  <td>{{this.roomNumber}}</td>
-	  <td>
-	    {{#if this.possibleRoles}}
-	  	<select id="{{this.kerberos}}-changeperms">
-	  	  {{#each this.possibleRoles}}
-	  	  <option value="{{this.id}}">{{this.name}}</option>
-	  	  {{/each}}
-	  	</select>
-	  	<span class="permissionStatus"></span>
-	  	{{else}}
-	  	  {{this.name}}
-	  	{{/if}}
-	  {{#if ../permissions.CREATEUSER}}
-	  </td>
-          <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
-	  <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
+    {{#each users}}
+    <tr id="{{this.kerberos}}-tr">
+      <td>{{this.kerberos}}</td>
+      <td>{{this.firstName}} {{this.lastName}}</td>
+      <td>{{this.roomNumber}}</td>
+      <td>
+        {{#if ../permissions.MAKE_USERS_DESKWORKERS}}
+        <select id="{{this.kerberos}}-changeperms">
+          {{#if ../../permissions.MAKE_USERS_NEXT_EXEC}}
+          {{#if ../../../permissions.FULL_PERMISSIONS_CONTROL}}
+          <option value="1">ADMIN</option>
+          {{/if}}
+          <option value="3">NEXT-EXEC</option>
+          {{/if}}
+          <option value="2">DESKWORKER</option>
+          <option value="4">DESKCAPTAIN</option>
+          <option value="0">USER</option>
+        </select>
+        <script>$('#{{this.kerberos}}-changeperms').val({{this.group}});</script>
+        <span class="permissionStatus"></span>
+        {{else}}
+        {{this.groupName}}
+        {{/if}}
+        {{#if ../permissions.CREATE_USER}}
+      </td>
+      <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
+      <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
       {{/if}}
-	</tr>
-  	{{/each}}
+    </tr>
+    {{/each}}
   </table>
-</p>
+  </p>
 
 <script type="text/javascript">
   // removing a user
@@ -61,7 +65,7 @@
       function(e2) {
         kerberos = e.target.id;
         kerberos = kerberos.substring(0,kerberos.length-'-remove'.length);
-        $.ajax('/remove',{data:{kerberos:kerberos}, type:"POST"});
+        $.ajax('/removeuser',{data:{kerberos:kerberos}, type:"POST"});
         $('#'+kerberos+'-tr').remove();
       }
     );
@@ -77,7 +81,7 @@
       function(e2) {
         kerberos = e.target.id;
         kerberos = kerberos.substring(0,kerberos.length-'-pwreset'.length);
-        $.ajax('/pwreset',{data:{kerberos:kerberos}, type:"POST"});
+        $.ajax('/resetpassword',{data:{kerberos:kerberos}, type:"POST"});
         $(e.target).html('password reset');
       }
     );
@@ -104,5 +108,3 @@
   	});
   });
 </script>
-
-{{results}}
