@@ -139,7 +139,8 @@ app.get('/managereservations', reservations.manage);
 app.get('/checkout', checkout.view);
 app.get('/additempage', checkout.additempage);
 app.post('/additem', checkout.additem);
-app.post('/removeitem', checkout.removeitem)
+app.post('/removeitem', checkout.removeitem);
+app.post('/getrecentlyaddeditems', checkout.getrecentlyaddeditems);
 app.post('/checkoutgetid', checkout.getusername);
 app.post('/checkoutgetkerberos', checkout.getkerberos);
 app.post('/checkoutsavekerberos', checkout.savekerberos);

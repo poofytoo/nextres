@@ -41,6 +41,13 @@ exports.additem = function(req, res) {
   };
 }
 
+
+exports.getrecentlyaddeditems = function(req, res) {
+  checkoutModel.getRecentlyAddedItems(20, function(items) {
+    res.json(items);
+  });
+}
+
 // POST {itemBarcode: 12345}
 // or res.json(false)
 exports.removeitem = function(req, res) {

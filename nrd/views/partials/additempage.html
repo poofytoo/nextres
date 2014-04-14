@@ -17,6 +17,17 @@
 
 <div class="status">
 </div>
+<br />
+<p>
+  <table class="displaytable">
+  <tr>
+    <th>Barcode</th>
+    <th>Name</th>
+    <th>Checked out by</th>
+    <th>Remove</th>
+  </tr>
+  </table>
+</p>
 
 <script>
     $(document).ready(function() {
@@ -38,6 +49,7 @@
                         $('.status').text('');
                     } else {
                         $('.status').text('Added ' + data.description);
+                        getRecentlyAddedItems();
                         setBarcodeLayout();
                     }
                 });
@@ -62,6 +74,7 @@
                 $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
                 .done(function(data) {
                     $('.status').text('Added ' + data.description);
+                    getRecentlyAddedItems();
                     setBarcodeLayout();
                 });
             }
@@ -80,6 +93,22 @@
             setBarcodeLayout();
         });
 
+        $(document.body).on('click', '.remove', function(e) {
+            var yes = $('<a>').html('yes').on('click',
+                function(e2) {
+                    itemcode = e.target.id;
+                    itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
+                    $.ajax('/removeitem',{data:{itemBarcode:itemcode}, type:"POST"});
+                    $('#'+itemcode+'-tr').remove();
+                    getRecentlyAddedItems();
+                }
+            );
+            var no = $('<a>').html('no').on('click',
+                function(e2) { $(e.target).html('X'); }
+            );
+            $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+        });
+
         // Clears forms and prepares webpage for barcode entry
         function setBarcodeLayout() {
             $('#submit-barcode').show();
@@ -90,6 +119,24 @@
             $('#barcode').focus();
         }
 
+        function getRecentlyAddedItems() {
+            $.post('/getrecentlyaddeditems')
+            .done(function(data) {
+                $('.displaytable td').parent().remove(); 
+                for (var i = data.length-1; i >= 0; --i) {
+                    $('.displaytable tr:first').after(
+                        '<tr id="' + data[i].barcode + '-tr">' +
+                            '<td>' + data[i].barcode + '</td>' +
+                            '<td>' + data[i].name + '</td>' +
+                            '<td id=" ' + data[i].barcode +'-borrower">' + data[i].borrower + '</td>' +
+                            '<td><a id="' + data[i].barcode + '-remove" class="remove">X</a></td>' +
+                        '</tr>'
+                    );
+                }
+            });
+        }
+
+        getRecentlyAddedItems();
         $('#barcode').focus();
     });
 </script>
