@@ -5,6 +5,8 @@ var checkoutModel = new Checkout();
 exports.view = function(req, res) {
   util.registerContent('checkout');
   checkoutModel.getAllItems(function(itemList) {
+    checkoutModel.getCheckoutDuration(itemList);
+
     res.render('base.html', {
       user: req.user,
       permissions: req.permissions,
@@ -43,8 +45,9 @@ exports.additem = function(req, res) {
 
 
 exports.getrecentlyaddeditems = function(req, res) {
-  checkoutModel.getRecentlyAddedItems(20, function(items) {
-    res.json(items);
+  checkoutModel.getRecentlyAddedItems(20, function(itemList) {
+    checkoutModel.getCheckoutDuration(itemList);
+    res.json(itemList);
   });
 }
 

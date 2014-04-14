@@ -194,6 +194,24 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
         }
       }
     });
-};
+  };
+
+  // Get checkout duration for a list of items. Also sets overdue variable
+  // to false if item is not overdue or true if item is overdue
+  Checkout.prototype.getCheckoutDuration = function(itemList) {
+    var dayLength = 24*60*60*1000;
+    for (var i = 0; i < itemList.length; ++i) {
+      timeBorrowed = itemList[i].timeBorrowed;
+      if (timeBorrowed !== '0') {
+        var now = new Date().getTime();
+        itemList[i].daydiff = Math.floor((now - timeBorrowed)/dayLength);
+      }
+      if (itemList[i].daydiff > 3) {
+        itemList[i].overdue = true;
+      } else {
+        itemList[i].overdue = false;
+      }
+    }
+  };
 
 module.exports = Checkout;
