@@ -96,11 +96,13 @@ Query.prototype.leftJoin = function(table) {
 Query.prototype.orderBy = function(column) {
   this.queryString += 'ORDER BY ?? ';
   this.arr.push(column);
+  return this;
 }
 
 Query.prototype.orderByDESC = function(column) {
   this.orderBy(column);
   this.queryString += 'DESC ';
+  return this;
 }
 
 Query.prototype.on = function(conditions) {
