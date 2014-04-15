@@ -18,6 +18,17 @@
 <div class="status">
 </div>
 <h2> Recently Added Items </h2>
+<!--<p>
+  <table class="displaytable">
+  <tr>
+    <th>Barcode</th>
+    <th>Name</th>
+    <th>Checked out by</th>
+    <th>Days since checkout</th>
+    <th>Remove</th>
+  </tr>
+  </table>
+</p>-->
 <p>
   <table class="displaytable">
   <tr>
@@ -27,6 +38,22 @@
     <th>Days since checkout</th>
     <th>Remove</th>
   </tr>
+  <script id="item-list" type="text/x-handlebars-template">
+  {{!--\ before each {{}} so server-side handlebars does not compile --}}
+  \{{#each itemList}}
+  <tr id="\{{this.barcode}}-tr">
+    <td>\{{this.barcode}}</td>
+    <td>\{{this.name}}</td>
+    <td id="\{{this.barcode}}-borrower">\{{this.borrower}}</td>
+    \{{#if this.overdue}}
+      <td id="\{{this.barcode}}-daydiff" class="overdue">\{{this.daydiff}} (overdue)</td>
+    \{{else}}
+      <td id="\{{this.barcode}}-daydiff">\{{this.daydiff}}</td>
+    \{{/if}}
+    <td><a id="\{{this.barcode}}-remove" class="remove">X</a></td>
+  </tr>
+  \{{/each}}
+  </script>
   </table>
 </p>
 
@@ -123,28 +150,10 @@
         function getRecentlyAddedItems() {
             $.post('/getrecentlyaddeditems')
             .done(function(data) {
-                $('.displaytable td').parent().remove(); 
-                for (var i = data.length-1; i >= 0; --i) {
-                    var daydiff = data[i].daydiff;
-                    if (daydiff === undefined) {
-                        daydiff = '';
-                    }
-                    if (data[i].overdue) {
-                        var daydiffstr = '<td id="' + data[i].barcode + '-daydiff" class="overdue">' + daydiff + ' (overdue)</td>';
-                    } else {
-                        var daydiffstr = '<td id="' + data[i].barcode + '-daydiff">' + daydiff + '</td>';
-                    }
-
-                    $('.displaytable tr:first').after(
-                        '<tr id="' + data[i].barcode + '-tr">' +
-                            '<td>' + data[i].barcode + '</td>' +
-                            '<td>' + data[i].name + '</td>' +
-                            '<td id=" ' + data[i].barcode +'-borrower">' + data[i].borrower + '</td>' +
-                            daydiffstr +
-                            '<td><a id="' + data[i].barcode + '-remove" class="remove">X</a></td>' +
-                        '</tr>'
-                    );
-                }
+                $('.displaytable td').parent().remove();
+                var template = Handlebars.compile($('#item-list').html());
+                console.log(template({itemList: data}))
+                $('.displaytable tr:last').after(template({itemList: data}))
             });
         }
 
