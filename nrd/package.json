@@ -20,7 +20,6 @@
     "request": "*",
     "google-oauth-serviceaccount": "*",
     "qs": "*",
-    "time": "*",
-    "jasmine-node": "2.0"
+    "time": "*"
   }
 }

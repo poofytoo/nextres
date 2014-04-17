@@ -1,4 +1,4 @@
-var util = require('./util');
+var util = require('./util');  // MUST BE FIRST LINE
 var Reservations = require('../models/reservations').Reservations;
 
 var test = util.test;

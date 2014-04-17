@@ -1,4 +1,4 @@
-var util = require('./util');
+var util = require('./util');  // MUST BE FIRST LINE
 var db = require('../models/db').Database;
 var Users = require('../models/user').Users;
 var GuestLists = require('../models/guestlist').GuestLists;

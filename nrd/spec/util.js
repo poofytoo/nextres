@@ -1,10 +1,10 @@
 // Change to test settings
 var settings = require('../models/config').config_data;
 settings.db_settings.host = 'nextres.mit.edu';
-settings.db_settings.name = 'next+nextres_test';
+settings.db_settings.name = 'next+nextres_test';  // test database
 settings.mail_settings.do_not_email = true;
 settings.calendar_settings.calID = (
-    '2b3vk9fsrgpgvbv4u5ce5oe888@group.calendar.google.com');
+    '2b3vk9fsrgpgvbv4u5ce5oe888@group.calendar.google.com');  // test calendar
 
 /*
  * Convenience function to run multiple functions in sequence

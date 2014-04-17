@@ -61,7 +61,7 @@ function validateReservation(reservation, user, callback) {
       callback('Need 2 signatories');
       return;
     }
-  } else if (reservation.people === '1') {  // < 10 people
+  } else if (reservation.people === '1') {  // >= 10 people
     if (kerberosList.length < 2) {
       callback('Need 3 signatories');
       return;

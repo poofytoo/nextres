@@ -1,5 +1,6 @@
 var util = require('./util');
 var Users = require('../models/user').Users;
+var pm = require('../models/permissions').Permissions;
 var logger = require('../models/logger');
 
 var complete = function(req, res, err) {
@@ -115,9 +116,24 @@ exports.resetpassword = function(req, res) {
   });
 }
 
+function canChangePermission(group, permission) {
+  var permissions = pm.getPermissions(group);
+  if (permission === 1 && !permissions.FULL_PERMISSIONS_CONTROL)
+    return false;
+  if (permission === 3 && !permissions.MAKE_USERS_NEXT_EXEC)
+    return false;
+  if ((permission === 2 || permission == 4) &&
+      !permissions.MAKE_USERS_DESKWORKERS)
+        return false;
+  return true;
+}
+
 // req.body = {kerberos: 'kyc2915', permission: 1}
 exports.changepermission = function(req, res) {
-  // TODO enforce permissions here
+  if (!canChangePermission(req.user.group, req.body.permission)) {
+    res.type('txt').send('401 Not Authorized');
+    return;
+  }
   Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
     if (user) {
       user.changeGroup(req.body.permission, function() {});

@@ -55,7 +55,6 @@ function validateGuestlist(guestlist, callback) {
 
 // req.body = {guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
 exports.edit = function(req, res) {
-  // TODO show which guests are already on the guestlist
   for (var i = 1; i <= GuestLists.MAX_NUM_GUESTS; i++) {
     util.sanitize(req.body, nameField(i), /[^A-Za-z0-9\-_ ]/g, 30);
     util.sanitize(req.body, kerberosField(i), /[^A-Za-z0-9\-_ ]/g, 8);

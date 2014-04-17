@@ -1,4 +1,4 @@
-var util = require('./util');
+var util = require('./util');  // MUST BE FIRST LINE
 var pm = require('../models/permissions').Permissions;
 
 var testObj = util.testObj;
