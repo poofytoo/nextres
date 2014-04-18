@@ -137,3 +137,28 @@ exports.denyRoom = function(item, reason) {
   var textEmail = htmlEmail;
   mail(receivers.join(), mail_settings["admin-emails"].join(), subject, htmlEmail, textEmail);
 }
+
+exports.informOverdue = function(email, itemList) {
+  var subject = "Overdue Items";
+
+  var overdueItemString = '';
+  for (var i = 0; i < itemList.length; ++i) {
+    overdueItemString += 
+      'Item Name: ' + itemList[i].name + '<br />' + 
+      'Barcode: ' + itemList[i].barcode + '<br />' +
+      'Days Overdue: ' + itemList[i].daydiff + '<br /><br />';
+  }
+
+  var htmlEmail =
+    "Items you have checked out are overdue!<br />"+
+    "If you have any questions or you believe this email has been sent in error, " +
+    "feel free to contact nextres@mit.edu." +
+    "<br /><br /><br />" +
+    "Your Overdue Items:<br /><br />" +
+    overdueItemString +
+    "<br />" +
+    "Cheers,<br />" +
+    "Sparky, the Next House Mailbot";
+  var textEmail = htmlEmail;
+  mail(email, 'nextexec@mit.edu', subject, htmlEmail, textEmail);
+}

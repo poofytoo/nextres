@@ -87,6 +87,10 @@ Checkout.prototype.getCheckedOutItems = function(kerberos, callback) {
   get(this.db, 'borrower = ?', [kerberos], callback);
 }
 
+Checkout.prototype.getAllCheckedOutItems = function(callback) {
+ get(this.db, 'borrower != ?', [''], callback); 
+}
+
 Checkout.prototype.getRecentlyCheckedOutItems = function(numMilliseconds, callback) {
   var now = new Date().getTime();
   this.db.query().select(['*']).from('next-checkout-items')
@@ -212,6 +216,25 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
         itemList[i].overdue = false;
       }
     }
+    return itemList;
   };
+
+  Checkout.prototype.getOverdueItems = function(callback) {
+    var thisObj = this;
+    thisObj.getAllCheckedOutItems(function(itemList) {
+      thisObj.getCheckoutDuration(itemList);
+      userOverdueItems = {};
+      for (var i = 0; i < itemList.length; ++i) {
+        if (!itemList[i].overdue)
+          continue;
+        borrower = itemList[i].borrower;
+        if (userOverdueItems[borrower] === undefined) {
+          userOverdueItems[borrower] = [];
+        }
+        userOverdueItems[borrower].push(itemList[i]);
+      }
+      callback(userOverdueItems);
+    });
+  }
 
 module.exports = Checkout;

@@ -12,7 +12,11 @@ var reservations = require('./models/reservations');
 var hbs = require('hbs');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
+var schedule = require('node-schedule');
 var initialize = require('./models/initialize');
+var Checkout = require('./models/checkout');
+var mailer = require('./models/mailer');
+var checkoutModel = new Checkout();
 var start_settings = require('./models/config').config_data['start_settings'];
 
 /**
@@ -150,4 +154,14 @@ app.post('/checkoutitem', checkout.checkoutitem);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
+});
+
+var rule = new schedule.RecurrenceRule();
+schedule.scheduleJob({hour: 0, minute: 0, second:0}, function() {
+	checkoutModel.getOverdueItems(function(overdueItems) {
+ 		for (var user in overdueItems) {
+      var email = user + '@mit.edu';
+      mailer.informOverdue(email, overdueItems[user]);
+    }
+	});
 });
