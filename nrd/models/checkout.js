@@ -183,6 +183,27 @@ Checkout.prototype.addItem = function(barcode, name, now, callback) {
         ['barcode', 'name', 'timeAdded'], [barcode, name, now]).execute(callback);
 }
 
+/*
+ * Returns a map from each user kerberos to a list of all overdue Items
+ */
+Checkout.prototype.getOverdueItems = function(callback) {
+  var thisObj = this;
+  thisObj.getReservedItems(function(err, itemList) {
+    userOverdueItems = {};
+    for (var i = 0; i < itemList.length; ++i) {
+      if (!itemList[i].overdue) {
+        continue;
+      }
+      borrower = itemList[i].borrower;
+      if (userOverdueItems[borrower] === undefined) {
+        userOverdueItems[borrower] = [];
+      }
+      userOverdueItems[borrower].push(itemList[i]);
+    }
+    callback(false, userOverdueItems);
+  });
+}
+
 /******************************************************************************
  *
  * OBJECT FUNCTIONS (must be called on a Item object)

@@ -141,7 +141,7 @@ Mailer.prototype.denyApplication = function(email, firstName) {
     "the option to reapply and submit another funding proposal. If you " +
     "have any questions, feel free to contact nextres@mit.edu. " +
     "Cheers, NextExec";
-  mail(email, '', subject, htmlEmail, textEmail);
+  this.mail(email, '', subject, htmlEmail, textEmail);
 }
 
 /*
@@ -195,6 +195,36 @@ Mailer.prototype.denyRoom = function(item, reason) {
     "<br />" +
     "Cheers, <br />" +
     "NextExec";
+  var text = html;
+  this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
+}
+
+/*
+ * itemList is a list of Item objects
+ */
+Mailer.prototype.informOverdue = function(email, itemList) {
+  var to = [];
+  var cc = mail_settings.admin_emails;
+  var subject = "Overdue Items";
+
+  var overdueItemString = '';
+  for (var i = 0; i < itemList.length; ++i) {
+    overdueItemString += 
+      'Item Name: ' + itemList[i].name + '<br />' + 
+      'Barcode: ' + itemList[i].barcode + '<br />' +
+      'Days Overdue: ' + itemList[i].daydiff + '<br /><br />';
+  }
+
+  var html =
+    "Items you have checked out are overdue!<br />"+
+    "If you have any questions or you believe this email has been sent in error, " +
+    "feel free to contact nextres@mit.edu." +
+    "<br /><br /><br />" +
+    "Your Overdue Items:<br /><br />" +
+    overdueItemString +
+    "<br />" +
+    "Cheers,<br />" +
+    "Sparky, the Next House Mailbot";
   var text = html;
   this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
 }

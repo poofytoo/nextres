@@ -279,7 +279,7 @@ table tr td {
     padding: 5px 20px 5px 5px;
     min-width: 100px; }
   .displaytable tr td.overdue {
-    color: red; }
+    color: #f00; }
   .displaytable tr th {
     background-color: #333;
     color: #ccc;
@@ -331,7 +331,7 @@ table tr td {
       color: #fff; }
     .item-checkout .scan-box .scan-circle.wait {
       background-color: #e9370e; }
-    .item-checkout .scan-box .scan-circle.hold {
+    .item-checkout .scan-box .scan-circle.type {
       background-color: #f2e22a; }
     .item-checkout .scan-box .scan-circle.go {
       background-color: #56c444; }
@@ -360,6 +360,9 @@ table tr td {
       display: none; }
     .item-checkout .scan-box .scan-instructions .init {
       display: block; }
+    .item-checkout .scan-box .scan-instructions #submit-kerberos {
+      width: auto;
+      margin: 10px auto 0; }
   .item-checkout .scan-box .feedback-bar {
     margin-top: 10px;
     display: none; }

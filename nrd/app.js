@@ -8,6 +8,9 @@ var http = require('http');
 var path = require('path');
 var passport = require('passport');
 var hbs = require('hbs');
+var schedule = require('node-schedule');
+var Checkout = require('./models/checkout').Checkout;
+var Mailer = require('./models/mailer').Mailer;
 var start_settings = require('./models/config').config_data['start_settings'];
 var util = require('./models/util');
 var enforce = util.enforce;
@@ -136,4 +139,14 @@ app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
+});
+
+var rule = new schedule.RecurrenceRule();
+schedule.scheduleJob({hour: 0, minute: 0, second:0}, function() {
+  Checkout.getOverdueItems(function(err, overdueItems) {
+    for (var user in overdueItems) {
+      var email = user + '@mit.edu';
+      Mailer.informOverdue(email, overdueItems[user]);
+    }
+  });
 });
