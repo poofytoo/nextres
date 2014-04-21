@@ -62,11 +62,11 @@ body {
         padding: 15px 10px 11px;
         display: block;
         background-color: #666;
-        border-bottom: 6px solid #333333;
+        border-bottom: 6px solid #333;
         color: #fff; }
         .header ul.topnav li a:active, .header ul.topnav li a:hover {
           color: #eee;
-          border-bottom: 6px solid #ffac00;
+          border-bottom: 6px solid #FFAC00;
           background-color: #777; }
 
 .sidenav {
@@ -80,9 +80,9 @@ body {
     color: #666; }
   .sidenav ul {
     margin-bottom: 10px;
-    border: 1px solid #eeeeee; }
+    border: 1px solid #eee; }
     .sidenav ul li {
-      border-bottom: 1px solid #dddddd; }
+      border-bottom: 1px solid #ddd; }
       .sidenav ul li a {
         padding: 10px;
         display: block; }
@@ -144,9 +144,9 @@ body {
     text-align: left; }
   .content ul {
     margin-bottom: 20px;
-    border-top: 1px solid #dddddd; }
+    border-top: 1px solid #ddd; }
     .content ul li {
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid #ddd;
       position: relative; }
       .content ul li a.file, .content ul li.reservation {
         display: block;
@@ -179,11 +179,11 @@ body {
     min-width: 100px; }
 
 input[type="text"], input[type="password"] {
-  border: 1px solid #cccccc;
+  border: 1px solid #ccc;
   padding: 5px;
   outline: none; }
   input[type="text"]:focus, input[type="password"]:focus {
-    border: 1px solid #ffac00; }
+    border: 1px solid #FFAC00; }
 
 input[type="submit"] {
   font-family: sans-serif;
@@ -233,7 +233,7 @@ input[type="button"] {
     cursor: pointer; }
 
 textarea {
-  border: 1px solid #cccccc;
+  border: 1px solid #ccc;
   padding: 5px;
   outline: none;
   font-size: 12px;
@@ -241,7 +241,7 @@ textarea {
   margin-bottom: 10px;
   font-style: sans-serif; }
   textarea:focus {
-    border: 1px solid #ffac00; }
+    border: 1px solid #FFAC00; }
 
 .nodate {
   font-size: 14px;
@@ -279,7 +279,7 @@ table tr td {
     padding: 5px 20px 5px 5px;
     min-width: 100px; }
   .displaytable tr td.overdue {
-    color: red; }
+    color: #f00; }
   .displaytable tr th {
     background-color: #333;
     color: #ccc;
@@ -311,7 +311,7 @@ table tr td {
 
 /** Item Checkout **/
 .item-checkout .scan-box {
-  border: 1px solid #dddddd;
+  border: 1px solid #ddd;
   padding: 20px;
   margin-bottom: 20px;
   text-align: center; }
@@ -331,7 +331,7 @@ table tr td {
       color: #fff; }
     .item-checkout .scan-box .scan-circle.wait {
       background-color: #e9370e; }
-    .item-checkout .scan-box .scan-circle.hold {
+    .item-checkout .scan-box .scan-circle.type {
       background-color: #f2e22a; }
     .item-checkout .scan-box .scan-circle.go {
       background-color: #56c444; }
@@ -360,6 +360,9 @@ table tr td {
       display: none; }
     .item-checkout .scan-box .scan-instructions .init {
       display: block; }
+    .item-checkout .scan-box .scan-instructions #submit-kerberos {
+      width: auto;
+      margin: 10px auto 0; }
   .item-checkout .scan-box .feedback-bar {
     margin-top: 10px;
     display: none; }
