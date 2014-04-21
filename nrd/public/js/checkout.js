@@ -27,7 +27,7 @@ var getCompleteKerberos = function(userString, callback) {
 
 var captureKerberos = function(k, mitID, callback) {
   $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
-    callback(k);
+    callback(data);
   });
 }
 
@@ -69,11 +69,11 @@ var toggleScanStatus = function(status) {
       .removeClass()
       .addClass('scan-circle wait')
       .find('.st').text('wait');
-  } else if (status == 'hold') {
+  } else if (status == 'type') {
     $('.scan-circle')
       .removeClass()
-      .addClass('scan-circle hold')
-      .find('.st').text('wait');
+      .addClass('scan-circle type')
+      .find('.st').text('type');
   } else {
     $('.scan-circle')
       .removeClass()
@@ -87,92 +87,123 @@ var updateDisplayTable = function(item) {
   $('#' + barcode + '-borrower').html(item.borrower);
 }
 
-var eventHandlers = function(){
+var activateState = function() {
+  $this = $('.hidden-textbox');
+  switch(state) {
+  case 'NEW_INPUT':
+    if ($this.val() != '') {
+      mitID = $this.val(); 
+    };
+    toggleScanStatus('wait');
+    if (mitID.length == 9) {  // deskworker scanner a kerberos ID
+      // Check Out Item
+      getUserByID(mitID, function(data) {  // data = kerberos
+        toggleScanStatus();
+        if (data) {
+          state = 'ITEM_CHECKOUT';
+          borrowerID = data;
+          $('.init').slideUp(200);
+          $('.kerberos').text(data);
+          $('.checkout-kerberos').slideDown(200);
+          $('.restart').slideDown(200);
+        } else {
+          // New User
+          state = 'NEW_KERBEROS_INPUT';
+          toggleScanStatus('type');
+          $('.init').slideUp(200);
+          $('.first-checkout').slideDown(200);
+          $('#submit-kerberos').focus();
+          barcodeBoxRelease = true;
+        }
+      });
+    } else {  // deskworker scanned a item ID
+      // Return Item
+      checkinItem($this.val(), function(data) {  // data = item json
+        toggleScanStatus();
+        if (!data.error) {
+          console.log('item data: ' + data);
+          $('.feedback-bar')
+            .stop()
+            .removeClass('fail').addClass('success')
+            .text(data.result.name + ' has been returned.')
+            .slideDown(200)
+            .delay(3000)
+            .slideUp(400);
+          updateDisplayTable(data.result);
+        } else {
+          $('.feedback-bar')
+            .stop()
+            .removeClass('success').addClass('fail')
+            .text(data.error)
+            .slideDown(200)
+            .delay(3000)
+            .slideUp(400);
+        }
+      });
+    }
+    break;
+  case 'ITEM_CHECKOUT':
+    console.log('itemcheckout');
+    toggleScanStatus('wait');
+    checkoutItem(borrowerID, $this.val(), function(data){  // data = item json
+      toggleScanStatus();
+      if (!data.error) {
+        $('.feedback-bar')
+          .removeClass('fail').addClass('success')
+          .stop()
+          .slideUp(100)
+          .text(data.result.name + ' checked out! Scan another to continue')
+          .slideDown(200)
+          .delay(5000)
+          .slideUp(400);
+        updateDisplayTable(data.result);
+      } else {
+        $('.feedback-bar')
+          .stop()
+          .slideUp(100, function(){
+          $(this).removeClass('success').addClass('fail')
+          .delay(100)
+          .text(data.error)
+          .slideDown(200)
+          .delay(5000)
+          .slideUp(400);
+          });
+      }
+    })
+    break;
+  default:
+    // error
+  }
+  $this.val('');
+}
+
+var eventHandlers = function() {
   $('.hidden-textbox').on('keypress', function(e) {
     $this = $(this);
     if (e.which == 13) {  // press enter key
-      switch(state) {
-      case 'NEW_INPUT':
-        toggleScanStatus('wait');
-        if ($this.val().length == 9) {  // deskworker scanner a kerberos ID
-          // Check Out Item
-          getUserByID($this.val(), function(data) {  // data = kerberos
-            toggleScanStatus();
-            state = 'ITEM_CHECKOUT';
-            if (data) {
-              borrowerID = data;
-              $('.init').slideUp(200);
-              $('.kerberos').text(data);
-              $('.checkout-kerberos').slideDown(200);
-            } else {
-              // New User
-              toggleScanStatus('hold');
-              $('.init').slideUp(200);
-              $('.first-checkout').slideDown(200);
-            }
-          });
-        } else {  // deskworker scanned a item ID
-          // Return Item
-          checkinItem($this.val(), function(data) {  // data = item json
-            toggleScanStatus();
-            if (!data.error) {
-              console.log('item data: ' + data);
-              $('.feedback-bar')
-                .stop()
-                .removeClass('fail').addClass('success')
-                .text(data.result.name + ' has been returned.')
-                .slideDown(200)
-                .delay(3000)
-                .slideUp(400);
-              updateDisplayTable(data.result);
-            } else {
-              $('.feedback-bar')
-                .stop()
-                .removeClass('success').addClass('fail')
-                .text(data.error)
-                .slideDown(200)
-                .delay(3000)
-                .slideUp(400);
-            }
-          });
-        }
-        break;
-      case 'ITEM_CHECKOUT':
-        console.log('itemcheckout');
-        toggleScanStatus('wait');
-        checkoutItem(borrowerID, $this.val(), function(data){  // data = item json
-          toggleScanStatus();
-          if (!data.error) {
-            $('.feedback-bar')
-              .removeClass('fail').addClass('success')
-              .stop()
-              .slideUp(100)
-              .text(data.result.name + ' checked out! Scan another to continue')
-              .slideDown(200)
-              .delay(5000)
-              .slideUp(400);
-            $('.restart')
-              .slideDown(200);
-            updateDisplayTable(data.result);
-          } else {
-            $('.feedback-bar')
-              .stop()
-              .slideUp(100, function(){
-              $(this).removeClass('success').addClass('fail')
-              .delay(100)
-              .text(data.error)
-              .slideDown(200)
-              .delay(5000)
-              .slideUp(400);
-              });
-          }
-        })
-        break;
-      default:
-        // error
+      if (state !== 'NEW_KERBEROS_INPUT') {
+        activateState();
       }
-      $this.val('');
     } 
+  });
+  
+  $('#submit-kerberos').on('keypress', function(e) {
+    if (e.which == 13) {  // press enter key
+      var inputKerberos = $(this).val();
+      console.log('mit id:' + mitID);
+      captureKerberos(inputKerberos, mitID, function(data){
+        //TODO: Validate that kerberos was valid and correct
+        //TODO: Implement autocomplete
+        borrowerID = data;
+        toggleScanStatus();
+        barcodeBoxRelease = false;
+        $('#submit-kerberos').val('');
+        
+        $('.first-checkout').slideUp(200);
+        state = 'NEW_INPUT';
+        activateState();
+      });
+    }
   });
   
   $('.restart').on('click', function(){
@@ -203,10 +234,12 @@ var eventHandlers = function(){
 
 var state = '';
 var borrowerID = '';
-var alwaysFocus = function(){};
+var barcodeBoxFocus = function(){};
+var barcodeBoxRelease = false;
+var mitID = '';
 
 var init = function(){
-  alwaysFocus = setInterval(function(){$('.hidden-textbox').focus()}, 100);
+  barcodeBoxFocus = setInterval(function(){if (!barcodeBoxRelease) $('.hidden-textbox').focus()}, 100);
   state = 'NEW_INPUT';
 }
 
