@@ -1,11 +1,4 @@
-{{#if error}}
-  <div class="error-msg">{{error}}</div>
-{{/if}}
-{{#if success}}
-  <div class="success-msg">{{success}}</div>
-{{/if}}
-
-{{#if permissions.EDITRESERVATIONS}}
+{{#if permissions.EDIT_RESERVATIONS}}
 <h1>All Room Resrvations</h1>
 <p>Below are all the upcoming room reservations for Next House. <br />
 Include a reason for denying the room reservation before hitting Deny.</p>
@@ -14,7 +7,7 @@ Show confirmed reservations: <input type="checkbox" id="hide-confirms">
 
 
 <ul class="manage-reservations">
-  {{#each allEvents}}
+  {{#each reservations}}
   <li class="reservation status-{{this.status}}" id="process-reservation-li-{{this.id}}">
   {{this.summary}} at {{this.formattedTime}}
   for: {{this.description}}

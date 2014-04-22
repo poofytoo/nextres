@@ -1,240 +1,261 @@
 /*
  * ITEM CHECKOUT SYSTEM API
  *
- * The fields of the database are:
- * ID (unique int)
- * barcode (int)
- * name (string)
- * timeAdded (datetime): time (milliseconds) that the item was added to the database
- * borrower (string): kerberos currently checked out to, or empty string
- * timeBorrowed (int): time (milliseconds) that the borrower checked out the item
- * deskworker (string): kerberos of deskworker who last checkout out/in the item
+ * An Item object contains the following fields:
+ *      id: unique int id
+ *      barcode: barcode of checked out item
+ *      name: name of checked out item
+ *      timeAdded (datetime): time (milliseconds) that the item was added to the database
+ *      borrower (string): kerberos currently checked out to, or empty string
+ *      timeBorrowed (int): time (milliseconds) that the borrower checked out the item
+ *      deskworker (string): kerberos of deskworker who last checkout out/in the item
  *
- * An Item javascript object consists of the above five attributes.
- *
- *
- * Read functions:
- * getAllItems(): returns a list of all Items
- * getReservedItems(): returns a list of all Items with borrower != ""
- * getUnreservedItems(): returns a list of all Items with borrower == ""
- * getItemWithBarcode(barcode): returns one Item, or false
- * getCheckedOutItems(kerberos): returns a list of all checked out Items
- * getRecentlyCheckedOutItems(numMilliseconds): returns a list of all Items with
- *      time within numSeconds of current time
- * getRecentlyAddedItems(limit): returns a list of length at most = limit,
- *      of Items that are most recently added
- * searchItems(pattern): returns a list of all Items whose name contains
- *      the specified substring
- *
- * Edit functions:
- * addItem(barcode, name)
- * removeItem(barcode): removes the Item with the given ID
- * checkoutItem(barcode, kerberos, deskworker)
- * checkinItem(barcode, deskworker)
- *
- * MIT ID database functions:
- *
- * getUsername(MITID): returns a kerberos, or false if none matches this MITID
- * getKerberos(pattern): returns a list of all kerberos starting with given pattern
- * saveKerberos(kerberos, MITID): attaches the MITID to the specified kerberos
- *
- * UPC database functions:
- * getUPCItem(barcode): callback with two parameters: (barcode, title)
- *      if the barcode exists in the UPC database; otherwise callback(false)
+ * e.g. {id: 1, barcode: 12345, name: 'Ping Pong Paddle',
+ *      timeAdded: 123456789, borrower: 'kyc2915',
+ *      timeBorrowed: 123456987', deskworker: 'jake'}
  */
 
 var request = require('request');
-var Database = require('./db');
+var db = require('./db').Database;
+var Mailer = require('./mailer').Mailer;
 var logger = require('./logger');
 
+const DAY_LENGTH = 24 * 60 * 60 * 1000;
+const MAX_CHECKOUT_LENGTH = 3;  // days
+const UPC_DATABASE_URL = (
+    'http://api.upcdatabase.org/json/534ec547b0800b428470cf62b158388e/');
+
 function Checkout() {
-  this.db = new Database();
-};
-
-// Convenience helper method for select queries with a where and order clause
-function get(db, whereClause, whereArgs, callback) {
-  db.query().select(['*']).from('next-checkout-items')
-    .where(whereClause, whereArgs);
-  db.execute(function(error, result) {
-    callback(result);
-  });
 }
 
-// Read functions
-Checkout.prototype.getAllItems = function(callback) {
-  get(this.db, 'true', [], callback);
+function Item(item) {
+  this.id = item.id;
+  this.barcode = item.barcode;
+  this.name = item.name;
+  this.timeAdded = item.timeAdded;
+  this.borrower = item.borrower;
+  this.timeBorrowed = item.timeBorrowed;
+  this.deskworker = item.deskworker;
+  this.getCheckoutDuration();
 }
 
-Checkout.prototype.getReservedItems = function(callback) {
-  get(this.db, 'borrower != ?', [''], callback);
-}
-
-Checkout.prototype.getUnreservedItems = function(callback) {
-  get(this.db, 'borrower = ?', [''], callback);
-}
-
-Checkout.prototype.getItemWithBarcode = function(barcode, callback) {
-  get(this.db, 'barcode = ?', [barcode], function(result) {
-    if (result.length >= 1) {
-      callback(result[0]);
-    } else {
-      callback(false);
-    }
-  });
-}
-
-Checkout.prototype.getCheckedOutItems = function(kerberos, callback) {
-  get(this.db, 'borrower = ?', [kerberos], callback);
-}
-
-Checkout.prototype.getAllCheckedOutItems = function(callback) {
- get(this.db, 'borrower != ?', [''], callback); 
-}
-
-Checkout.prototype.getRecentlyCheckedOutItems = function(numMilliseconds, callback) {
-  var now = new Date().getTime();
-  this.db.query().select(['*']).from('next-checkout-items')
-    .where('borrower != ? & timeBorrowed > ?', ['', now - numMilliseconds])
-    .orderByDESC('timeBorrowed');
-  this.db.execute(function(error, result) {
-    callback(result);
-  });
-}
-
-Checkout.prototype.getRecentlyAddedItems = function(limit, callback) {
-  this.db.query().select(['*']).from('next-checkout-items')
-    .orderByDESC('timeAdded')
-    .limit(limit);
-  this.db.execute(function(error, result) {
-    callback(result);
-  });
-}
-
-Checkout.prototype.searchItems = function(pattern, callback) {
-  get(this.db, 'name LIKE ?', ['%' + pattern + '%'], callback);
-}
-
-// Edit functions
-
-Checkout.prototype.addItem = function(barcode, name, callback) {
-  var now = new Date().getTime();
-  this.db.query().insert('next-checkout-items',
-        ['barcode', 'name', 'timeAdded'], [barcode, name, now]);
-  this.db.execute(callback);
-}
-
-Checkout.prototype.removeItem = function(barcode, callback) {
-  this.db.query().deleteFrom('next-checkout-items')
-    .where('barcode = ?', [barcode]);
-  this.db.execute(callback);
-}
-
-Checkout.prototype.checkoutItem = function(barcode, kerberos, deskworker, callback) {
-  var now = new Date().getTime();
-  this.db.query().update('next-checkout-items',
-        ['borrower', 'timeBorrowed', 'deskworker'], [kerberos, now, deskworker])
-    .where('barcode = ?', [barcode]);
-  this.db.execute(callback);
-}
-
-Checkout.prototype.checkinItem = function(barcode, deskworker, callback) {
-  this.db.query().update('next-checkout-items',
-        ['borrower', 'timeBorrowed', 'deskworker'], ['', 0, deskworker])
-    .where('barcode = ?', [barcode]);
-  this.db.execute(callback);
-}
-
-// MIT ID database functions
-
-Checkout.prototype.getUsername = function(id, callback) {
-  this.db.query().select(['kerberos']).from('next-users').
-    where('mitID = ?', [id]);
-  this.db.execute(function(err, res) {
-    if (res.length == 0) {
-      callback(false);
-    } else {
-      callback(res[0].kerberos);  // should be only one
-    }
-  });
-}
-
-// Returns kerberos starting with the id substring.
-Checkout.prototype.getKerberos = function(id, callback) {
-  this.db.query().select(['kerberos']).from('next-users').
-    where('kerberos LIKE ?', [id + '%']);  // starts with id
-  this.db.execute(function(err, res) {
-    var kerberos = [];
-    for (var i = 0; i < Math.min(5, res.length); i++) {
-      kerberos.push(res[i].kerberos);
-    }
-    callback(kerberos);
-  });
-}
-
-// Saves the kerberos with the given id.
-Checkout.prototype.saveKerberos = function(kerberos, mitID, callback) {
-  this.db.query().update('next-users', ['mitID'], [mitID]).
-    where('kerberos = ?', [kerberos]);
-  this.db.execute(function(err, res) {
-    callback(false);
-  });
-}
-
-// UPC database functions
-
-Checkout.prototype.getUPCItem = function(barcode, callback) {
-  // Key for UPC lookup database
-  // upcdatabase.org, sparkyroombot login credentials
-  request('http://api.upcdatabase.org/json/534ec547b0800b428470cf62b158388e/' + barcode,
-    function(error, response, body) {
-      if (error || response.statusCode != 200) {
-        callback(barcode, false);
-      } else {
-        var result = JSON.parse(body);
-        if (!result.valid) {
-          callback(barcode, false);
-        } else {
-          callback(barcode, result.description);
-        }
-      }
-    });
-  };
-
-  // Get checkout duration for a list of items. Also sets overdue variable
-  // to false if item is not overdue or true if item is overdue
-  Checkout.prototype.getCheckoutDuration = function(itemList) {
-    var dayLength = 24*60*60*1000;
-    for (var i = 0; i < itemList.length; ++i) {
-      timeBorrowed = itemList[i].timeBorrowed;
-      if (timeBorrowed !== '0') {
-        var now = new Date().getTime();
-        itemList[i].daydiff = Math.floor((now - timeBorrowed)/dayLength);
-      }
-      if (itemList[i].daydiff > 3) {
-        itemList[i].overdue = true;
-      } else {
-        itemList[i].overdue = false;
-      }
-    }
-    return itemList;
-  };
-
-  Checkout.prototype.getOverdueItems = function(callback) {
-    var thisObj = this;
-    thisObj.getAllCheckedOutItems(function(itemList) {
-      thisObj.getCheckoutDuration(itemList);
-      userOverdueItems = {};
-      for (var i = 0; i < itemList.length; ++i) {
-        if (!itemList[i].overdue)
-          continue;
-        borrower = itemList[i].borrower;
-        if (userOverdueItems[borrower] === undefined) {
-          userOverdueItems[borrower] = [];
-        }
-        userOverdueItems[borrower].push(itemList[i]);
-      }
-      callback(userOverdueItems);
-    });
+// Convenience function for SELECT with where, sort, and limit clauses
+function get(params, callback) {
+  var query = db.query().select(['*']).from('next-checkout-items');
+  if (params.whereClause) {
+    query = query.where(params.whereClause, params.whereArgs);
   }
+  if (params.sortBy) {
+    if (params.isDesc) {
+      query = query.orderByDesc(params.sortBy);
+    } else {
+      query = query.orderBy(params.sortBy);
+    }
+  }
+  if (params.limit) {
+    query = query.limit(params.limit);
+  }
+  query.execute(function(err, rows) {
+    if (err) {
+      callback(err);
+    } else {
+      for (var i = 0; i < rows.length; i++) {
+        rows[i] = new Item(rows[i]);
+      }
+      callback(err, rows);
+    }
+  });
+}
 
-module.exports = Checkout;
+/******************************************************************************
+ *
+ * READ FUNCTIONS
+ *
+ ******************************************************************************/
+
+/*
+ * Returns a list of all Items
+ */
+Checkout.prototype.getAllItems = function(callback) {
+  get({}, callback);
+}
+
+/*
+ * Returns a list of all reserved items (borrower not null)
+ */
+Checkout.prototype.getReservedItems = function(callback) {
+  get({whereClause: 'borrower != ?', whereArgs: ['']}, callback);
+}
+
+/*
+ * Returns a list of all unreserved items (borrower is null)
+ */
+Checkout.prototype.getUnreservedItems = function(callback) {
+  get({whereClause: 'borrower = ?', whereArgs: ['']}, callback);
+}
+
+/*
+ * Returns the Item with the given barcode, or false if nonexistent
+ */
+Checkout.prototype.getItemWithBarcode = function(barcode, callback) {
+  get({whereClause: 'barcode = ?', whereArgs: [barcode]},
+      function(err, items) {
+        if (err) {
+          callback(err);
+        } else if (items.length == 0) {
+          callback('No item found.');
+        } else {
+          callback(false, items[0]);
+        }
+      });
+}
+
+/*
+ * Returns a list of Items checked out by the user with the given kerberos
+ */
+Checkout.prototype.getCheckedOutItems = function(kerberos, callback) {
+  get({whereClause: 'borrower = ?', whereArgs: [kerberos]}, callback);
+}
+
+/*
+ * Returns a list of Items checked out after the specified time
+ * (Javascript Date object)
+ */
+Checkout.prototype.getRecentlyCheckedOutItems = function(time, callback) {
+  get({whereClause: 'borrower != ? && timeBorrowed > ?',
+    whereArgs: ['', time], sortBy: 'timeBorrowed', isDesc: true}, callback);
+}
+
+/*
+ * Returns a list of most recent Items added (returns up to [limit] rows)
+ */
+Checkout.prototype.getRecentlyAddedItems = function(limit, callback) {
+  get({sortBy: 'timeBorrowed', isDesc: true, limit: limit}, callback);
+}
+
+/*
+ * Returns a list of Items whose name contains the specified substring
+ */
+Checkout.prototype.searchItems = function(pattern, callback) {
+  get({whereClause: 'name LIKE ?', whereArgs: ['%' + pattern + '%']},
+      callback);
+}
+
+/*
+ * Returns the description of an object given its barcode,
+ *   using the UPC lookup database.
+ * callback(err, description), where err = true if the object does not exist
+ *   in the UPC database.
+ */
+Checkout.prototype.getUPCItem = function(barcode, callback) {
+  // Key for UPC lookup database at upcdatabase.org
+  // use sparkyroombot login credentials
+  request(UPC_DATABASE_URL + barcode, function(err, response, body) {
+    if (err) {
+      callback(err);
+    } else if (response.statusCode != 200) {
+      callback('Item not found');
+    } else {
+      var result = JSON.parse(body);
+      if (!result.valid) {
+        callback('Item not found');
+      } else {
+        callback(false, result.itemname);
+      }
+    }
+  });
+}
+
+
+/******************************************************************************
+ *
+ * EDIT FUNCTIONS
+ *
+ ******************************************************************************/
+
+/*
+ * Adds a new Item with the given barcode and name
+ *   to the list of items that can be reserved.
+ * now is a Javascript date time representing the current time.
+ */
+Checkout.prototype.addItem = function(barcode, name, now, callback) {
+  db.query().insert('next-checkout-items',
+        ['barcode', 'name', 'timeAdded'], [barcode, name, now]).execute(callback);
+}
+
+/*
+ * Returns a map from each user kerberos to a list of all overdue Items
+ */
+Checkout.prototype.getOverdueItems = function(callback) {
+  var thisObj = this;
+  thisObj.getReservedItems(function(err, itemList) {
+    userOverdueItems = {};
+    for (var i = 0; i < itemList.length; ++i) {
+      if (!itemList[i].overdue) {
+        continue;
+      }
+      borrower = itemList[i].borrower;
+      if (userOverdueItems[borrower] === undefined) {
+        userOverdueItems[borrower] = [];
+      }
+      userOverdueItems[borrower].push(itemList[i]);
+    }
+    callback(false, userOverdueItems);
+  });
+}
+
+/******************************************************************************
+ *
+ * OBJECT FUNCTIONS (must be called on a Item object)
+ *
+ ******************************************************************************/
+
+/*
+ * Gets checkout duration information for this item.
+ */
+Item.prototype.getCheckoutDuration = function() {
+  if (this.timeBorrowed != 0) {
+    this.daydiff = Math.floor((new Date().getTime()
+          - this.timeBorrowed) / DAY_LENGTH);
+    this.overdue = this.daydiff > MAX_CHECKOUT_LENGTH;
+  } else {
+    this.daydiff = this.overdue = null;
+  }
+}
+
+/*
+ * Checks out this Item
+ * now is a Javascript date time representing the current time.
+ */
+Item.prototype.checkout = function(kerberos, deskworker, now, callback) {
+  this.borrower = kerberos;
+  this.timeBorrowed = now;
+  this.deskworker = deskworker;
+  this.getCheckoutDuration();
+  db.query().update('next-checkout-items',
+      ['borrower', 'timeBorrowed', 'deskworker'], [kerberos, now, deskworker])
+    .where('id = ?', [this.id]).execute(callback);
+}
+
+/*
+ * Checks in this Item
+ */
+Item.prototype.checkin = function(deskworker, callback) {
+  this.borrower = '';
+  this.timeBorrowed = 0;
+  this.deskworker = deskworker;
+  this.getCheckoutDuration();
+  db.query().update('next-checkout-items',
+      ['borrower', 'timeBorrowed', 'deskworker'], ['', 0, deskworker])
+    .where('id = ?', [this.id]).execute(callback);
+}
+
+/*
+ * Removes this Item from the list
+ */
+Item.prototype.remove = function(callback) {
+  db.query().deleteFrom('next-checkout-items')
+    .where('id = ?', [this.id]).execute(callback);
+}
+
+module.exports.Checkout = new Checkout();
