@@ -7,7 +7,7 @@ const NUM_RECENT_ITEMS_SHOWN = 20;
 
 exports.list = function(req, res) {
   Checkout.getAllItems(function(err, items) {
-    if (req.permissions.CHECKOUTITEMS) {  
+    if (req.permissions.CHECKOUT_ITEMS) {
       util.render(res, 'checkout', {user: req.user, items: items, error: err});
     } else {
       util.render(res, 'viewitems', {user: req.user, items: items, error: err});
