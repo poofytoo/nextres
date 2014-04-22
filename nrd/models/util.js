@@ -10,6 +10,7 @@ var pm = require('./permissions').Permissions;
 module.exports.router = function(req, res, next) {
   if (req.user) {
     logger.info(req.user.kerberos + " " + req.url);
+    req.permissions = pm.getPermissions(req.user.group);
     next();
   } else {
     logger.info("[Unknown user] " + req.url);
@@ -50,7 +51,7 @@ module.exports.deserializeUser = Users.getUser;
  */
 module.exports.enforce = function(permission) {
   return function(req, res, next) {
-    if (pm.getPermissions(req.user.group)[permission]) {
+    if (req.permissions[permission]) {
       next();
     } else {
       res.type('txt').send('401 Not Authorized');

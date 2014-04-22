@@ -133,7 +133,7 @@ app.get('/checkout', enforce('CHECKOUT_ITEMS'), checkout.list);
 app.get('/additempage', enforce('CHECKOUT_ITEMS'), checkout.additempage);
 app.post('/additem', enforce('CHECKOUT_ITEMS'), checkout.add);
 app.post('/removeitem', enforce('CHECKOUT_ITEMS'), checkout.remove);
-app.post('/getrecentlyaddeditems', enforce('CHECKOUT_ITEMS'), checkout.listrecent);
+app.post('/getrecentlyaddeditems', checkout.listrecent);
 app.post('/checkoutitemstatus', enforce('CHECKOUT_ITEMS'), checkout.get);
 app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
 app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
