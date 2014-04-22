@@ -3,10 +3,13 @@ var Checkout = require('../models/checkout');
 var checkoutModel = new Checkout();
 
 exports.view = function(req, res) {
-  util.registerContent('checkout');
+  if (req.permissions.CHECKOUTITEMS) {  
+    util.registerContent('checkout');   // can checkout items
+  } else {
+    util.registerContent('viewitems');  // view items only
+  }  
   checkoutModel.getAllItems(function(itemList) {
     checkoutModel.getCheckoutDuration(itemList);
-
     res.render('base.html', {
       user: req.user,
       permissions: req.permissions,

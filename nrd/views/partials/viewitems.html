@@ -1,0 +1,135 @@
+<h1>Items at Next Desk</h1>
+<p>Below is the list of items you can borrow from Next Desk!</p>
+<p>
+  <table class="displaytable">
+  <tr>
+    <th>Barcode</th>
+    <th>Name</th>
+    <th>Checked out by</th>
+    <th>Days since checkout</th>
+    <th>Remove</th>
+  </tr>
+  <script id="item-list" type="text/x-handlebars-template">
+  {{!--\ before each {{}} so server-side handlebars does not compile --}}
+  \{{#each itemList}}
+  <tr id="\{{this.barcode}}-tr">
+    <td>\{{this.barcode}}</td>
+    <td>\{{this.name}}</td>
+    <td id="\{{this.barcode}}-borrower">\{{this.borrower}}</td>
+    \{{#if this.overdue}}
+      <td id="\{{this.barcode}}-daydiff" class="overdue">\{{this.daydiff}} (overdue)</td>
+    \{{else}}
+      <td id="\{{this.barcode}}-daydiff">\{{this.daydiff}}</td>
+    \{{/if}}
+    <td><a id="\{{this.barcode}}-remove" class="remove">X</a></td>
+  </tr>
+  \{{/each}}
+  </script>
+  </table>
+</p>
+
+<script>
+    $(document).ready(function() {
+        $('.enter-description').hide();
+        $('#submit-barcode').on('click', submitBarcodeClickHandler);
+        function submitBarcodeClickHandler() {
+            var barcode = $('#barcode').val()
+            if(isNaN(barcode)) {
+                $('.status').text('Invalid barcode.')
+            } else {
+                $('.status').text('Uploading...');
+                $.post('/additem', {itemBarcode: barcode})
+                .done(function(data) {
+                    if (data.error) {
+                        $('#description').focus();
+                        $('#submit-barcode').hide();
+                        $('#cancel-barcode').hide();
+                        $('.enter-description').show();
+                        $('.status').text('');
+                    } else {
+                        $('.status').text('Added ' + data.description);
+                        getRecentlyAddedItems();
+                        setBarcodeLayout();
+                    }
+                });
+            }
+        }
+        $('#barcode').keypress(function(e) {
+            // Look for enter key
+            if(e.which == 10 || e.which == 13) {
+                if (!$('#submit-description').is(':visible')) {
+                    submitBarcodeClickHandler();
+                }
+            }
+        });
+
+        $('#submit-description').on('click', submitDescriptionClickHandler);
+        function submitDescriptionClickHandler() {
+            var barcode = $('#barcode').val();
+            if (isNaN(barcode)) {
+                $('.status').text('Invalid barcode');
+            } else {
+                $('.status').text('Uploading...');
+                $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
+                .done(function(data) {
+                    $('.status').text('Added ' + data.description);
+                    getRecentlyAddedItems();
+                    setBarcodeLayout();
+                });
+            }
+        }
+        $('#description').keypress(function(e) {
+            // Look for enter key
+            if(e.which == 10 || e.which == 13) {
+                submitDescriptionClickHandler();
+            }
+        });
+
+        $('#cancel-barcode').on('click', function() {
+            setBarcodeLayout()
+        });
+        $('#cancel-description').on('click', function() {
+            setBarcodeLayout();
+        });
+
+        $(document.body).on('click', '.remove', function(e) {
+            var yes = $('<a>').html('yes').on('click',
+                function(e2) {
+                    itemcode = e.target.id;
+                    itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
+                    $.ajax('/removeitem',{data:{itemBarcode:itemcode}, type:"POST"});
+                    $('#'+itemcode+'-tr').remove();
+                    getRecentlyAddedItems();
+                }
+            );
+            var no = $('<a>').html('no').on('click',
+                function(e2) { $(e.target).html('X'); }
+            );
+            $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
+        });
+
+        // Clears forms and prepares webpage for barcode entry
+        function setBarcodeLayout() {
+            $('#submit-barcode').show();
+            $('#cancel-barcode').show();
+            $('.enter-description').hide();
+            $('#barcode').val('');
+            $('#description').val('');
+            $('#barcode').focus();
+        }
+
+        function getRecentlyAddedItems() {
+            $.post('/getrecentlyaddeditems')
+            .done(function(data) {
+                $('.displaytable td').parent().remove();
+                var template = Handlebars.compile($('#item-list').html());
+                console.log(template({itemList: data}))
+                $('.displaytable tr:last').after(template({itemList: data}))
+            });
+        }
+
+        getRecentlyAddedItems();
+        $('#barcode').focus();
+    });
+</script>
+

@@ -19,6 +19,7 @@
     "request": "*",
     "google-oauth-serviceaccount": "*",
     "qs": "*",
-    "time": "*"
+    "time": "*",
+    "node-schedule": "*"
   }
 }
