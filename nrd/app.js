@@ -128,6 +128,7 @@ app.get('/managereservations', enforce('EDIT_RESERVATIONS'), reservations.manage
 /*
  * Item Checkout functions
  */
+app.get('/viewitems', checkout.viewonly);
 app.get('/checkout', enforce('CHECKOUT_ITEMS'), checkout.list);
 app.get('/additempage', enforce('CHECKOUT_ITEMS'), checkout.additempage);
 app.post('/additem', enforce('CHECKOUT_ITEMS'), checkout.add);
