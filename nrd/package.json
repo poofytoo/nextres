@@ -21,7 +21,6 @@
     "google-oauth-serviceaccount": "*",
     "qs": "*",
     "time": "*",
-    "node-schedule": "*",
-    "connect-flash": "*"
+    "node-schedule": "*"
   }
 }
