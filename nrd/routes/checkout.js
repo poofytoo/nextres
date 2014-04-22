@@ -1,129 +1,116 @@
 var util = require('./util');
-var Checkout = require('../models/checkout');
-var checkoutModel = new Checkout();
+var Checkout = require('../models/checkout').Checkout;
 
-exports.view = function(req, res) {
-  util.registerContent('checkout');
-  checkoutModel.getAllItems(function(itemList) {
-    checkoutModel.getCheckoutDuration(itemList);
+const MAX_NUM_CHECKED_ITEMS = 3;
+const NUM_RECENT_ITEMS_SHOWN = 20;
 
-    res.render('base.html', {
-      user: req.user,
-      permissions: req.permissions,
-      itemList: itemList
-    });
+exports.list = function(req, res) {
+  Checkout.getAllItems(function(err, items) {
+    util.render(res, 'checkout', {user: req.user, items: items, error: err});
   });
-};
+}
+
+exports.listrecent = function(req, res) {
+  Checkout.getRecentlyAddedItems(NUM_RECENT_ITEMS_SHOWN,
+      function(err, itemList) {
+        res.json(itemList);
+      });
+}
 
 exports.additempage = function(req, res) {
-  util.registerContent('additempage');
-  res.render('base.html', {
-    user: req.user,
-    permissions: req.permissions,
-  });
-};
+  util.render(res, 'additempage', {user: req.user});
+}
 
-// POST {itemBarcode: 12345}
-// or POST {itemBarcode: 12345, description: Back to the Future} (manually entered)
-// res.json({description: Back to the Future})
+// req.body = {barcode: 12345}
+// returns res.json(Item object)
 // or res.json({error: 'Item not found'})
-exports.additem = function(req, res) {
-  if (req.body.description) {
-    checkoutModel.addItem(req.body.itemBarcode, req.body.description, function() {});
-    res.json({'description': req.body.description});
-  } else {
-    checkoutModel.getUPCItem(req.body.itemBarcode, function(barcode, name) {
-      if (name) {
-        checkoutModel.addItem(req.body.itemBarcode, name, function() {});
-        res.json({'description': name});
-      } else {
-        res.json({'error': 'Item not found'});
-      }
-    });
-  };
-}
-
-
-exports.getrecentlyaddeditems = function(req, res) {
-  checkoutModel.getRecentlyAddedItems(20, function(itemList) {
-    checkoutModel.getCheckoutDuration(itemList);
-    res.json(itemList);
-  });
-}
-
-// POST {itemBarcode: 12345}
-// or res.json(false)
-exports.removeitem = function(req, res) {
-  checkoutModel.removeItem(req.body.itemBarcode, function() {
-    res.json(false)
-  });
-}
-
-// POST {id: 98765}
-// res.json(kyc2915)
-exports.getusername = function(req, res) {
-  checkoutModel.getUsername(req.body.id, function(username) {
-    res.json(username);
-  });
-}
-
-// POST {id: ky}
-// res.json([kyc2915, kysomebodyelse])
-exports.getkerberos = function(req, res) {
-  // Note: req.id is part of a kerberos, e.g. ky
-  // Returns a list of kerberos
-  checkoutModel.getKerberos(req.body.id, function(kerberos) {
-    res.json(kerberos);
-  });
-}
-
-// POST {id: kyc2915, mitID: 98765}
-// res.json(false)
-exports.savekerberos = function(req, res) {
-  checkoutModel.saveKerberos(req.body.id, req.body.mitID, function(error) {
-    res.json(error);
-  });
-}
-
-// POST {itemBarcode: 12345}
-// res.json(Item), or res.json(false) if no item has the specified barcode
-exports.getitemstatus = function(req, res) {
-  checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-    res.json(item);
-  });
-}
-
-// POST {itemBarcode: 12345}
-// res.json(Item)
-exports.checkinitem = function(req, res) {
-  checkoutModel.checkinItem(req.body.itemBarcode, 'deskworker', function() {
-    checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-      if (item) {
-        res.json({'result': item});
-      } else {
-        res.json({'error': 'Invalid barcode. Please try again.'});
-      }
-    });
-  });
-}
-
-// POST {userKerberos: kyc2915, itemBarcode: 12345}
-// res.json({error: error}) or res.json({result: Item}
-exports.checkoutitem = function(req, res) {
-  var kerberos = req.body.userKerberos;
-  checkoutModel.getCheckedOutItems(kerberos, function(items) {
-    if (items.length >= 3) {
-      // Too many items checked out! Error
-      res.json({'error': 'This user has too many checked out items. Please return some items'});
+exports.get = function(req, res) {
+  Checkout.getItemWithBarcode(req.body.barcode, function(err, item) {
+    if (err) {
+      res.json({error: err});
     } else {
-      checkoutModel.checkoutItem(req.body.itemBarcode, kerberos, 'deskworker', function() {
-        checkoutModel.getItemWithBarcode(req.body.itemBarcode, function(item) {
-          if (item) {
-            res.json({'result': item});
-          } else {
-            res.json({'error': 'Invalid barcode. Please try again.'});
-          }
-        });
+      res.json(item);
+    }
+  });
+}
+
+// req.body = {barcode: 12345}
+// or req.body = {barcode: 12345, description: 'Back to the Future'}
+// returns res.json(Item object)
+// or res.json({error: 'Item not found'})
+exports.add = function(req, res) {
+  var complete = function(err, description) {
+    if (err) {
+      res.json({error: err});
+    } else {
+      Checkout.addItem(req.body.barcode, description,
+          new Date().getTime(), function(err) {
+            Checkout.getItemWithBarcode(req.body.barcode, function(err2, item) {
+              if (err || err2) {
+                res.json({error: err || err2});
+              } else {
+                res.json(item);
+              }
+            });
+          });
+    }
+  };
+  if (req.body.description) {
+    complete(false, req.body.description);
+  } else {
+    Checkout.getUPCItem(req.body.barcode, complete);
+  }
+}
+
+// req.body = {kerberos: 'kyc2915', barcode: 12345}
+// returns res.json({error: 'Error'})
+// or res.json(Item object)
+exports.checkout = function(req, res) {
+  var kerberos = req.body.kerberos;
+  Checkout.getCheckedOutItems(kerberos, function(err, items) {
+    if (err) {
+      res.json({error: err});
+    } else if (items.length >= MAX_NUM_CHECKED_ITEMS) {
+      res.json({error: 'This user has too many checked out items.'});
+    } else {
+      Checkout.getItemWithBarcode(req.body.barcode, function(err, item) {
+        if (err) {
+          res.json({error: err});
+        } else {
+          item.checkout(kerberos, 'deskworker',
+            new Date().getTime(), function(err) {
+              res.json(item);
+            });
+        }
+      });
+    }
+  });
+}
+
+// req.body = {barcode: 12345}
+// returns res.json({error: 'Error'})
+// or res.json(Item object)
+exports.checkin = function(req, res) {
+  Checkout.getItemWithBarcode(req.body.barcode, function(err, item) {
+    if (err) {
+      res.json({error: err});
+    } else {
+      item.checkin('deskworker', function(err) {
+        res.json(item);
+      });
+    }
+  });
+}
+
+// req.body = {barcode: 12345}
+// returns res.json({error: 'Error'})
+exports.remove = function(req, res) {
+  Checkout.getItemWithBarcode(req.body.barcode, function(err, item) {
+    if (err) {
+      res.json({error: err});
+    } else {
+      item.remove(function(err) {
+        res.json({error: err});
       });
     }
   });

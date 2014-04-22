@@ -56,7 +56,7 @@
                 $('.status').text('Invalid barcode.')
             } else {
                 $('.status').text('Uploading...');
-                $.post('/additem', {itemBarcode: barcode})
+                $.post('/additem', {barcode: barcode})
                 .done(function(data) {
                     if (data.error) {
                         $('#description').focus();
@@ -65,7 +65,7 @@
                         $('.enter-description').show();
                         $('.status').text('');
                     } else {
-                        $('.status').text('Added ' + data.description);
+                        $('.status').text('Added ' + data.name);
                         getRecentlyAddedItems();
                         setBarcodeLayout();
                     }
@@ -88,9 +88,9 @@
                 $('.status').text('Invalid barcode');
             } else {
                 $('.status').text('Uploading...');
-                $.post('/additem', {itemBarcode: $('#barcode').val(), description: $('#description').val()})
+                $.post('/additem', {barcode: $('#barcode').val(), description: $('#description').val()})
                 .done(function(data) {
-                    $('.status').text('Added ' + data.description);
+                    $('.status').text('Added ' + data.name);
                     getRecentlyAddedItems();
                     setBarcodeLayout();
                 });
@@ -115,9 +115,11 @@
                 function(e2) {
                     itemcode = e.target.id;
                     itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
-                    $.ajax('/removeitem',{data:{itemBarcode:itemcode}, type:"POST"});
-                    $('#'+itemcode+'-tr').remove();
-                    getRecentlyAddedItems();
+                    $.ajax('/removeitem',{data:{barcode:itemcode}, type:"POST"})
+                    .done(function() {
+                      $('#'+itemcode+'-tr').remove();
+                      getRecentlyAddedItems();
+                    });
                 }
             );
             var no = $('<a>').html('no').on('click',
@@ -141,7 +143,6 @@
             .done(function(data) {
                 $('.displaytable td').parent().remove();
                 var template = Handlebars.compile($('#item-list').html());
-                console.log(template({itemList: data}))
                 $('.displaytable tr:last').after(template({itemList: data}))
             });
         }

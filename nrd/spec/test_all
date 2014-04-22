@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Test all suites.
+
+echo 'Testing database model...'
+if ! node spec/test_db
+then
+  exit
+fi
+
+echo 'Testing user model...'
+if ! node spec/test_user
+then
+  exit
+fi
+
+echo 'Testing permissions...'
+if ! node spec/test_permissions
+then
+  exit
+fi
+
+echo 'Testing guestlist model...'
+if ! node spec/test_guestlist
+then
+  exit
+fi
+
+echo 'Testing minutes model...'
+if ! node spec/test_minutes
+then
+  exit
+fi
+
+echo 'Testing reservations model...'
+if ! node spec/test_reservations
+then
+  exit
+fi
+
+echo 'Testing item checkout model...'
+if ! node spec/test_checkout
+then
+  exit
+fi
+

@@ -1,39 +1,37 @@
 <div class="sidenav">
   <ul>
     <li class="item-header">Front Desk</li>
-    <li><a href="manage">View/Edit Your Guestlist</a></li>
+    <li><a href="/guestlist">View/Edit Your Guestlist</a></li>
   </ul>
   <ul>
     <li class="item-header">House</li>
-    <li><a href="minutes">Exec Meeting Minutes</a></li>
-    <li><a href="roomreservations">Room Reservations</a></li>
-    <li><a href="emaillists">Mailing Lists</a></li>
+    <li><a href="/minutes">Exec Meeting Minutes</a></li>
+    <li><a href="/roomreservations">Room Reservations</a></li>
+    <li><a href="/emaillists">Mailing Lists</a></li>
   </ul>
   <ul>
     <li class="item-header">Account</li>
-    <li><a href="residentinfo">Residence Info</a></li>
-    <!--<li><a href="application">Request Small Group Project Funding</a></li>-->
-    <li><a href="changepassword">Change Password</a></li>
+    <li><a href="/residentinfo">Residence Info</a></li>
+    <li><a href="/password">Change Password</a></li>
   </ul>
-  {{#if permissions.VIEWALLGUESTLISTS}}
+  {{#if permissions.VIEW_GUEST_LISTS}}
   <ul>
     <li class="item-header deskworker">Deskworker</li>
-    <li><a href="allguests">Search and View Guestlists</a></li>
+    <li><a href="/allguests">Search and View Guestlists</a></li>
   </ul>
   {{/if}}
-  {{#if permissions.EDITRESERVATIONS}}
+  {{#if permissions.EDIT_RESERVATIONS}}
   <ul>
     <li class="item-header nextexec">Next Exec</li>
-    <li><a href="allusers">Manage Users</a></li>
-    <li><a href="managereservations">Manage Reservations</a></li>
+    <li><a href="/users">Manage Users</a></li>
+    <li><a href="/managereservations">Manage Reservations</a></li>
     <!--<li><a href="reviewapps">Review Funding Applications</a></li>-->
   </ul>
   {{else}}
-	  {{#if permissions.MAKEUSERSDESKWORKERS}}
+	  {{#if permissions.MAKE_USERS_DESKWORKERS}}
 	  <ul>
 	    <li class="item-header deskcaptain">Desk Captain</li>
-	    <li><a href="allusers">Manage Users</a></li>
-	    <!--<li><a href="reviewapps">Review Funding Applications</a></li>-->
+	    <li><a href="/users">Manage Users</a></li>
 	  </ul>
 	  {{/if}}
   {{/if}}

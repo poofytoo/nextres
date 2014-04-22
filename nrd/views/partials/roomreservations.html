@@ -1,15 +1,8 @@
-{{#if error}}
-  <div class="error-msg">{{error}}</div>
-{{/if}}
-{{#if success}}
-  <div class="success-msg">{{success}}</div>
-{{/if}}
-
-{{#if userEvents}}
+{{#if userReservations}}
 	<h1>Your Room Reservations</h1>
 	<p>Below are the rooms you have reserved</p>
 	<ul>
-	{{#each userEvents}}
+	{{#each userReservations}}
 	<li class="reservation" id="remove-reservation-li-{{this.id}}">
 		{{this.summary}} at {{this.formattedTime}}
 		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove">cancel reservation</a></span>
@@ -53,16 +46,16 @@
     <p><span class='nres'></span> Next House Residents are required to reserve the <span class='nroom'></span>. Please enter their <em>Kerberos</em></p>
     <table class="room-reserve">
     	<tr>
-    		<td><label for="resident1">Resident 1</label></td>
-    		<td><input type="text" placeholder="kerberos" value="{{user.kerberos}}" name="resident1" disabled="disabled"></td>
+    		<td><label for="signatory1">Resident 1</label></td>
+    		<td><input type="text" placeholder="kerberos" value="{{user.kerberos}}" name="signatory1" disabled="disabled"></td>
     	</tr>
     	<tr>
-    		<td><label for="resident2">Resident 2</label></td>
-    		<td><input type="text" placeholder="kerberos" name="resident2" required></td>
+    		<td><label for="signatory2">Resident 2</label></td>
+    		<td><input type="text" placeholder="kerberos" name="signatory2" required></td>
     	</tr>
     	<tr class="r3" style="display: hidden;">
-    		<td><label for="resident3">Resident 3</label></td>
-    		<td><input type="text" placeholder="kerberos" name="resident3"></td>
+    		<td><label for="signatory3">Resident 3</label></td>
+    		<td><input type="text" placeholder="kerberos" name="signatory3"></td>
     	</tr>
     </table>
     

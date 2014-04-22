@@ -3,8 +3,8 @@
 * Returns a kerberos given the MIT ID, else returns false.
 */
 var getUserByID = function(userId, callback) {
-  $.post('/checkoutgetid', {id: userId}, function(data){
-    callback(data || false);
+  $.post('/findmitid', {mitID: userId}, function(data){
+    callback(data.error ? false : data);
   });
 }
 
@@ -13,7 +13,7 @@ var getUserByID = function(userId, callback) {
 */
 var getCompleteKerberos = function(userString, callback) {
   var output = [];
-  $.post('/checkoutgetkerberos', {id: userString}, function(data) {
+  $.post('/searchkerberos', {kerberosSearchPattern: userString}, function(data) {
     callback(data)
   })
   .fail(function(data) {
@@ -26,35 +26,34 @@ var getCompleteKerberos = function(userString, callback) {
 */
 
 var captureKerberos = function(k, mitID, callback) {
-  $.post('/checkoutsavekerberos', {id: k, mitID: mitID}, function(data) {
+  $.post('/savekerberos', {kerberos: k, mitID: mitID}, function(data) {
     callback(data);
   });
 }
 
 /**
- * Get status of an item given the barcode
+ * Get item given the barcode, or false
  */
 var getItemStatus = function(barcode, callback) {
-  $.post('/checkoutitemstatus', {itemBarcode: barcode}, function(data) {
-    callback(data)
+  $.post('/checkoutitemstatus', {barcode: barcode}, function(data) {
+    callback(data.error ? false : data)
   });
 }
 
 /**
-  Check in item given item-barcode
+  Check in item given item-barcode; returns the Item
  */
 var checkinItem = function(itemBarcode, callback) {
-  $.post('/checkinitem', {itemBarcode: itemBarcode}, function(data) {
-    // TODO: Watch for errors
+  $.post('/checkinitem', {barcode: itemBarcode}, function(data) {
     callback(data);
   });
 }
 
 /**
-* Check out item given [userid, item-barcode-id]
+* Check out item given [userid, item-barcode-id]; returns the Item
 */
 var checkoutItem = function(k, itemBarcode, callback) {
-  $.post('/checkoutitem', {userKerberos: k, itemBarcode: itemBarcode}, function(data) {
+  $.post('/checkoutitem', {kerberos: k, barcode: itemBarcode}, function(data) {
     callback(data);
   })
   .fail(function(data){
@@ -85,6 +84,7 @@ var toggleScanStatus = function(status) {
 var updateDisplayTable = function(item) {
   var barcode = item.barcode;
   $('#' + barcode + '-borrower').html(item.borrower);
+  $('#' + barcode + '-daydiff').html(item.daydiff);
 }
 
 var activateState = function() {
@@ -97,13 +97,13 @@ var activateState = function() {
     toggleScanStatus('wait');
     if (mitID.length == 9) {  // deskworker scanner a kerberos ID
       // Check Out Item
-      getUserByID(mitID, function(data) {  // data = kerberos
+      getUserByID(mitID, function(data) {  // data.kerberos
         toggleScanStatus();
         if (data) {
           state = 'ITEM_CHECKOUT';
-          borrowerID = data;
+          borrowerID = data.kerberos;
           $('.init').slideUp(200);
-          $('.kerberos').text(data);
+          $('.kerberos').text(data.kerberos);
           $('.checkout-kerberos').slideDown(200);
           $('.restart').slideDown(200);
         } else {
@@ -125,11 +125,11 @@ var activateState = function() {
           $('.feedback-bar')
             .stop()
             .removeClass('fail').addClass('success')
-            .text(data.result.name + ' has been returned.')
+            .text(data.name + ' has been returned.')
             .slideDown(200)
             .delay(3000)
             .slideUp(400);
-          updateDisplayTable(data.result);
+          updateDisplayTable(data);
         } else {
           $('.feedback-bar')
             .stop()
@@ -152,11 +152,11 @@ var activateState = function() {
           .removeClass('fail').addClass('success')
           .stop()
           .slideUp(100)
-          .text(data.result.name + ' checked out! Scan another to continue')
+          .text(data.name + ' checked out! Scan another to continue')
           .slideDown(200)
           .delay(5000)
           .slideUp(400);
-        updateDisplayTable(data.result);
+        updateDisplayTable(data);
       } else {
         $('.feedback-bar')
           .stop()
@@ -189,12 +189,11 @@ var eventHandlers = function() {
   
   $('#submit-kerberos').on('keypress', function(e) {
     if (e.which == 13) {  // press enter key
-      var inputKerberos = $(this).val();
+      borrowerID = $(this).val();
       console.log('mit id:' + mitID);
-      captureKerberos(inputKerberos, mitID, function(data){
+      captureKerberos(borrowerID, mitID, function(data){
         //TODO: Validate that kerberos was valid and correct
         //TODO: Implement autocomplete
-        borrowerID = data;
         toggleScanStatus();
         barcodeBoxRelease = false;
         $('#submit-kerberos').val('');

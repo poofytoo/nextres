@@ -31,7 +31,7 @@
       <th>Guest 2</th>
       <th>Guest 3</th>
     </tr>
-    {{#each result}}
+    {{#each guestlists}}
 	<tr>
 	  <td>
 	  	{{this.kerberos}} 
@@ -80,41 +80,51 @@ $('.sort').on('click', function(){
   sortBy = $(this).attr('id');
   searchname = $('.searchname').val();
   
-  updateList({ search: "resident", value: searchname, sort: sortBy });
+  updateList({hostSearchPattern: searchname, sortBy: sortBy });
   
 });
 
 $('.searchname').on('input', function(){
   searchname = $(this).val();
-  updateList({ search: "resident", value: searchname, sort: sortBy });
+  updateList({hostSearchPattern: searchname, sortBy: sortBy });
 })
 
 var updateList = function(query){
-	$.get("searchguestlist", query)
-		.done(function( data ) {
-		  // TODO: Refactor to use handlebar client, error last time tried.
-		  if (data) {
-		    $('.error-msg').hide();
-		    $('.displaytable').show();
-		    header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
-		    $('.displaytable').html(header + data);
-		  } else {
-		    $('.displaytable').hide();
-		    $('.error-msg').show();
-		  }
-		  
-	// troll, troll, read comment below
-	$( "td:contains('Mike Trout')" ).parent().html('<td>dorayuta</td><td><span class="invalid">guestlist invalid</span></td><td>invalid</td><td>invalid</td><td>invalid</td>');
-	
-		})
-		.fail(function(){
-		    $('.error-msg').show();
-		    $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');	
-	});
-	
-}
+  $.get("searchguests", query)
+    .done(function(guestlists) {
+        // TODO: Refactor to use handlebar client, error last time tried.
+        if (guestlists) {
+          $('.error-msg').hide();
+          $('.displaytable').show();
+          var header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
+          var html = '';
+          for (var i = 0; i < guestlists.length; i++) {
+            html += '<tr>';
+            html += '<td>' + guestlists[i].kerberos + '</td>';
+            html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + '</td>';
+            for (var j = 1; j <= 3; j++) {
+              html += '<td>';
+              if (guestlists[i]['guest' + j + 'Kerberos']) {
+                html += guestlists[i]['guest' + j + 'Name'] + ' (' + guestlists[i]['guest' + j + 'Kerberos'] + ')';
+              } else {
+                html += '<span class="empty">empty</span>';
+              }
+              html += '</td>';
+            }
+            html += '</tr>';
+          }
+          $('.displaytable').html(header + html);
+        } else {
+          $('.displaytable').hide();
+          $('.error-msg').show();
+        }
 
-// this is me trolling a little, yuta is putting in a fake name, so I'm invalidating his guestlists manually. we should put in a serious thing for this sometime.
-$( "td:contains('Mike Trout')" ).parent().html('<td>dorayuta</td><td><span class="invalid">guestlist invalid</span></td><td>invalid</td><td>invalid</td><td>invalid</td>');
+      })
+    .fail(function(){
+        $('.error-msg').show();
+        $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');
+        });
 
-</script>
+    }
+
+  </script>

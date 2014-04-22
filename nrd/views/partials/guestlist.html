@@ -1,32 +1,29 @@
 {{#unless user.firstName}}
 <div class="todo">Please update your <em>residence info</em>. Your guestlist will not work unless your information is valid.</div>
 {{/unless}}
-<h1>Your Guestlist</h1>
+<h1>View/Edit Your Guestlist</h1>
+<p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="http://studentlife.mit.edu/studentlife.mit.edu/reslifeanddining/news/residencehallsecurity">MIT security policies</a></p>
+<form action='guestlist' method='post'>
 <p>
-  <table class="displaytable">
-    <tr>
-      <th width="240">Resident</th>
-      <th>Guest 1</th>
-      <th>Guest 2</th>
-      <th>Guest 3</th>
-    </tr>
-    <tr>
-      <td>Victor Hung (vhung)</td>
-      <td>Bob</td>
-      <td class="empty">(empty)</td>
-      <td class="empty">(empty)</td>
-    </tr>
-    <tr>
-      <td>Victor Hung (vhung)</td>
-      <td>Bob</td>
-      <td class="empty">(empty)</td>
-      <td class="empty">(empty)</td>
-    </tr>
-    <tr>
-      <td>Victor Hung (vhung)</td>
-      <td>Bob</td>
-      <td class="empty">(empty)</td>
-      <td class="empty">(empty)</td>
-    </tr>
-  </table>
+<table>
+  <tr>
+    <th>Full Name</th><th>Kerberos</th>
+  </tr>
+  <tr>
+    <td><input type='text' name='guest1Name' value='{{guests.guest1Name}}' /></td>
+    <td><input type='text' name='guest1Kerberos' value='{{guests.guest1Kerberos}}'/></td>
+  </tr>
+  <tr>
+    <td><input type='text' name='guest2Name' value='{{guests.guest2Name}}' /></td>
+    <td><input type='text' name='guest2Kerberos' value='{{guests.guest2Kerberos}}'/></td>
+  </tr>
+  <tr>
+    <td><input type='text' name='guest3Name' value='{{guests.guest3Name}}' /></td>
+    <td><input type='text' name='guest3Kerberos' value='{{guests.guest3Kerberos}}'/></td>
+  </tr>
+</table>
 </p>
+<p>
+<input type='submit' value='Save'>
+</p>
+</form>

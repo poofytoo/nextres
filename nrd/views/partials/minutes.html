@@ -1,23 +1,16 @@
-{{#if error}}
-<div class="error-msg">{{error}}</div>
-{{/if}}
-{{#if success}}
-<div class="success-msg">{{success}}</div>
-{{/if}}
-
 <h1>Next Exec Meeting Minutes</h1>
 <p>Below are the archived Next Exec Meeting Minutes</p>
 
 <ul>
-{{#each files}}
+{{#each minutes}}
         <li id="remove-minutes-li-{{this.id}}">
-		<a class="file" href="minutes?minute={{this.name}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
+		<a class="file" href="minutes/{{this.id}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
                 <a id="remove-minutes-{{this.id}}" class="remove remove-minute" href="#">remove</a>
 	</li>
 {{/each}}
 </ul>
 
-{{#if permissions.EDITMINUTES}}
+{{#if permissions.EDIT_MINUTES}}
 <h1>
 	Upload Minutes
 </h1>

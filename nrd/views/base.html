@@ -5,6 +5,16 @@
     <div class="main">
       {{> navigation}}
       <div class="content">
+        {{#if error}}
+        <div class="error-msg">{{error}}</div>
+        {{else}}
+        {{#if success}}
+        <div class="success-msg">{{success}}</div>
+        {{/if}}
+        {{#each warnings}}
+        <div class="warning-msg">{{this}}</div>
+        {{/each}}
+        {{/if}}
         {{#if user}}
         {{> content}}
         {{else}}

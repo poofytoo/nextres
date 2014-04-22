@@ -1,94 +1,90 @@
 var util = require('./util');
-var Model = require('../models/model');
-var model = new Model();
-var GuestList = require('../models/guestlist');
-var guestlistModel = new GuestList();
+var Users = require('../models/user').Users;
+var GuestLists = require('../models/guestlist').GuestLists;
 var logger = require('../models/logger');
 
-exports.view = function(req, res) {
-  logger.info(req.user.id);
-  guestlistModel.getGuests(req.user.id, function(error, result) {
-    guests =[]
-    for (var i = 1; i <= 3; i++) {
-      info = {name: result['guest' + i + 'Name'],
-              kerberos: result['guest' + i + 'Kerberos']};
-      guests.push(info);
-    }
-    util.registerContent('manage');
-    res.render('base.html', {'user': req.user,
-                             'permissions': req.permissions,
-                             'guests': guests});
-  });
-}
+var nameField = GuestLists.nameField;
+var kerberosField = GuestLists.kerberosField;
 
-exports.edit = function(req, res) {
-  logger.info(req.user.id);
-  guests = [];
-  for (var i = 0; i < 3; i++) {
-    info = {name: req.body['guest' + i + 'Name'],
-            kerberos: req.body['guest' + i + 'Kerberos']};
-    guests.push(info);
-  }
-  model.validateKerberos(guests, function(invalids) {
-    var id = req.user.id;
-    if (invalids.length == 0) {
-      guestlistModel.addGuests(id, guests, function(error, result) {
-        util.registerContent('manage');
-        guestlistModel.onGuestList(id, guests, function(onGuestLists) {
-          var success = 'Your guest list has been updated.';
-          res.render('base.html', {'user': req.user,
-            'permissions': req.permissions,
-            'guests': guests,
-            'success': success,
-            'alreadyHere': onGuestLists});
-        });
-      });
-    } else {
-      var error = 'Invalid kerberos: ' + invalids.join(', ');
-      res.render('base.html', {'user': req.user,
-        'permissions': req.permissions,
-        'guests': guests,
-        'error': error});
-    }
+function complete(req, res, success, error, warnings) {
+  GuestLists.getGuestListOfUser(req.user.id, function(err, guestlist) {
+    util.render(res, 'guestlist', {
+      user: req.user,
+      guests: guestlist,
+      success: success,
+      warnings: warnings,
+      error: error || err
+    });
   });
 }
 
 exports.list = function(req, res) {
-  params = {};
-  var id = req.user.id;
-  logger.info(id);
-  guestlistModel.listGuests(id, params, function(error, result) {
-    util.registerContent('allguests');
-    res.render('base.html', {user: req.user, result: result, permissions: req.permissions});
+  GuestLists.listGuests({}, function(err, guestlists) {
+    util.render(res, 'allguests', {
+      user: req.user,
+      guestlists: guestlists,
+      error: err
+    });
   });
 }
 
+// req.query = {hostSearchPattern: 'kyc', sortBy: 'kerberos'}
+//   or {guestSearchPattern: 'cky', sortBy: 'firstName'}
 exports.search = function(req, res) {
-  var id = req.user.id;
-  guestlistModel.listGuests(id, req.query, function(error, result) {
-    if (result !== undefined){
-      // Lol, I'm just going to render the HTML here.
-      // TODO: CONVERT TO CLIENT SIDE HANDLEBAR PARSING
-      html = ""
-      for (key in result) {
-        var entry = result[key];
-        html += '<tr>';
-        html += '<td>' + entry.kerberos + '</td>';
-        html += '<td>' + entry.firstName + ' ' + entry.lastName + '</td>';
-        for (i = 1; i <= 3; i ++) {
-          html += '<td>';
-          if (entry['guest' + i + 'Kerberos']){
-            html += entry['guest' + i + 'Kerberos'] + " (" + entry['guest' + i + 'Name'] + ")";
-          } else {
-            html += '<span class="empty">empty</span>';
-          }
-          html += '</td>';
-        }
-        html += '</tr>';
-      }
-      res.end(html);
-    } else {
-      res.end("None");
+  GuestLists.listGuests(req.query, function(err, guestlists) {
+    res.json(guestlists);
+  });
+}
+
+exports.view = function(req, res) {
+  complete(req, res);
+}
+
+function validateGuestlist(guestlist, callback) {
+  var kerberosList = [];
+  for (var i = 1; i <= GuestLists.MAX_NUM_GUESTS; i++) {
+    kerberosList.push(guestlist[kerberosField(i)]);
+  }
+  Users.validateKerberosList(kerberosList, function(err, invalidKerberos) {
+    callback(err || (invalidKerberos.length > 0 ?
+        'The following guest kerberos are invalid: ' +
+        invalidKerberos.join(', ') : ''));
+  });
+}
+
+
+// req.body = {guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
+exports.edit = function(req, res) {
+  for (var i = 1; i <= GuestLists.MAX_NUM_GUESTS; i++) {
+    util.sanitize(req.body, nameField(i), /[^A-Za-z0-9\-_ ]/g, 30);
+    util.sanitize(req.body, kerberosField(i), /[^A-Za-z0-9\-_ ]/g, 8);
+  }
+  validateGuestlist(req.body, function(err) {
+    if (err) {
+      complete(req, res, null, err);
+      return;
     }
+    GuestLists.getGuestListOfUser(req.user.id, function(err, guestlist) {
+      if (err) {
+        complete(req, res, null, err);
+      } else {
+        GuestLists.findRepeatedGuests(req.body, req.user,
+          function(err, repeatedGuests) {
+            var warnings = [];
+            if (!err) {
+              for (var i = 0; i < repeatedGuests.length; i++) {
+                warnings.push('Note: ' + repeatedGuests[i].guest +
+                  ' is already on the guestlist of ' +
+                  repeatedGuests[i].host.firstName + ' ' +
+                  repeatedGuests[i].host.lastName);
+              }
+            }
+            guestlist.updateGuests(req.body, function(err2) {
+              complete(req, res, 'Your guest list has been updated.',
+                err || err2, warnings);
+            });
+          });
+      }
+    });
   });
 }
