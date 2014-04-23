@@ -203,7 +203,7 @@ Mailer.prototype.denyRoom = function(item, reason) {
  * itemList is a list of Item objects
  */
 Mailer.prototype.informOverdue = function(email, itemList) {
-  var to = [];
+  var to = [email];
   var cc = mail_settings.admin_emails;
   var subject = "Overdue Items";
 
