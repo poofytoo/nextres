@@ -7,14 +7,15 @@ var logger = require('../models/logger');
 var signatoryField = Reservations.signatoryField;
 const MAX_NUM_RESERVATIONS = 3;
 
-function complete(req, res, success, err) {
+function complete(req, res, success, err, prevParams) {
   Reservations.getReservationsWithUser(new Date(), req.user,
       function(err2, userReservations) {
         util.render(res, 'roomreservations', {
           user: req.user,
         userReservations: userReservations,
         success: success,
-        error: err || err2
+        error: err || err2,
+        prevParams: prevParams
         });
       });
 };
@@ -53,7 +54,9 @@ function validateReservation(reservation, user, callback) {
   }
   var kerberosList = [];
   for (var i = 2; i <= Reservations.MAX_NUM_SIGNATORIES; i++) {
-    kerberosList.push(reservation[signatoryField(i)]);
+    if (reservation[signatoryField(i)]) {
+      kerberosList.push(reservation[signatoryField(i)]);
+    }
   }
   // Check for sufficient number of signatories
   if (reservation.people === '0') {  // < 10 people
@@ -95,11 +98,11 @@ exports.add = function(req, res) {
   req.body.signatory1 = req.user.kerberos;
   validateReservation(req.body, req.user, function(err) {
     if (err) {
-      complete(req, res, null, err);
+      complete(req, res, null, err, req.body);
       return;
     }
     Reservations.reserve(req.body, function(err) {
-      complete(req, res, 'Room successfully reserved', err);
+      complete(req, res, 'Room successfully reserved', err, req.body);
     });
   });
 }

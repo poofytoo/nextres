@@ -156,7 +156,26 @@ $(document).ready(function(){
       $.ajax('/roomreservationdeny', {data: {id: event_id, reason: reason}, type: "POST"});
       $('#deny-reservation-li-' + event_id).remove();
   });
+
+  {{#if error}}
+  {{#if prevParams}}
+  // Prefill form with previous params, if applicable.
+  $('.sel_room').find('option[value="{{prevParams.room}}"]').attr('selected', true);
+  $('.sel_people').find('option[value="{{prevParams.people}}"]').attr('selected', true);
+  if ($('.sel_people').val() == 1) {
+    $('.r3').show();
+  } else {
+    $('.r3').hide();
+  }
+  $('.part2').show();
+  $('[name="signatory2"]').attr('value', '{{prevParams.signatory2}}');
+  $('[name="signatory3"]').attr('value', '{{prevParams.signatory3}}');
+  $('[name="date"]').attr('value', '{{prevParams.date}}');
+  $('[name="start"]').attr('value', '{{prevParams.start}}');
+  $('[name="end"]').attr('value', '{{prevParams.end}}');
+  $('[name="reason"]').text('{{prevParams.reason}}');
+  {{/if}}
+  {{/if}}
 });
-  
   
 </script>

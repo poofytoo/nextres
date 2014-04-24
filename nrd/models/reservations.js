@@ -325,7 +325,7 @@ Reservations.prototype.reserve = function(params, callback) {
         insertEvent(access_token, newEvent, function(err, res, body) {
           if (body.error) {
             logger.info('Malformed request ' + JSON.stringify(params));
-            callback('Malformed request.');
+            callback('Malformed request: invalid date/time.');
           } else {
             logger.info('Put on google calendar as id ' + body.id);
             Mailer.reserveRoom(params, attendees);
