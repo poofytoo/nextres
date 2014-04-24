@@ -80,7 +80,9 @@
     </table>
     <p>
     	Description of Event/Activity: <br />
-    	<textarea name="reason" rows="5" cols="60"></textarea>
+        <textarea name="reason" rows="5" cols="60">
+{{#if prevParams}}{{prevParams.reason}}{{/if}}
+        </textarea>
     </p>
     <input type="submit" value="Submit Room Reservation Request">
 </form>
@@ -157,15 +159,19 @@ $(document).ready(function(){
       $('#deny-reservation-li-' + event_id).remove();
   });
 
-  {{#if error}}
   {{#if prevParams}}
   // Prefill form with previous params, if applicable.
   $('.sel_room').find('option[value="{{prevParams.room}}"]').attr('selected', true);
   $('.sel_people').find('option[value="{{prevParams.people}}"]').attr('selected', true);
+  room = $('.sel_room').val();
   if ($('.sel_people').val() == 1) {
     $('.r3').show();
+    $('.nres').text(3);
+    $('.nroom').text(room);
   } else {
     $('.r3').hide();
+    $('.nres').text(2);
+    $('.nroom').text(room);
   }
   $('.part2').show();
   $('[name="signatory2"]').attr('value', '{{prevParams.signatory2}}');
@@ -173,8 +179,6 @@ $(document).ready(function(){
   $('[name="date"]').attr('value', '{{prevParams.date}}');
   $('[name="start"]').attr('value', '{{prevParams.start}}');
   $('[name="end"]').attr('value', '{{prevParams.end}}');
-  $('[name="reason"]').text('{{prevParams.reason}}');
-  {{/if}}
   {{/if}}
 });
   

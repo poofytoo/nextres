@@ -15,7 +15,7 @@ function complete(req, res, success, err, prevParams) {
         userReservations: userReservations,
         success: success,
         error: err || err2,
-        prevParams: prevParams
+        prevParams: err || err2 ? prevParams : undefined
         });
       });
 };
