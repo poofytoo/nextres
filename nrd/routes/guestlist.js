@@ -1,3 +1,4 @@
+var async = require('async');
 var util = require('./util');
 var Users = require('../models/user').Users;
 var GuestLists = require('../models/guestlist').GuestLists;
@@ -45,10 +46,21 @@ function validateGuestlist(guestlist, callback) {
   for (var i = 1; i <= GuestLists.MAX_NUM_GUESTS; i++) {
     kerberosList.push(guestlist[kerberosField(i)]);
   }
-  Users.validateKerberosList(kerberosList, function(err, invalidKerberos) {
-    callback(err || (invalidKerberos.length > 0 ?
+
+  // Find invalid kerberos.
+  async.filter(kerberosList, function(kerberos, done) {
+    if (kerberos === '') {
+      done(false);  // empty guest fields are not invalid
+      return;
+    }
+    Users.getProfile(kerberos, function(err, profile) {
+      // Valid guests have a year (1, 2, 3, 4 or G)
+      done(!profile.year);
+    });
+  }, function(invalidKerberos) {
+    callback(invalidKerberos.length > 0 ?
         'The following guest kerberos are invalid: ' +
-        invalidKerberos.join(', ') : ''));
+        invalidKerberos.join(', ') : '');
   });
 }
 

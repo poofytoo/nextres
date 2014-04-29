@@ -17,6 +17,7 @@
  *      mitID: 123456789, password: $10YeW, group: 1}
  */
 
+var async = require('async');
 var bcrypt = require('bcrypt');
 var logger = require('./logger');
 var db = require('./db').Database;
@@ -38,28 +39,6 @@ function User(user) {
   this.password = user.password;
   this.group = user.group;
   this.groupName = Permissions.GROUPS[this.group];
-}
-
-// Use mitdir to find profile for a kerberos
-// callback(error, {'firstName': 'Kevin', 'lastName': 'Chen', 'roomNumber': 310})
-function getProfile(kerberos, callback) {
-  exec('finger ' + kerberos + '@mitdir.mit.edu',
-      function(error, stdout, stderr) {
-        if (error || stderr) {
-          callback(error || stderr);
-        } else {
-          var match = /name: ([\S]+), ([\S]+)/.exec(stdout);
-          var lastName = match ? match[1] : '';
-          var firstName = match ? match[2] : '';
-          var match2 = /address: 500 Memorial Dr # (\d+)/.exec(stdout);
-          var roomNumber = match2 ? match2[1] : '';
-          callback(false, {
-            'firstName': firstName,
-            'lastName': lastName,
-            'roomNumber': roomNumber
-          });
-        }
-      });
 }
 
 // Generate a random password
@@ -128,6 +107,34 @@ function getOne(params, callback) {
  ******************************************************************************/
 
 /*
+ * Use mitdir to find profile for a kerberos
+ * callback(error, {firstName: 'Kevin', lastName: 'Chen',
+ *   roomNumber: 310, year: 4})
+ */
+Users.prototype.getProfile = function(kerberos, callback) {
+  exec('finger ' + kerberos + '@mitdir.mit.edu',
+      function(error, stdout, stderr) {
+        if (error || stderr) {
+          callback(error || stderr);
+        } else {
+          var match = /name: ([\S]+), ([\S]+)/.exec(stdout);
+          var lastName = match ? match[1] : '';
+          var firstName = match ? match[2] : '';
+          var match2 = /address: 500 Memorial Dr # (\d+)/.exec(stdout);
+          var roomNumber = match2 ? match2[1] : '';
+          var match3 = /year: (.)/.exec(stdout);
+          var year = match3 ? match3[1] : '';
+          callback(false, {
+            firstName: firstName,
+            lastName: lastName,
+            roomNumber: roomNumber,
+            year: year
+          });
+        }
+      });
+}
+
+/*
  * Returns a list of all Users
  * params contains an optional kerberosSearchPattern and sortBy parameter.
  * e.g. params = {kerberosSearchPattern: 'kyc', sortBy: 'firstName'}
@@ -166,67 +173,6 @@ Users.prototype.getUserWithMitID = function(mitID, callback) {
   getOne({whereClause: 'mitID = ?', whereArgs: [mitID]}, callback);
 }
 
-/*
- * Returns whether the kerberos is valid
- * Example:
- * validateKerberos('kyc2915', function(err, isValid) {
- *   if (isValid) {
- *     ...
- *   }
- * });
- */
-Users.prototype.validateKerberos = function(kerberos, callback) {
-  if (kerberos === '') {
-    callback(false, false);
-  } else {
-    getProfile(kerberos, function(err, profile) {
-      if (err) {
-        callback(err);
-      } else {
-        callback(false, profile.lastName);
-      }
-    });
-  }
-}
-
-/*
- * Returns a list of all invalid kerberos in kerberosList.
- * Example:
- * validateKerberosList(['kyc2915', 'nonexist'],
- *   function(err, invalidKerberos) {
- *     for (var i = 0; i < invalidKerberos.length; i++) {
- *       ...
- *     }
- *   });
- */
-Users.prototype.validateKerberosList = function(kerberosList, callback) {
-  var validateKerberos = this.validateKerberos;
-  var count = kerberosList.length;
-  var invalidKerberos = [];
-  if (count === 0) {
-    callback(false, []);
-    return;
-  }
-  for (var i = 0; i < kerberosList.length; i++) {
-    var loop = function(kerberos) {
-      validateKerberos(kerberos, function(err, isValid) {
-        if (err) {
-          count = -1;
-          callback(err);
-          return;
-        }
-        if (kerberos && !isValid) {
-          invalidKerberos.push(kerberos);
-        }
-        if (--count === 0) {
-          callback(false, invalidKerberos);
-        }
-      });
-    }
-    loop(kerberosList[i]);
-  }
-}
-
 /******************************************************************************
  *
  * EDIT FUNCTIONS
@@ -243,7 +189,7 @@ Users.prototype.createUser = function(kerberos, callback) {
     return;
   }
   var getUserWithKerberos = this.getUserWithKerberos;
-  getProfile(kerberos, function(err, profile) {
+  this.getProfile(kerberos, function(err, profile) {
     var password = randomPassword();
     hashPassword(password, function(err2, hash) {
       if (err || err2) {
@@ -279,23 +225,7 @@ Users.prototype.createUser = function(kerberos, callback) {
  *   and notifies all added users via email
  */
 Users.prototype.createUsers = function(kerberosList, callback) {
-  var count = kerberosList.length;
-  if (count === 0) {
-    callback('Need to add at least one user.');
-    return;
-  }
-  for (var i = 0; i < kerberosList.length; i++) {
-    this.createUser(kerberosList[i], function(err) {
-      if (err) {
-        count = -1;
-        callback(err);
-        return;
-      }
-      if (--count === 0) {
-        callback();
-      }
-    });
-  }
+  async.each(kerberosList, this.createUser.bind(this), callback);
 }
 
 /******************************************************************************

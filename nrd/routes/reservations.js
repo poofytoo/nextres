@@ -1,3 +1,4 @@
+var async = require('async');
 var util = require('./util');
 var Users = require('../models/user').Users;
 var pm = require('../models/permissions').Permissions;
@@ -83,12 +84,16 @@ function validateReservation(reservation, user, callback) {
             callback('You can have at most ' + MAX_NUM_RESERVATIONS +
               ' outstanding reservations at a time.');
         } else {
-          Users.validateKerberosList(kerberosList,
-            function(err, invalidKerberos) {
-              callback(err || (invalidKerberos.length > 0 ?
-                  'The following signatories are invalid: ' +
-                  invalidKerberos.join(', ') : ''));
+          async.filter(kerberosList, function(kerberos, done) {
+            Users.getUserWithKerberos(kerberos, function(err, user) {
+              // Valid signatories must be users on the NextRes system
+              done(err || !user);
             });
+          }, function(invalidKerberos) {
+              callback(invalidKerberos.length > 0 ?
+                  'The following signatories are invalid: ' +
+                  invalidKerberos.join(', ') : '');
+          });
         }
   });
 }

@@ -176,33 +176,11 @@ util.runFunctions([
     },
 
     function(done) {
-      Users.validateKerberos('kyc2915', function(err, isValid) {
-        test(!err && isValid);
+      // Check getProfile() from mitdir
+      Users.getProfile('kyc2915', function(err, profile) {
+        test(!err, 'getProfile() failed: is finger installed?');
+        test(profile.lastName);
+        test(profile.year);
         done();
       });
-    },
-    function(done) {
-        Users.validateKerberos('nonexist', function(err, isValid) {
-          test(!err && !isValid);
-          done();
-        });
-    },
-    function(done) {
-      Users.validateKerberos('', function(err, isValid) {
-        test(!err && !isValid);
-        done();
-      });
-    },
-    function(done) {
-        Users.validateKerberosList(['kyc2915', 'nonexist', ''],
-          function(err, invalidKerberos) {
-            testObj(invalidKerberos, ['nonexist']);
-            done();
-          });
-    },
-    function(done) {
-        Users.validateKerberosList([], function(err, invalidKerberos) {
-          testObj(invalidKerberos, []);
-          done();
-        });
     }]);
