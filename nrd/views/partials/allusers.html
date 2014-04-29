@@ -97,7 +97,7 @@
     var selectId = e.target.id;
     kerberos = selectId.split('-')[0];
   	$.post('/changepermission',{kerberos:kerberos, permission:chosen}, function(data) {
-  	  if (data.okay) {
+          if (!data.error) {
   	  	$flashmsg = $('#' + selectId).parent().find('.permissionStatus');
   	  	$flashmsg.
   	  		show().text('done').

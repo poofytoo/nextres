@@ -113,6 +113,7 @@ exports.resetpassword = function(req, res) {
     if (user) {
       user.resetPassword(function() {});
     }
+    res.end();
   });
 }
 
@@ -138,6 +139,7 @@ exports.changepermission = function(req, res) {
     if (user) {
       user.changeGroup(req.body.permission, function() {});
     }
+    res.json({error: err});
   });
 }
 
