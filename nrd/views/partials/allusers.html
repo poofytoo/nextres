@@ -24,6 +24,9 @@
       <th>Reset Password</th>
       <th>Remove</th>
       {{/if}}
+      {{#if permissions.FULL_PERMISSIONS_CONTROL}}
+      <th>Login AS</th>
+      {{/if}}
     </tr>
     {{#each users}}
     <tr id="{{this.kerberos}}-tr">
@@ -53,12 +56,29 @@
       <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
       <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
       {{/if}}
+      {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
+      <td><a id="{{this.kerberos}}-loginas" class="loginas">login</a></td>
+      {{/if}}
     </tr>
     {{/each}}
   </table>
   </p>
 
 <script type="text/javascript">
+  {{#if permissions.FULL_PERMISSIONS_CONTROL}}
+  // login as another user
+  $('.loginas').on('click', function(e) {
+    var id = e.target.id;
+    kerberos = id.substring(0, id.length-'-loginas'.length);
+    $.post('/loginas', {kerberos: kerberos}, function(data) {
+      if (!data.err) {
+        window.location.replace('/');
+      }
+    });
+  });
+  {{/if}}
+
+  {{#if permissions.CREATE_USER}}
   // removing a user
   $('.remove').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
@@ -90,7 +110,9 @@
     );
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
   });
+  {{/if}}
   
+  {{#if permissions.MAKE_USERS_DESKWORKERS}}
   // changing a user permission
   $('select').change(function(e) {
   	var chosen = $(this).val();
@@ -107,4 +129,5 @@
   	  }
   	});
   });
+  {{/if}}
 </script>

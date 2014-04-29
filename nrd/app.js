@@ -76,6 +76,7 @@ app.post('/login',
       {failureRedirect: '/login', failureFlash: 'Invalid login'}),
     user.loginsuccess
 );
+app.post('/loginas', enforce('FULL_PERMISSIONS_CONTROL'), user.loginas);
 app.get('/logout', user.logout);
 app.get('/users', user.list);
 app.post('/users', enforce('CREATE_USER'), user.massadd);

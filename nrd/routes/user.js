@@ -26,6 +26,20 @@ exports.loginsuccess = function(req, res) {
   }
 }
 
+// req.body = {kerberos: 'kyc2915'}
+exports.loginas = function(req, res) {
+  Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+    if (err) {
+      res.json({error: err});
+    } else {
+      // Call Passport login() function directly
+      req.login(user, function(err) {
+        res.json({error: err});
+      });
+    }
+  });
+}
+
 exports.logout = function(req, res) {
   req.session.regenerate(function() {
     req.logout();
