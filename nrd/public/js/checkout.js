@@ -220,7 +220,7 @@ var eventHandlers = function() {
       function(e2) {
         itemcode = e.target.id;
         itemcode = itemcode.substring(0,itemcode.length-'-remove'.length);
-        $.ajax('/removeitem',{data:{itemBarcode:itemcode}, type:"POST"});
+        $.ajax('/removeitem',{data:{barcode:itemcode}, type:"POST"});
         $('#'+itemcode+'-tr').remove();
       }
     );
