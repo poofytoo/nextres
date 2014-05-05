@@ -16,32 +16,19 @@ function complete(req, res, success, err, prevParams) {
         userReservations: userReservations,
         success: success,
         error: err || err2,
-        prevParams: err || err2 ? prevParams : undefined
+        prevParams: prevParams
         });
       });
 };
 
 exports.list = function(req, res) {
   complete(req, res);
-}
-
-exports.edit = function(req, res) {
-  reservationModel.reserve(req.user, req.body, req.permissions, function(result) {
-    util.registerContent('roomreservations');
-    reservationModel.getEventsWithUser(req.user, function(userEvents) {
-      res.render('base.html', {
-        user: req.user,
-        permissions: req.permissions,
-        success: result.success,
-        error: result.error,
-        userEvents: userEvents
-      });
-    });
-  });
 };
 
 // Ensure reservation has sufficient signatories that are not duplicate/invalid
 function validateReservation(reservation, user, callback) {
+  reservation.signatory1 = user.kerberos;
+
   // Check for duplicates
   for (var i = 1; i <= Reservations.MAX_NUM_SIGNATORIES; i++) {
     if (reservation[signatoryField(i)]) {
@@ -98,16 +85,52 @@ function validateReservation(reservation, user, callback) {
   });
 }
 
-// req.body = reservation params, see documentation of Reservations.reserve()
-exports.add = function(req, res) {
-  req.body.signatory1 = req.user.kerberos;
+function reserve(req, res) {
   validateReservation(req.body, req.user, function(err) {
     if (err) {
       complete(req, res, null, err, req.body);
       return;
     }
     Reservations.reserve(req.body, function(err) {
-      complete(req, res, 'Room successfully reserved', err, req.body);
+      complete(req, res, 'Room successfully reserved',
+        err, err ? req.body : null);
+    });
+  });
+}
+
+// req.body = reservation params, see documentation of Reservations.reserve()
+exports.add = reserve;
+
+// req.params = {id: [event ID]}
+exports.view = function(req, res) {
+  Reservations.getReservation(req.params.id, function(err, reservation) {
+    if (err) {
+      complete(req, res, null, 'Reservation not found.');
+      return;
+    }
+    reservation.getParams(function(err, params) {
+      // Hack: need to swap user.kerberos into signatory1 slot.
+      for (var i = 1; i <= Reservations.MAX_NUM_SIGNATORIES; i++) {
+        if (params[signatoryField(i)] == req.user.kerberos) {
+          params[signatoryField(i)] = params[signatoryField(1)];
+          params[signatoryField(1)] = req.user.kerberos;
+        }
+      }
+      complete(req, res, 'Editing reservation.', null, params);
+    });
+  });
+}
+
+// req.params = {id: [event ID]}
+exports.edit = function(req, res) {
+  // Edit a previous reservation with the given ID.
+  Reservations.getReservation(req.params.id, function(err, reservation) {
+    if (err) {
+      complete(req, res, null, err);
+      return;
+    }
+    reservation.remove(function(err) {  // first remove this reservation
+      reserve(req, res);
     });
   });
 }

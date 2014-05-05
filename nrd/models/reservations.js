@@ -66,13 +66,6 @@ function signatoryField(index) {
 
 Reservations.prototype.signatoryField = signatoryField;
 
-// Format RFC3339 string to human readable format
-function formatRFC3339(str) {
-  var parts = str.split('T');
-  var day = parts[0], time = parts[1].substring(0, 5);
-  return time + " on " + day;
-}
-
 function Reservation(reservation) {
   this.id = reservation.id;
   this.start = {dateTime: reservation.start.dateTime};
@@ -88,7 +81,8 @@ function Reservation(reservation) {
     if (reservation.attendees[i]) {
       this.attendees.push({email: reservation.attendees[i].email});
     }
-  this.formattedTime = formatRFC3339(this.start.dateTime);
+  this.formattedTime = df.dateFormat(fromRFC3339(this.start.dateTime),
+      "h:MM TT 'on' mmm d, yyyy");
 }
 
 // Convert a Javascript Date object to RFC3339 format used by Google.
@@ -97,39 +91,26 @@ function toRFC3339(datetime) {
           "yyyy-mm-dd'T'HH:MM:00.000o");
 }
 
-// Convert a time (h:mm(am/pm)) object to a list [hours, minutes]
-//   where hours is an integer from 0 to 23 inclusive.
-function to24h(time) {
-  if (!time.match(/[0-9]:[0-5][0-9][ap]m/) &&
-      !time.match(/1[0-2]:[0-5][0-9][ap]m/)) {
+// Convert a RFC3339 formatted string to a Date object.
+function fromRFC3339(rfc3339) {
+  // Get rid of the time zone attached to the rfc3339.
+  rfc3339 = rfc3339.slice(0, -6) + 'Z';
+  return time.Date(Date.parse(rfc3339));
+}
+
+// Sets the given date to the given time (h:mm(am/pm) formatted)
+function setTime(date, time) {
+  var match = /(1?[0-9]):([0-5][0-9])([ap]m)/.exec(time);
+  if (!match) {
     return 'invalid';  // anything that will error when given to Calendar API
   }
-  if (time === '12:00am') {
-    // Hack - if an event ends at midnight, change it to end at 11:59pm
-    //   so that both the start and end times are on the same day.
-    return [23, 59];
-  }
-  var hours = time.substring(0, time.indexOf(':'));
-  var minutes = time.substring(time.indexOf(':') + 1, time.length - 2);
-  var suffix = time.substring(time.length - 2);
-  if (hours === '12') {
-    hours = (suffix === 'am' ? '0' : '12');
-  } else if (suffix === 'pm') {
-    hours = parseInt(hours) + 12 + '';
-  }
-  if (hours.length == 1) {
-    hours = '0' + hours;
-  }
-  return [hours, minutes];
+  var hours = parseInt(match[1]);
+  var minutes = parseInt(match[2]);
+  var suffix = match[3];
+  hours += (suffix === 'pm' ? 12 : 0) - (hours === 12 ? 12 : 0);
+  date.setHours(hours);
+  date.setMinutes(minutes);
 }
-
-// Convert RFC3339 format datetime to human-readable representation
-function formatRFC3339(str) {
-  var parts = str.split('T');
-  var day = parts[0], time = parts[1].substring(0, 5);
-  return time + ' on ' + day;
-}
-
 
 // callback(err, res, body) where body is the Event resource with the given ID
 function getEvent(access_token, id, callback) {
@@ -250,7 +231,8 @@ Reservations.prototype.getReservationsWithUser = function(now, user, callback) {
 Reservations.prototype.getReservation = function(id, callback) {
   gaccount.auth(function(err, access_token) {
     getEvent(access_token, id, function(err, res, event) {
-      callback(err, new Reservation(event));
+      err = err || event.error;
+      callback(err, err ? false : new Reservation(event));
     });
   });
 }
@@ -282,11 +264,12 @@ Reservations.prototype.reserve = function(params, callback) {
   gaccount.auth(function(err, access_token) {
     // Construct start and end Date objects
     var startTime = new Date(params.date);
-    startTime.setHours(to24h(params.start)[0]);
-    startTime.setMinutes(to24h(params.start)[1]);
+    setTime(startTime, params.start);
     var endTime = new Date(params.date);
-    endTime.setHours(to24h(params.end)[0]);
-    endTime.setMinutes(to24h(params.end)[1]);
+    if (params.end === '12:00am') {
+      params.end = '11:59pm';  // hack to keep start and end times on same day
+    }
+    setTime(endTime, params.end);
 
     // Construct attendees list
     var attendees = [];
@@ -341,6 +324,31 @@ Reservations.prototype.reserve = function(params, callback) {
  * OBJECT FUNCTIONS (must be called on a GuestList object)
  *
  ******************************************************************************/
+
+/*
+ * Return a Params object (the fields in the GUI corresponding to
+ *   this reservation)
+ */
+Reservation.prototype.getParams = function(callback) {
+  var hasThreeSignatories = this.attendees[2];
+  var start = fromRFC3339(this.start.dateTime);
+  var end = fromRFC3339(this.end.dateTime);
+  var params = {
+    room: this.location,
+    people: hasThreeSignatories ? 1 : 0,
+    date: df.dateFormat(start, 'yyyy-mm-dd'),
+    start: df.dateFormat(start, 'h:MMtt'),
+    end: df.dateFormat(end, 'h:MMtt'),
+    reason: this.description
+  };
+  for (var i = 0; i < MAX_NUM_SIGNATORIES; i++) {
+    if (this.attendees[i]) {
+      params[signatoryField(i + 1)] =
+        this.attendees[i].email.slice(0, -('@mit.edu'.length));
+    }
+  }
+  callback(false, params);
+}
 
 /*
  * Confirm this reservation.

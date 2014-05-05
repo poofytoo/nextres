@@ -121,6 +121,8 @@ app.delete('/minutes', enforce('EDIT_MINUTES'), minutes.remove);
  */
 app.get('/roomreservations', reservations.list);
 app.post('/roomreservations', reservations.add);
+app.get('/roomreservations/:id', reservations.view);
+app.post('/roomreservations/:id', reservations.edit);
 app.delete('/roomreservations', reservations.remove);
 app.post('/roomreservationconfirm', enforce('EDIT_RESERVATIONS'), reservations.confirm);
 app.post('/roomreservationdeny', enforce('EDIT_RESERVATIONS'), reservations.deny);

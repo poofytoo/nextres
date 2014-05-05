@@ -1,10 +1,10 @@
 {{#if userReservations}}
 	<h1>Your Room Reservations</h1>
-	<p>Below are the rooms you have reserved</p>
+	<p>Below are the rooms you have reserved. Click on a reservation to edit</p>
 	<ul>
 	{{#each userReservations}}
 	<li class="reservation" id="remove-reservation-li-{{this.id}}">
-		{{this.summary}} at {{this.formattedTime}}
+                <span><a href="/roomreservations/{{this.id}}" class="edit_reservation">{{this.summary}} at {{this.formattedTime}}</a></span>
 		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove">cancel reservation</a></span>
 	</li>
 	{{/each}}
@@ -17,7 +17,7 @@
 <p>Note: only three outstanding reservations are allowed at a time. For more reservations, please contact next-exec.</p>
 
 
-<form action="roomreservations" method="post">
+<form method="post">
 
     <fieldset>
     	<label for="room">Room</label>
@@ -101,12 +101,7 @@
         $('#remove-reservation-li-'+event_id).remove();
       }
     );
-    /*
-    var no = $('<a>').html('cancel').on('click',
-      function(e2) { $(e.target).html('cancel reservation'); }
-    );
-    */
-    $(e.target).parent().html(yes);//.append(no);
+    $(e.target).parent().html(yes);
   });
   
   $('select').on('change', function(){
