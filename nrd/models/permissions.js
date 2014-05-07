@@ -4,9 +4,13 @@
  * This class contains a list of possible groups and a list of possible
  *   permissions.
  * The matrix GROUP_PERMISSIONS contains instructions on what permissions each
- *   group has. For example, GROUP_PERMISSIONS[4] contains [3, 5, 9], which
- *   means that GROUP 4 (DESKCAPTAIN) has permissions 3, 5, and 9
- *   (VIEW_GUEST_LISTS, EDIT_RESERVATIONS, and MAKE_USERS_DESK_WORKERS).
+ *   group has. For example, GROUP_PERMISSIONS[4] contains [3, 6, 9], which
+ *   - *   means that GROUP 4 (DESKCAPTAIN) has permissions 3, 6, and 9
+ *   - *   (VIEW_GUEST_LISTS, CHECKOUT_ITEMS, and MAKE_USERS_DESKWORKERS).
+ * The matrix CHANGE_PERMISSIONS contains instructions on what permissions each
+ *   group can change. For example, CHANGE_PERMISSIONS[4] contains [0, 2, 4],
+ *   which means that GROUP 4 (DESKCAPTAIN) can move any users in group 0, 2,
+ *   or 4 to any other group in [0, 2, 4] (USER, DESKWORKER, or DESKCAPTAIN).
  *
  * These groups and permissions shouldn't be changed, but more can be added.
  */
@@ -27,21 +31,29 @@ var PERMISSIONS = [
         'EDIT_RESERVATIONS',  // 5
         'CHECKOUT_ITEMS',  // 6
         'NULL2',  // 7
-        'MAKE_USERS_NEXT_EXEC',  // 8
+        'NULL3',  // 8
         'MAKE_USERS_DESKWORKERS',  // 9
         ]
 var GROUP_PERMISSIONS = [
   [],  // 0
-  [1, 2, 3, 4, 5, 6, 8, 9],  // 1
-  [3],  // 2
-  [1, 4, 6, 8, 9],  // 3
-  [3, 5, 9],  // 4
+  [1, 2, 3, 4, 5, 6, 9],  // 1
+  [3, 6],  // 2
+  [1, 4, 5, 6, 9],  // 3
+  [3, 6, 9],  // 4
+]
+var CHANGE_PERMISSIONS = [
+  [],  // 0
+  [0, 1, 2, 3, 4],  // 1
+  [],  // 2
+  [0, 2, 3, 4],  // 3
+  [0, 2, 4],  // 4
 ]
 
 function Permissions() {
   this.GROUPS = GROUPS;
   this.PERMISSIONS = PERMISSIONS;
   this.GROUP_PERMISSIONS = GROUP_PERMISSIONS;
+  this.CHANGE_PERMISSIONS = CHANGE_PERMISSIONS;
 }
 
 /*

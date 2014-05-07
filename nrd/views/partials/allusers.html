@@ -34,25 +34,20 @@
       <td>{{this.firstName}} {{this.lastName}}</td>
       <td>{{this.roomNumber}}</td>
       <td>
-        {{#if ../permissions.MAKE_USERS_DESKWORKERS}}
+        {{#if this.changeable}}
         <select id="{{this.kerberos}}-changeperms">
-          {{#if ../../permissions.MAKE_USERS_NEXT_EXEC}}
-          {{#if ../../../permissions.FULL_PERMISSIONS_CONTROL}}
-          <option value="1">ADMIN</option>
-          {{/if}}
-          <option value="3">NEXT-EXEC</option>
-          {{/if}}
-          <option value="2">DESKWORKER</option>
-          <option value="4">DESKCAPTAIN</option>
-          <option value="0">USER</option>
+          {{#each this.changeOptions}}
+          <option value="{{this.value}}" {{this.selected}}>
+          {{this.name}}
+          </option>
+          {{/each}}
         </select>
-        <script>$('#{{this.kerberos}}-changeperms').val({{this.group}});</script>
         <span class="permissionStatus"></span>
         {{else}}
         {{this.groupName}}
         {{/if}}
-        {{#if ../permissions.CREATE_USER}}
       </td>
+      {{#if ../permissions.CREATE_USER}}
       <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
       <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
       {{/if}}

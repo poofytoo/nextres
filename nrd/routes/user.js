@@ -5,6 +5,7 @@ var logger = require('../models/logger');
 
 var complete = function(req, res, err) {
   Users.getAllUsers({}, function(err2, users) {
+    addPermissionsInfo(req.user.group, users || []);
     util.render(res, 'allusers', {
       user: req.user,
       users: users,
@@ -131,29 +132,55 @@ exports.resetpassword = function(req, res) {
   });
 }
 
-function canChangePermission(group, permission) {
-  var permissions = pm.getPermissions(group);
-  if (permission === 1 && !permissions.FULL_PERMISSIONS_CONTROL)
-    return false;
-  if (permission === 3 && !permissions.MAKE_USERS_NEXT_EXEC)
-    return false;
-  if ((permission === 2 || permission == 4) &&
-      !permissions.MAKE_USERS_DESKWORKERS)
-        return false;
-  return true;
+/*
+ * Returns whether a user in the given [group] can change a user
+ *   with the [start] permission to the [end] permission.
+ */
+function canChangePermission(group, start, end) {
+  var changePermissions = pm.CHANGE_PERMISSIONS[group];
+  return changePermissions.indexOf(start) != -1 &&
+    changePermissions.indexOf(end) != -1;
+}
+
+/*
+ * For each user in the list of users, adds the following properties,
+ *   for convenience in handlebars parsing:
+ *     changeable: boolean, whether permissions can be changed
+ *     changeOptions: list of (value, name, selected) pairs, parsed as
+ *       <option value=[value] [selected]>[name]</option>
+ */
+function addPermissionsInfo(group, users) {
+  var changePermissions = pm.CHANGE_PERMISSIONS[group];
+  for (var i = 0; i < users.length; i++) {
+    var user = users[i];
+    user.changeable = changePermissions.indexOf(user.group) != -1;
+    user.changeOptions = [];
+    for (var j = 0; j < changePermissions.length; j++) {
+      var value = changePermissions[j];
+      user.changeOptions.push({
+        value: value,
+        name: pm.GROUPS[value],
+        selected: value == user.group ? 'selected' : ''
+      });
+    }
+  }
 }
 
 // req.body = {kerberos: 'kyc2915', permission: 1}
 exports.changepermission = function(req, res) {
-  if (!canChangePermission(req.user.group, req.body.permission)) {
-    res.type('txt').send('401 Not Authorized');
-    return;
-  }
   Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
-    if (user) {
-      user.changeGroup(req.body.permission, function() {});
+    if (err || !user) {
+      res.json({error: err});
+      return;
     }
-    res.json({error: err});
+    if (!canChangePermission(req.user.group, user.group,
+        parseInt(req.body.permission))) {
+          res.json({error: 'Not Authorized'});
+          return;
+        }
+    user.changeGroup(req.body.permission, function() {
+      res.json({});
+    });
   });
 }
 
