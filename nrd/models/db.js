@@ -63,6 +63,22 @@ Database.prototype.execute = function(command, callback) {
 }
 
 /*
+ * Get a session store for this database.
+ */
+Database.prototype.store = function(express) {
+  var MySQLStore = require('connect-mysql')(express);
+  var options = {
+    pool: pool,
+    config: {
+      user: db_settings.user,
+      password: db_settings.password,
+      database: db_settings.name,
+    }
+  };
+  return new MySQLStore(options);
+}
+
+/*
  * Select the given columns; should be followed with a .from().
  * args is a list of column names
  * e.g. select(['id', 'name'])
