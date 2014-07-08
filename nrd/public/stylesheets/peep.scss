@@ -11,6 +11,8 @@ h1 {
   padding: 20px 40px;
   top: 0px;
   background-color: rgba(0,0,0,0.6);
+  display: none;
+  z-index: 3;
 }
 
 h2 {
@@ -22,6 +24,8 @@ h2 {
   padding: 20px 40px;
   text-shadow: 0 0 5px #000000;
   line-height: normal;
+  z-index: 2;
+  display: none;
 }
 
 em {
@@ -37,4 +41,6 @@ img {
 .main {
   background-repeat: repeat;
   background-size: 30%;
+  display: none;
+  z-index: 1;
 }

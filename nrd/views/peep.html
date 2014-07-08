@@ -14,19 +14,30 @@
       $(document).ready(function(){
         var ref = new Firebase('https://cqsubisdown.firebaseIO.com/');
         var res = '{{this.resident}}';
+        var FADE = 400;
         ref.child('peeps/' + res).on('value', function(snapshot) {
           if (snapshot.val()) {
-            $('h1').html('Sexy Residents of <em>Next House</em>');
+            $('h1')
+              .html('Sexy Residents of <em>Next House</em>')
+              .fadeIn(FADE);
             var img = snapshot.val().image;
             var quo = snapshot.val().quote;
-            $('.main').css('background-image','url("' + img + '")');
+            $('.main')
+              .css('background-image','url("' + img + '")')
+              .fadeIn(FADE);
             if (quo) {
-              $('h2').html(quo + '<br /> - ' + res);
+              $('h2')
+                .html(quo + '<br /> - ' + res)
+                .fadeIn(FADE);
             }
           } else {
             ref.child('peeps/404').once('value', function(s) {
-              $('h1').text('You seem lost');
-              $('.main').css('background-image','url("' + s.val().image + '")');
+              $('h1')
+                .text('You seem lost')
+                .fadeIn(FADE);
+              $('.main')
+                .css('background-image','url("' + s.val().image + '")')
+                .fadeIn(FADE);
             })
           }
         });
