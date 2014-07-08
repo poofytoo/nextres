@@ -14,7 +14,8 @@ module.exports.router = function(req, res, next) {
     next();
   } else {
     logger.info("[Unknown user] " + req.url);
-    if (req.url === '/login' || req.url === '/logout') {
+    if (req.url === '/login' || req.url === '/logout'
+        || req.url.indexOf('/peep') == 0) {
       next()
     } else {
       req.session.returnTo = req.url;
