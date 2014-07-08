@@ -1,7 +1,6 @@
 body, html, .main {
   height: 100%;
-  width: 100%;
-}
+  width: 100%; }
 
 h1 {
   font-family: sans-serif;
@@ -10,20 +9,16 @@ h1 {
   bottom: 0px;
   color: #fff;
   padding: 20px 40px;
-  background-color: rgba(0,0,0,0.6);
-}
+  background-color: rgba(0, 0, 0, 0.6); }
 
 em {
   font-style: normal;
   font-weight: 800;
-  color: #fff;
-}
+  color: #fff; }
 
 img {
-  display: none;
-}
+  display: none; }
 
 .main {
   background-repeat: repeat;
-  background-size: 30%;
-}
+  background-size: 30%; }
