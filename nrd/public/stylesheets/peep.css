@@ -6,10 +6,20 @@ h1 {
   font-family: sans-serif;
   font-size: 7vh;
   position: fixed;
-  bottom: 0px;
   color: #fff;
   padding: 20px 40px;
+  top: 0px;
   background-color: rgba(0, 0, 0, 0.6); }
+
+h2 {
+  bottom: 0px;
+  font-family: sans-serif;
+  font-size: 5vh;
+  position: fixed;
+  color: #fff;
+  padding: 20px 40px;
+  text-shadow: 0 0 5px #000000;
+  line-height: normal; }
 
 em {
   font-style: normal;

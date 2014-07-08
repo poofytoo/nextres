@@ -4,39 +4,36 @@
 		<link rel="stylesheet" type="text/css" href="../stylesheets/reset.css">
 		<link rel="stylesheet" type="text/css" href="../stylesheets/peep.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.17/firebase.js'></script>
 	</head>
 	<body>
-	  <h1>Sexy Residents of <em>Next House</em></h1>
-	   
-    {{#if this.normandy}} 
-      <img src='https://scontent-b-lga.xx.fbcdn.net/hphotos-prn2/t1.0-9/q87/s720x720/6324_10200879126714849_1370557485_n.jpg' />
-    {{/if}}
-    {{#if this.stalyc}}
-      <img src='https://scontent-b-lga.xx.fbcdn.net/hphotos-xpa1/t1.0-9/p480x480/1376558_10203394193599438_297198576_n.jpg' />
-    {{/if}}
-    {{#if this.hguarino}}
-      <img src='https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-xpa1/t1.0-9/1918651_310411175639_7994440_n.jpg' />
-    {{/if}}
-    {{#if this.fishr}} 
-      <img src='http://i.imgur.com/VrR6KrX.png' />
-    {{/if}}
-    {{#if this.trzhang}}
-      <img src='https://fbcdn-sphotos-h-a.akamaihd.net/hphotos-ak-xfa1/t1.0-9/s720x720/309237_10151327888491693_1600833758_n.jpg' />
-    {{/if}}
-    {{#if this.dontony}}
-      <img src='https://scontent-b-lga.xx.fbcdn.net/hphotos-xfa1/t1.0-9/428795_4584647013425_1526915495_n.jpg' />
-    {{/if}}
-    {{#if this.kyc2915}} 
-      <img src='https://scontent-b-lga.xx.fbcdn.net/hphotos-frc3/v/t1.0-9/s720x720/532427_10152365691310249_2082027468_n.jpg?oh=8e53d58e8daabdc14143e0e55032a000&oe=542C811D' />
-    {{/if}}
-    
+	  <h1></h1>
+	  <h2></h2>
     <div class="main"></div>
     <script type="text/javascript">
-      $('img').each(function() {
-        $('.main').css('background-image','url("' + $(this).attr('src') + '")');
-      })
-      var bgX = 0;
-      window.setInterval(function(){++bgX;$('.main').css('background-position', bgX + 'px 0px')}, 20);
+      $(document).ready(function(){
+        var ref = new Firebase('https://cqsubisdown.firebaseIO.com/');
+        var res = '{{this.resident}}';
+        ref.child('peeps/' + res).on('value', function(snapshot) {
+          if (snapshot.val()) {
+            $('h1').html('Sexy Residents of <em>Next House</em>');
+            var img = snapshot.val().image;
+            var quo = snapshot.val().quote;
+            $('.main').css('background-image','url("' + img + '")');
+            if (quo) {
+              $('h2').html(quo + '<br /> - ' + res);
+            }
+          } else {
+            ref.child('peeps/404').once('value', function(s) {
+              $('h1').text('You seem lost');
+              $('.main').css('background-image','url("' + s.val().image + '")');
+            })
+          }
+        });
+        
+        var bgX = 0;
+        window.setInterval(function(){++bgX;$('.main').css('background-position', bgX + 'px 0px')}, 20);
+      });
     </script>
 	</body>
 </html>
