@@ -25,6 +25,7 @@ var guestlist = require('./routes/guestlist');
 var minutes = require('./routes/minutes');
 var reservations = require('./routes/reservations');
 var checkout = require('./routes/checkout');
+var shenanigans = require('./routes/shenanigans');
 
 var app = express();
 
@@ -142,6 +143,11 @@ app.post('/checkoutitemstatus', enforce('CHECKOUT_ITEMS'), checkout.get);
 app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
 app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 
+/*
+ * Shenanigan funtions
+ */
+app.get('/peeps/:kerberos', shenanigans.view);
+ 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
