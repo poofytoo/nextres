@@ -172,7 +172,8 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
       if (result.code !== "OK" || result.results_count < 1) {
         callback('Item not found');
       } else {
-        callback(false, result.results[0].name);
+        callback(false, result.results && result.results.length 
+                  && result.results[0].name);
       }
     }
   });
