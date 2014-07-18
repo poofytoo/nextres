@@ -23,7 +23,9 @@ var logger = require('./logger');
 const DAY_LENGTH = 24 * 60 * 60 * 1000;
 const MAX_CHECKOUT_LENGTH = 3;  // days
 const UPC_DATABASE_URL = (
-    'http://api.upcdatabase.org/json/534ec547b0800b428470cf62b158388e/');
+    'https://api.semantics3.com/v1/products');
+const UPC_API_KEY = 'SEM34857CE5768677843A55996BFCAEECF3D';
+const UPC_API_SECRET = 'NmZmMDMwMjVhZTZhMzZlODZhZWQ5OTdhMzI1ODk5Njc';
 
 function Checkout() {
 }
@@ -148,19 +150,29 @@ Checkout.prototype.searchItems = function(pattern, callback) {
  *   in the UPC database.
  */
 Checkout.prototype.getUPCItem = function(barcode, callback) {
-  // Key for UPC lookup database at upcdatabase.org
+  // Key for UPC lookup database at semantics3.com
   // use sparkyroombot login credentials
-  request(UPC_DATABASE_URL + barcode, function(err, response, body) {
+  var options = {
+    oauth: {
+      consumer_key: UPC_API_KEY,
+      consumer_secret: UPC_API_SECRET
+    },
+    url: UPC_DATABASE_URL,
+    qs: {
+      q: '{"upc":"' + barcode + '"}'
+    }
+  }
+  request(options, function(err, response, body) {
     if (err) {
       callback(err);
     } else if (response.statusCode != 200) {
       callback('Item not found');
     } else {
       var result = JSON.parse(body);
-      if (!result.valid) {
+      if (result.code !== "OK" || result.results_count < 1) {
         callback('Item not found');
       } else {
-        callback(false, result.itemname);
+        callback(false, result.results[0].name);
       }
     }
   });
