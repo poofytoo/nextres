@@ -1,5 +1,6 @@
 var util = require('./util');
 var Checkout = require('../models/checkout').Checkout;
+var Users = require('../models/user').Users;
 
 
 const MAX_NUM_CHECKED_ITEMS = 3;
@@ -37,6 +38,26 @@ exports.get = function(req, res) {
       res.json({error: err});
     } else {
       res.json(item);
+    }
+  });
+}
+
+// req.body = {mitID: 12345}
+// returns res.json(User object with checkout data as array)
+// or returns res.json({error: 'error'})
+exports.getusercheckoutdata = function(req, res) {
+  Users.getUserWithMitID(req.body.mitID, function(err, user) {
+    if (err) {
+      res.json({error: err});
+    } else {
+      Checkout.getCheckedOutItems(user.kerberos, function(err, items) {
+        if (err) {
+          res.json({error: err});
+        } else {
+          user.items = items;
+          res.json(user);
+        }
+      });
     }
   });
 }

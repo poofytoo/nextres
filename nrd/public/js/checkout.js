@@ -9,6 +9,16 @@ var getUserByID = function(userId, callback) {
 }
 
 /**
+ * Returns user information with the user's checkout information given MIT ID,
+ * else returns false.
+ */
+var getUserCheckoutData = function(userId, callback) {
+  $.post('/usercheckoutdata', {mitID: userId}, function(data) {
+    callback(data.error ? false : data);
+  });
+}
+
+/**
 * Returns a list of kerberos given some search letters.
 */
 var getCompleteKerberos = function(userString, callback) {
@@ -62,6 +72,15 @@ var checkoutItem = function(k, itemBarcode, callback) {
   });
 }
 
+var hasOverdueItems = function(items) {
+  for (var i = 0; i < items.length; ++i) {
+    if (items[i].overdue) {
+      return true;
+    }
+  }
+  return false;
+}
+
 var toggleScanStatus = function(status) {
   if (status == 'wait') {
     $('.scan-circle')
@@ -81,10 +100,56 @@ var toggleScanStatus = function(status) {
   }
 }
 
+var itemReturnedCallback = function(data) {
+  toggleScanStatus();
+  if (!data.error) {
+    console.log('item data: ' + data);
+    $('.feedback-bar')
+      .stop()
+      .removeClass('fail').addClass('success')
+      .text(data.name + ' has been returned.')
+      .slideDown(200)
+      .delay(3000)
+      .slideUp(400);
+    updateDisplayTable(data);
+  } else {
+    $('.feedback-bar')
+      .stop()
+      .removeClass('success').addClass('fail')
+      .text(data.error)
+      .slideDown(200)
+      .delay(3000)
+      .slideUp(400);
+  }
+}
+
 var updateDisplayTable = function(item) {
   var barcode = item.barcode;
   $('#' + barcode + '-borrower').html(item.borrower);
   $('#' + barcode + '-daydiff').html(item.daydiff);
+}
+
+var transitionFromOverride = function() {
+  $('.checkout-overdue').stop().slideUp(200);
+  $('.overdue-buttons').stop().slideUp(200);
+}
+
+var transitionToNewInput = function() {
+  state = 'NEW_INPUT';
+  $('.init').stop().slideDown(200);
+  $('.restart').stop().slideUp(200);
+  $('.checkout-kerberos').stop().slideUp(200);
+  $('.feedback-bar').stop().slideUp(200);
+  $('.hidden-textbox').val('');
+  mitID = '';
+  borrowerID = '';
+}
+
+var transitionToCheckout = function() {
+  state = 'ITEM_CHECKOUT';
+  $('.init').slideUp(200);
+  $('.checkout-kerberos').slideDown(200);
+  $('.restart').slideDown(200);
 }
 
 var activateState = function() {
@@ -97,15 +162,18 @@ var activateState = function() {
     toggleScanStatus('wait');
     if (mitID.length == 9) {  // deskworker scanner a kerberos ID
       // Check Out Item
-      getUserByID(mitID, function(data) {  // data.kerberos
+      getUserCheckoutData(mitID, function(data) {  // data.kerberos 
         toggleScanStatus();
-        if (data) {
-          state = 'ITEM_CHECKOUT';
+        if (data && hasOverdueItems(data.items)) {
+          state = 'OVERDUE';
           borrowerID = data.kerberos;
           $('.init').slideUp(200);
           $('.kerberos').text(data.kerberos);
-          $('.checkout-kerberos').slideDown(200);
-          $('.restart').slideDown(200);
+          $('.checkout-overdue').slideDown(200);
+          $('.overdue-buttons').slideDown(200);
+        } else if (data) {
+          borrowerID = data.kerberos;
+          transitionToCheckout();
         } else {
           // New User
           state = 'NEW_KERBEROS_INPUT';
@@ -118,29 +186,10 @@ var activateState = function() {
       });
     } else {  // deskworker scanned a item ID
       // Return Item
-      checkinItem($this.val(), function(data) {  // data = item json
-        toggleScanStatus();
-        if (!data.error) {
-          console.log('item data: ' + data);
-          $('.feedback-bar')
-            .stop()
-            .removeClass('fail').addClass('success')
-            .text(data.name + ' has been returned.')
-            .slideDown(200)
-            .delay(3000)
-            .slideUp(400);
-          updateDisplayTable(data);
-        } else {
-          $('.feedback-bar')
-            .stop()
-            .removeClass('success').addClass('fail')
-            .text(data.error)
-            .slideDown(200)
-            .delay(3000)
-            .slideUp(400);
-        }
-      });
+      checkinItem($this.val(), itemReturnedCallback); // data = item json
     }
+    break;
+  case 'OVERDUE':
     break;
   case 'ITEM_CHECKOUT':
     console.log('itemcheckout');
@@ -204,15 +253,49 @@ var eventHandlers = function() {
       });
     }
   });
+
+  $('#override-overdue').on('click', function() {
+    transitionFromOverride();
+    transitionToCheckout();
+  });
+
+  $('#cancel-checkout').on('click', function() {
+    transitionFromOverride();
+    transitionToNewInput();
+  });
   
   $('.restart').on('click', function(){
     console.log('restart');
-    state = 'NEW_INPUT';
-    $('.init').stop().slideDown(200);
-    $(this).stop().slideUp(200);
-    $('.checkout-kerberos').stop().slideUp(200);
-    $('.feedback-bar').stop().slideUp(200);
-    $('.hidden-textbox').val('');
+    transitionToNewInput();
+  });
+
+  $('.returned').on('click', function(e) {
+    var self = this;
+    var parent = $(self).parent();
+    var divClass = 'return-yesno';
+
+    if ($(self).is(':checked')) {
+      var yes = $('<a>').html('yes').on('click', 
+        function(e2) {
+          var itemcode = e.target.id;
+          itemcode = itemcode.substring(0, itemcode.length-'-returned'.length);
+          checkinItem(itemcode, function(data) {
+            itemReturnedCallback(data);
+            if (!data.error) {
+              parent.children().remove();
+            }
+          });
+        });
+      var no = $('<a>').html('no').on('click',
+        function(e2) {
+          parent.children().remove('.' + divClass);
+          $(self).attr('checked', false);
+          $(self).show();
+        });
+      $(self).hide();
+      parent.append('<div class="' + divClass + '"></div>');
+      $('.' + divClass).append(yes).append('&nbsp;&nbsp;').append(no);
+    }
   });
 
   $('.remove').on('click', function(e) {

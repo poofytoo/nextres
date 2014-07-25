@@ -12,9 +12,17 @@
         Scan an MIT ID to begin <em>checkout</em><br />
         Scan an item to <em>return</em>
       </div>
+      <div class="scan-command checkout-overdue">
+        <span class="kerberos"></span> has <em>overdue items</em>
+        <div class="checkout-notice">Press Override to override, Cancel to cancel.</div>
+      </div>
       <div class="scan-command checkout-kerberos">
         <div class="checkout-notice">Checkout item for <span class="kerberos"></span></div>
         Scan an item to <em>checkout</em>
+      </div>
+      <div class="scan-command overdue-buttons">
+        <input type="button" id="override-overdue" value="Override">
+        <input type="button" id="cancel-checkout" value="Cancel">
       </div>
       <div class="scan-command restart">
         <input type="button" id="submit-barcode" value="Done">
@@ -39,6 +47,7 @@
     <th>Name</th>
     <th>Checked out by</th>
     <th>Days since checkout</th>
+    <th>Returned</th>
     <th>Remove</th>
   </tr>
   {{#each items}}
@@ -50,6 +59,11 @@
       <td id="{{this.barcode}}-daydiff" class="overdue">{{this.daydiff}} (overdue)</td>
     {{else}}
       <td id="{{this.barcode}}-daydiff">{{this.daydiff}}</td>
+    {{/if}}
+    {{#if this.borrower}}
+      <td><input type="checkbox" id="{{this.barcode}}-returned" class="returned"></td>
+    {{else}}
+      <td></td>
     {{/if}}
     <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
   </tr>

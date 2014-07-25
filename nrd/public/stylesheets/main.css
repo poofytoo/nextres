@@ -291,6 +291,9 @@ table tr td {
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
   .displaytable tr .empty {
     opacity: 0.2; }
+  .displaytable tr .returned {
+    margin-right: auto;
+    min-width: 0px; }
 
 .calendarIframe {
   margin-top: 25px; }
@@ -356,7 +359,7 @@ table tr td {
     .item-checkout .scan-box .scan-instructions .kerberos {
       font-weight: bold;
       color: #999; }
-    .item-checkout .scan-box .scan-instructions .checkout-kerberos, .item-checkout .scan-box .scan-instructions .restart, .item-checkout .scan-box .scan-instructions .first-checkout {
+    .item-checkout .scan-box .scan-instructions .checkout-kerberos, .item-checkout .scan-box .scan-instructions .restart, .item-checkout .scan-box .scan-instructions .first-checkout, .item-checkout .scan-box .scan-instructions .overdue-buttons, .item-checkout .scan-box .scan-instructions .checkout-overdue {
       display: none; }
     .item-checkout .scan-box .scan-instructions .init {
       display: block; }

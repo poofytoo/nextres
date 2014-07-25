@@ -141,6 +141,7 @@ app.post('/getrecentlyaddeditems', enforce('CHECKOUT_ITEMS'), checkout.listrecen
 app.post('/checkoutitemstatus', enforce('CHECKOUT_ITEMS'), checkout.get);
 app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
 app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
+app.post('/usercheckoutdata', enforce('CHECKOUT_ITEMS'), checkout.getusercheckoutdata);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
