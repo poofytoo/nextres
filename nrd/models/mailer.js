@@ -204,7 +204,7 @@ Mailer.prototype.denyRoom = function(item, reason) {
  */
 Mailer.prototype.informOverdue = function(email, itemList) {
   var to = [email];
-  var cc = mail_settings.admin_emails;
+  var cc = ['next-overdue@mit.edu'];
   var subject = "Overdue Items";
 
   var overdueItemString = '';
