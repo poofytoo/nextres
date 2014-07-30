@@ -63,7 +63,7 @@
     {{#if this.borrower}}
       <td><input type="checkbox" id="{{this.barcode}}-returned" class="returned"></td>
     {{else}}
-      <td></td>
+      <td><input type="checkbox" id="{{this.barcode}}-returned" class="returned" style="display: none;"></td>
     {{/if}}
     <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
   </tr>

@@ -127,6 +127,7 @@ var updateDisplayTable = function(item) {
   var barcode = item.barcode;
   $('#' + barcode + '-borrower').html(item.borrower);
   $('#' + barcode + '-daydiff').html(item.daydiff);
+  $('#' + barcode + '-returned').toggle(!!item.borrower);
 }
 
 var transitionFromOverride = function() {
@@ -280,19 +281,17 @@ var eventHandlers = function() {
           var itemcode = e.target.id;
           itemcode = itemcode.substring(0, itemcode.length-'-returned'.length);
           checkinItem(itemcode, function(data) {
+            parent.children().remove('.' + divClass);
             itemReturnedCallback(data);
-            if (!data.error) {
-              parent.children().remove();
-            }
           });
         });
       var no = $('<a>').html('no').on('click',
         function(e2) {
           parent.children().remove('.' + divClass);
-          $(self).attr('checked', false);
           $(self).show();
         });
       $(self).hide();
+      $(self).attr('checked', false);
       parent.append('<div class="' + divClass + '"></div>');
       $('.' + divClass).append(yes).append('&nbsp;&nbsp;').append(no);
     }
