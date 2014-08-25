@@ -19,6 +19,7 @@ var logger = require('./logger');
 var db = require('./db').Database;
 
 const MAX_NUM_GUESTS = 10;
+const NUM_GUESTS = 5;
 
 function GuestLists() {
   this.MAX_NUM_GUESTS = MAX_NUM_GUESTS;
@@ -80,6 +81,33 @@ GuestLists.prototype.getGuestListOfUser = function(userID, callback) {
         callback(false, new GuestList(rows[0]));
       }
     });
+}
+
+/*
+ * Converts the GuestList in a form easy for handlebars parsing
+ */
+GuestLists.prototype.guestListToObj = function(guestlist) {
+  guestlist.guests = [];
+  for (var i = 1; i <= NUM_GUESTS; i++) {
+    guestlist.guests.push({
+      name: guestlist[nameField(i)],
+      kerberos: guestlist[kerberosField(i)],
+      index: i
+    });
+  }
+  guestlist.tempGuests = [];
+  guestlist.hasTempGuests = false;
+  for (var i = 1; i <= NUM_GUESTS; i++) {
+    guestlist.tempGuests.push({
+      name: guestlist[nameField(i + NUM_GUESTS)],
+      kerberos: guestlist[kerberosField(i + NUM_GUESTS)],
+      index: i + NUM_GUESTS
+    });
+    if (guestlist[kerberosField(i + NUM_GUESTS)]) {
+      guestlist.hasTempGuests = true;
+    }
+  }
+  return guestlist;
 }
 
 /*

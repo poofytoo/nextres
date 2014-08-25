@@ -27,45 +27,58 @@
     <tr>
       <th width="100">Resident Kerb</th>
       <th>Name</th>
-      <th>Guest 1 </th>
+      <th>Guest 1</th>
       <th>Guest 2</th>
       <th>Guest 3</th>
+      <th>Guest 4</th>
+      <th>Guest 5</th>
     </tr>
     {{#each guestlists}}
 	<tr>
 	  <td>
-	  	{{this.kerberos}} 
+	    {{this.kerberos}}
 	  </td>
 	  <td>
 	    {{#if this.firstName}} 
 	      {{this.firstName}} {{this.lastName}}
 	    {{else}}
 	      <span class="invalid">guestlist invalid</span>
-	   	{{/if}}
+	    {{/if}}
 	  </td>
+          {{#each this.guests}}
 	  <td>
-	    {{#if this.guest1Kerberos}} 
-	  	  {{this.guest1Name}} ({{this.guest1Kerberos}}) 		
-	   	{{else}}
-	   	  <span class="empty">empty</span>
-	   	{{/if}}
+            {{#if this.kerberos}}
+              {{this.name}} ({{this.kerberos}})
+            {{else}}
+	      <span class="empty">empty</span>
+	    {{/if}}
 	  </td>
-	  <td>
-	    {{#if this.guest2Kerberos}} 
-	  	  {{this.guest2Name}} ({{this.guest2Kerberos}}) 		
-	   	{{else}}
-	   	  <span class="empty">empty</span>
-	   	{{/if}}
-	  </td>
-	  <td>
-	    {{#if this.guest3Kerberos}} 
-	  	  {{this.guest3Name}} ({{this.guest3Kerberos}}) 		
-	   	{{else}}
-	   	  <span class="empty">empty</span>
-	   	{{/if}}
-	  </td>
+          {{/each}}
 	</tr>
-  	{{/each}}
+        {{#if this.hasTempGuests}}
+	<tr>
+	  <td>
+	    {{this.kerberos}}
+	  </td>
+	  <td>
+	    {{#if this.firstName}}
+	      {{this.firstName}} {{this.lastName}} (TEMP)
+	    {{else}}
+	      <span class="invalid">guestlist invalid</span>
+	    {{/if}}
+	  </td>
+          {{#each this.tempGuests}}
+	  <td>
+            {{#if this.kerberos}}
+              {{this.name}} ({{this.kerberos}})
+            {{else}}
+	      <span class="empty">empty</span>
+	    {{/if}}
+	  </td>
+          {{/each}}
+	</tr>
+        {{/if}}
+    {{/each}}
   </table>
 </p>
 
@@ -96,22 +109,30 @@ var updateList = function(query){
         if (guestlists) {
           $('.error-msg').hide();
           $('.displaytable').show();
-          var header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th></tr>';
+          var header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th><th>Guest 4</th><th>Guest 5</th></tr>';
           var html = '';
-          for (var i = 0; i < guestlists.length; i++) {
+          var appendRow = function(isTempGuests) {
             html += '<tr>';
             html += '<td>' + guestlists[i].kerberos + '</td>';
-            html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + '</td>';
-            for (var j = 1; j <= 3; j++) {
+            html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + (isTempGuests ? ' (TEMP)' : '') + '</td>';
+            var attr = isTempGuests ? 'tempGuests' : 'guests';
+            for (var j = 0; j < guestlists[i][attr].length; j++) {
+              var guest = guestlists[i][attr][j];
               html += '<td>';
-              if (guestlists[i]['guest' + j + 'Kerberos']) {
-                html += guestlists[i]['guest' + j + 'Name'] + ' (' + guestlists[i]['guest' + j + 'Kerberos'] + ')';
+              if (guest.kerberos) {
+                html += guest.name + ' (' + guest.kerberos + ')';
               } else {
                 html += '<span class="empty">empty</span>';
               }
               html += '</td>';
             }
             html += '</tr>';
+          }
+          for (var i = 0; i < guestlists.length; i++) {
+            appendRow(false);
+            if (guestlists[i].hasTempGuests) {
+              appendRow(true);
+            }
           }
           $('.displaytable').html(header + html);
         } else {

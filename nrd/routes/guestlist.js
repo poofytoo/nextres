@@ -9,6 +9,9 @@ var kerberosField = GuestLists.kerberosField;
 
 function complete(req, res, success, error, warnings) {
   GuestLists.getGuestListOfUser(req.user.id, function(err, guestlist) {
+    if (guestlist) {
+      guestlist = GuestLists.guestListToObj(guestlist);
+    }
     util.render(res, 'guestlist', {
       user: req.user,
       guests: guestlist,
@@ -21,6 +24,9 @@ function complete(req, res, success, error, warnings) {
 
 exports.list = function(req, res) {
   GuestLists.listGuests({}, function(err, guestlists) {
+    if (guestlists) {
+      guestlists = guestlists.map(GuestLists.guestListToObj);
+    }
     util.render(res, 'allguests', {
       user: req.user,
       guestlists: guestlists,
@@ -33,6 +39,9 @@ exports.list = function(req, res) {
 //   or {guestSearchPattern: 'cky', sortBy: 'firstName'}
 exports.search = function(req, res) {
   GuestLists.listGuests(req.query, function(err, guestlists) {
+    if (guestlists) {
+      guestlists = guestlists.map(GuestLists.guestListToObj);
+    }
     res.json(guestlists);
   });
 }
