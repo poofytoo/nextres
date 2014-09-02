@@ -207,7 +207,7 @@ Users.prototype.createUser = function(kerberos, callback) {
               callback(err || err2);
               return;
             }
-            db.query().insert('next-guestlist', ['userID'], [user.id])
+            db.query().insert('next-guestlist', ['userID', 'nextUser'], [user.id, user.id])
             .execute(function(err) {
               if (!err) {
                 Mailer.newUser(user, password);
