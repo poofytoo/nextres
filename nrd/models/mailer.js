@@ -63,23 +63,23 @@ Mailer.prototype.newUser = function(user, rawPassword) {
   var to = [user.email];
   var cc = [];
   var subject = "Your Next Resident Dashboard Account";
-  var html = "Hello!<br /><br />" + 
-    "Your Next resident dashboard account has been created! Please " +
-    "go to <a href='next.mit.edu'>next.mit.edu</a>, and click the " +
-    "link on the top-right corner of the page. Login with your " +
-    "kerberos ID and the following password: <b>" + rawPassword +
-    "</b>. Once you have logged in, please change your password." +
+  var html = "Hello " + user.kerberos + "! <br /><br />" +
+    "Your Next resident dashboard account has been created! " +
+    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "and login with your kerberos ID and the following temporary password: " +
+    "<b>" + rawPassword + "</b>. Once you have logged in, " +
+    "please change your password." +
     "<br /><br />" +
-    "If you have any questions, feel free to contact nextres@mit.edu" +
+    "If you have any questions, feel free to contact nextres@mit.edu. " +
     "<br /><br />" +
     "Cheers,<br />" +
     "Sparky, the Next House Mailbot";
-  var text = "Hello! Your Next resident dashboard account has " +
-    "been created! Please go to <a href='next.mit.edu'>next.mit.edu</a>, " +
-    "and click the link on the top-right corner of the page. Login " +
-    "with your kerberos ID and the following password: " + rawPassword +
-    "Once you have logged in, please change your password. If you have " +
-    "any questions, feel free to contact nextres@mit.edu. " +
+  var text = "Hello " + user.kerberos + "! " +
+    "Your Next resident dashboard account has been created! " +
+    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "and login with your kerberos ID and the following temporary password: " +
+    rawPassword + ". Once you have logged in, please change your password. " +
+    "If you have any questions, feel free to contact nextres@mit.edu. " +
     "Cheers, Sparky, the Next House Mailbot";
   this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
 }
