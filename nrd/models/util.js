@@ -6,6 +6,22 @@ var LocalStrategy = require('passport-local').Strategy;
 var logger = require('./logger');
 var Users = require('./user').Users;
 var pm = require('./permissions').Permissions;
+var start_settings = require('./config').config_data['start_settings'];
+
+module.exports.adminBypass = function(req, res, next) {
+  if (req.body.authToken && req.body.authToken === start_settings.bypassToken) {
+    Users.getUserWithKerberos(start_settings.bypassUser, function(err, user) {
+      if (err) {
+        res.redirect('/login');
+      } else {
+        req.user = user;
+        next();
+      }
+    });
+  } else {
+    next();
+  }
+}
 
 module.exports.router = function(req, res, next) {
   if (req.user) {

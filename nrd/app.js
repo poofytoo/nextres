@@ -50,6 +50,7 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(util.adminBypass);
 app.use(util.router);
 app.use(app.router);
 
