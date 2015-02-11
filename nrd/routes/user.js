@@ -19,7 +19,7 @@ exports.login = function(req, res) {
 }
 
 exports.loginsuccess = function(req, res) {
-  if (req.session.returnTo) {
+  if (req.session && req.session.returnTo) {
     res.redirect(req.session.returnTo);
     req.session.returnTo = false;
   } else {
