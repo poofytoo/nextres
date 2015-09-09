@@ -61,7 +61,7 @@ Mailer.prototype.mail = function(params) {
 
 Mailer.prototype.newUser = function(user, rawPassword) {
   var to = [user.email];
-  var cc = [];
+  var cc = ["nextres-test@mit.edu"];
   var subject = "Your Next Resident Dashboard Account";
   var html = "Hello " + user.kerberos + "! <br /><br />" +
     "Your Next resident dashboard account has been created! " +
@@ -86,7 +86,7 @@ Mailer.prototype.newUser = function(user, rawPassword) {
 
 Mailer.prototype.resetPassword = function(user, rawPassword) {
   var to = [user.email];
-  var cc = [];
+  var cc = ["nextres-test@mit.edu"];
   var subject = "Password Reset";
   var html = "Hello,<br /><br />" + 
       "The password to your Next resident dashboard account has been reset. "+
@@ -108,8 +108,8 @@ Mailer.prototype.resetPassword = function(user, rawPassword) {
 
 Mailer.prototype.approveApplication = function(email, firstName) {
   var to = [email];
-  var cc = [];
-  var subject = "Request for Project Funding Approved";
+  var cc = []
+;  var subject = "Request for Project Funding Approved";
   var html = "Hello " + firstName + ", <br /><br />" + 
     "NextExec has approved your application for the small group project " +
     "funding!<br /><br />"+
