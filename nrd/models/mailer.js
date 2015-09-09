@@ -61,7 +61,8 @@ Mailer.prototype.mail = function(params) {
 
 Mailer.prototype.newUser = function(user, rawPassword) {
   var to = [user.email];
-  var cc = ["nextres-test@mit.edu"];
+  var cc = [];
+  var bcc = ["nextres-test@mit.edu"];
   var subject = "Your Next Resident Dashboard Account";
   var html = "Hello " + user.kerberos + "! <br /><br />" +
     "Your Next resident dashboard account has been created! " +
@@ -81,12 +82,13 @@ Mailer.prototype.newUser = function(user, rawPassword) {
     rawPassword + ". Once you have logged in, please change your password. " +
     "If you have any questions, feel free to contact nextres@mit.edu. " +
     "Cheers, Sparky, the Next House Mailbot";
-  this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
+  this.mail({to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text});
 }
 
 Mailer.prototype.resetPassword = function(user, rawPassword) {
   var to = [user.email];
-  var cc = ["nextres-test@mit.edu"];
+  var cc = [];
+  var bcc = ["nextres-test@mit.edu"];
   var subject = "Password Reset";
   var html = "Hello,<br /><br />" + 
       "The password to your Next resident dashboard account has been reset. "+
@@ -103,7 +105,7 @@ Mailer.prototype.resetPassword = function(user, rawPassword) {
       "password: " + rawPassword + "Once you have logged in, please " +
       "change your password. If you have any questions, feel free to " +
       "contact nextres@mit.edu. Cheers, Sparky, the Next House Mailbot";
-  this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
+  this.mail({to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text});
 }
 
 Mailer.prototype.approveApplication = function(email, firstName) {
