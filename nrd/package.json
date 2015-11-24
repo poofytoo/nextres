@@ -17,7 +17,7 @@
     "bcrypt": "*",
     "mysql2": "0.11.4",
     "hbs": "*",
-    "nodemailer": "*",
+    "nodemailer": "~0.7.1",
     "request": "*",
     "google-oauth-serviceaccount": "*",
     "qs": "*",
