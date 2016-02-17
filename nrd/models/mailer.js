@@ -65,7 +65,7 @@ Mailer.prototype.newUser = function(user, rawPassword) {
   var subject = "Your Next Resident Dashboard Account";
   var html = "Hello " + user.kerberos + "! <br /><br />" +
     "Your Next resident dashboard account has been created! " +
-    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "Please visit <a href='nextcode.mit.edu'>nextcode.mit.edu</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     "<b>" + rawPassword + "</b>. Once you have logged in, " +
     "please change your password." +
@@ -76,7 +76,7 @@ Mailer.prototype.newUser = function(user, rawPassword) {
     "Sparky, the Next House Mailbot";
   var text = "Hello " + user.kerberos + "! " +
     "Your Next resident dashboard account has been created! " +
-    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "Please visit <a href='nextcode.mit.edu'>nextcode.mit.edu</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     rawPassword + ". Once you have logged in, please change your password. " +
     "If you have any questions, feel free to contact nextres@mit.edu. " +
@@ -168,7 +168,7 @@ Mailer.prototype.reserveRoom = function(reserveParams, attendees) {
     "<b>Description</b>: " + reserveParams.reason + "<br /><br />" +
     "If this looks ok, feel free to ignore this email. " + 
     "If not, please go to " +
-    "<a href='http://nextres.mit.edu/managereservations'>NextRes</a> " +
+    "<a href='http://nextcode.mit.edu/managereservations'>NextRes</a> " +
     "to view/deny.<br />" +
     "<br />" +
     "Cheers, <br />" +

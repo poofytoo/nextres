@@ -65,10 +65,12 @@ function validateGuestlist(guestlist, callback) {
     Users.getProfile(kerberos, function(err, profile) {
       // Valid guests have a year (1, 2, 3, 4 or G)
       if (err) {
-        done(false)
+        done(true)
       } else if (profile) {
         done(!profile.year);
-      } 
+      } else {
+        done(false)
+      }
     });
   }, function(invalidKerberos) {
     callback(invalidKerberos.length > 0 ?
