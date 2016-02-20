@@ -3,8 +3,9 @@
  */
 
 var fs = require('fs');
+var path = require('path');
 
-const CONFIG_FILE = 'config.json';
+const CONFIG_FILE = path.join(__dirname, '../config.json');
 
 if (!fs.existsSync(CONFIG_FILE)) {
     throw new Error("Config file config.json not found");

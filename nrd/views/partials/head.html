@@ -13,4 +13,9 @@
     
     <!-- validating html5 existance -->
 	<script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
+	<script>
+		if (/nextcode/i.test(location.href)) {
+			location.href = location.href.replace("nextcode", "nextres")
+		}
+	</script>
   </head>

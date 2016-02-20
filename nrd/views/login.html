@@ -4,6 +4,11 @@
 		<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
 		<link rel="stylesheet" type="text/css" href="stylesheets/login.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+	if (/nextcode/i.test(location.href)) {
+		location.href = location.href.replace("nextcode", "nextres");
+	}
+</script>
 	</head>
 	<body>
 	<form  method="post" action="/login">
