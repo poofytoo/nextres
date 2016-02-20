@@ -40,6 +40,7 @@
  *   also be in the base directory. Do NOT commit key.pem!
  */
 
+var config = require("./config");
 var gaccount = require('google-oauth-serviceaccount');
 var qs = require('qs');
 var request = require('request');
@@ -47,8 +48,7 @@ var df = require('./dateformat');
 var logger = require('./logger');
 var Mailer = require('./mailer').Mailer;
 var User = require('./user').User;
-var isWin = /^win/.test(process.platform);
-if (!isWin) {
+if (!config.isWindows) {
     var time = require('time');
 }
 

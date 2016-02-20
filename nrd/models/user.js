@@ -17,8 +17,13 @@
  *      mitID: 123456789, password: $10YeW, group: 1}
  */
 
+var config = require('./config');
 var async = require('async');
-var bcrypt = require('bcryptjs');
+if (config.isWindows) {
+    var bcrypt = require('bcryptjs');
+} else {
+    var bcrypt = require('bcrypt');
+}
 var logger = require('./logger');
 var db = require('./db').Database;
 var Permissions = require('./permissions').Permissions;
@@ -308,7 +313,7 @@ User.prototype.remove = function(callback) {
         return;
       }
       db.query().deleteFrom('next-guestlist')
-      .where('userID = ?', [this.id])
+      .where('nextUser = ?', [this.id])
       .execute(callback);
     });
 }
