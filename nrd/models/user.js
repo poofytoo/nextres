@@ -18,7 +18,7 @@
  */
 
 var async = require('async');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var logger = require('./logger');
 var db = require('./db').Database;
 var Permissions = require('./permissions').Permissions;

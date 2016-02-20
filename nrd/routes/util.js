@@ -1,5 +1,6 @@
 var fs = require('fs');
 var hbs = require('hbs');
+var path = require('path')
 var pm = require('../models/permissions').Permissions;
 
 // Cache for reading partial files.
@@ -7,8 +8,7 @@ var CACHE = {};
 
 function registerContent(page) {
   if (!CACHE.page) {
-    var contentDir = __dirname.substring(0, __dirname.lastIndexOf('/'));
-    var contentFile = contentDir + '/views/partials/' + page + '.html';
+    var contentFile = path.join(__dirname, '../views/partials/') + page + '.html';
     var contents = fs.readFileSync(contentFile, 'utf8');
     CACHE[page] = contents;
   }

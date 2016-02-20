@@ -43,11 +43,15 @@
 var gaccount = require('google-oauth-serviceaccount');
 var qs = require('qs');
 var request = require('request');
-var time = require('time');
 var df = require('./dateformat');
 var logger = require('./logger');
 var Mailer = require('./mailer').Mailer;
 var User = require('./user').User;
+var isWin = /^win/.test(process.platform);
+if (!isWin) {
+    var time = require('time');
+}
+
 
 var calendar_settings = require('./config').config_data.calendar_settings;
 
@@ -57,101 +61,108 @@ const MAX_NUM_SIGNATORIES = 3;
 const NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE = 60;
 
 function Reservations() {
-  this.MAX_NUM_SIGNATORIES = MAX_NUM_SIGNATORIES;
+    this.MAX_NUM_SIGNATORIES = MAX_NUM_SIGNATORIES;
 }
 
 function signatoryField(index) {
-  return 'signatory' + index;
+    return 'signatory' + index;
 }
 
 Reservations.prototype.signatoryField = signatoryField;
 
 function Reservation(reservation) {
-  this.id = reservation.id;
-  this.start = {dateTime: reservation.start.dateTime};
-  this.end = {dateTime: reservation.end.dateTime};
-  this.location = reservation.location;
-  this.description = reservation.description;
-  this.summary = reservation.summary;
-  this.created = reservation.created;
-  this.updated = reservation.updated;
-  this.status = reservation.status;
-  this.attendees = [];
-  for (var i = 0; i < MAX_NUM_SIGNATORIES; i++)
-    if (reservation.attendees[i]) {
-      this.attendees.push({email: reservation.attendees[i].email});
-    }
-  this.formattedTime = df.dateFormat(fromRFC3339(this.start.dateTime),
-      "h:MM TT 'on' mmm d, yyyy");
+    this.id = reservation.id;
+    this.start = { dateTime: reservation.start.dateTime };
+    this.end = { dateTime: reservation.end.dateTime };
+    this.location = reservation.location;
+    this.description = reservation.description;
+    this.summary = reservation.summary;
+    this.created = reservation.created;
+    this.updated = reservation.updated;
+    this.status = reservation.status;
+    this.attendees = [];
+    for (var i = 0; i < MAX_NUM_SIGNATORIES; i++)
+        if (reservation.attendees[i]) {
+            this.attendees.push({ email: reservation.attendees[i].email });
+        }
+    this.formattedTime = df.dateFormat(fromRFC3339(this.start.dateTime),
+        "h:MM TT 'on' mmm d, yyyy");
 }
 
 // Convert a Javascript Date object to RFC3339 format used by Google.
 function toRFC3339(datetime) {
-  return df.dateFormat(time.Date(datetime, TIME_ZONE),
-          "yyyy-mm-dd'T'HH:MM:00.000o");
+    try {
+        return df.dateFormat(time.Date(datetime, TIME_ZONE),
+            "yyyy-mm-dd'T'HH:MM:00.000o");
+    } catch (e) {
+        return "";
+    }
 }
 
 // Convert a RFC3339 formatted string to a Date object.
 function fromRFC3339(rfc3339) {
-  // Get rid of the time zone attached to the rfc3339.
-  rfc3339 = rfc3339.slice(0, -6) + 'Z';
-  return time.Date(Date.parse(rfc3339));
+    // Get rid of the time zone attached to the rfc3339.
+    rfc3339 = rfc3339.slice(0, -6) + 'Z';
+    try {
+        return time.Date(Date.parse(rfc3339));
+    } catch (e) {
+        return "";
+    }
 }
 
 // Sets the given date to the given time (h:mm(am/pm) formatted)
 function setTime(date, time) {
-  var match = /(1?[0-9]):([0-5][0-9])([ap]m)/.exec(time);
-  if (!match) {
-    return 'invalid';  // anything that will error when given to Calendar API
-  }
-  var hours = parseInt(match[1]);
-  var minutes = parseInt(match[2]);
-  var suffix = match[3];
-  hours += (suffix === 'pm' ? 12 : 0) - (hours === 12 ? 12 : 0);
-  date.setHours(hours);
-  date.setMinutes(minutes);
+    var match = /(1?[0-9]):([0-5][0-9])([ap]m)/.exec(time);
+    if (!match) {
+        return 'invalid'; // anything that will error when given to Calendar API
+    }
+    var hours = parseInt(match[1]);
+    var minutes = parseInt(match[2]);
+    var suffix = match[3];
+    hours += (suffix === 'pm' ? 12 : 0) - (hours === 12 ? 12 : 0);
+    date.setHours(hours);
+    date.setMinutes(minutes);
 }
 
 // callback(err, res, body) where body is the Event resource with the given ID
 function getEvent(access_token, id, callback) {
-  var getURL = BASE_URL + calendar_settings.calID + '/events/' +
-    id + '?access_token=' + access_token;
-  request.get({url: getURL, json: true}, callback);
+    var getURL = BASE_URL + calendar_settings.calID + '/events/' +
+        id + '?access_token=' + access_token;
+    request.get({ url: getURL, json: true }, callback);
 }
 
 // timeMin and timeMax are RFC3339 formatted datetimes.
 // callback(err, res, body) where body.items is a list of Event resources
 //   between timeMin and timeMax.
 function listEvents(access_token, timeMin, timeMax, callback) {
-  var listURL = BASE_URL + calendar_settings.calID + '/events?' +
-    qs.stringify({
-      'access_token': access_token,
-      'timeMin': timeMin,
-      'timeMax': timeMax
-    });
-  request.get({url: listURL, json: true}, callback);
+    var listURL = BASE_URL + calendar_settings.calID + '/events?' +
+        qs.stringify({
+            'access_token': access_token,
+            'timeMin': timeMin,
+            'timeMax': timeMax
+        });
+    request.get({ url: listURL, json: true }, callback);
 }
 
 // Adds newEvent to the Google Calendar, where newEvent is an Event resource.
 // callback(err, res, body) where body.err is the API error.
 function insertEvent(access_token, newEvent, callback) {
-  var postURL = BASE_URL + calendar_settings.calID + '/events?access_token='
-    + access_token;
-  request.post({url: postURL, body: newEvent, json: true}, callback);
+    var postURL = BASE_URL + calendar_settings.calID + '/events?access_token=' + access_token;
+    request.post({ url: postURL, body: newEvent, json: true }, callback);
 }
 
 // Confirms the Event with the given ID.
 function editEvent(access_token, editedEvent, callback) {
-  var updateURL = BASE_URL + calendar_settings.calID + '/events/' +
-    editedEvent.id + '?access_token=' + access_token;
-  request.put({url: updateURL, body: editedEvent, json: true}, callback);
+    var updateURL = BASE_URL + calendar_settings.calID + '/events/' +
+        editedEvent.id + '?access_token=' + access_token;
+    request.put({ url: updateURL, body: editedEvent, json: true }, callback);
 }
 
 // Deletes the Event with the given ID.
 function removeEvent(access_token, id, callback) {
-  var delURL = BASE_URL + calendar_settings.calID + '/events/' +
-    id + '?access_token=' + access_token;
-  request.del({url: delURL, json: true}, callback);
+    var delURL = BASE_URL + calendar_settings.calID + '/events/' +
+        id + '?access_token=' + access_token;
+    request.del({ url: delURL, json: true }, callback);
 }
 
 /******************************************************************************
@@ -166,37 +177,37 @@ function removeEvent(access_token, id, callback) {
  * now is a Javascript Date object representing the current time.
  */
 Reservations.prototype.getReservations = function(now, callback) {
-  gaccount.auth(function(err, access_token) {
-    // Calculate today and NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE later.
-    now = new Date(now);
-    now.setDate(now.getDate() - 1);
-    var timeMin = toRFC3339(now);
-    now.setDate(now.getDate() + NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE);
-    var timeMax = toRFC3339(now);
+    gaccount.auth(function(err, access_token) {
+        // Calculate today and NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE later.
+        now = new Date(now);
+        now.setDate(now.getDate() - 1);
+        var timeMin = toRFC3339(now);
+        now.setDate(now.getDate() + NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE);
+        var timeMax = toRFC3339(now);
 
-    // List all events between timeMin and timeMax
-    listEvents(access_token, timeMin, timeMax, function(err, res, body) {
-      if (err) {
-        callback(err);
-      } else if (!body.items) {
-        callback('Error with Google Calendar listEvents() API');
-      } else {
-        // Sort by last updated time
-        body.items.sort(function(event1, event2) {
-          return event1.updated > event2.updated;
+        // List all events between timeMin and timeMax
+        listEvents(access_token, timeMin, timeMax, function(err, res, body) {
+            if (err) {
+                callback(err);
+            } else if (!body.items) {
+                callback('Error with Google Calendar listEvents() API');
+            } else {
+                // Sort by last updated time
+                body.items.sort(function(event1, event2) {
+                    return event1.updated > event2.updated;
+                });
+                // Apply constructor to all Events, to make into Reservation objects
+                // Events added directly by next-exec do not have attendees.
+                var reservations = [];
+                for (var i = 0; i < body.items.length; i++) {
+                    if (body.items[i].attendees) {
+                        reservations.push(new Reservation(body.items[i]));
+                    }
+                }
+                callback(false, reservations);
+            }
         });
-        // Apply constructor to all Events, to make into Reservation objects
-        // Events added directly by next-exec do not have attendees.
-        var reservations = [];
-        for (var i = 0; i < body.items.length; i++) {
-          if (body.items[i].attendees) {
-            reservations.push(new Reservation(body.items[i]));
-          }
-        }
-        callback(false, reservations);
-      }
     });
-  });
 }
 
 /*
@@ -205,36 +216,36 @@ Reservations.prototype.getReservations = function(now, callback) {
  * now is a Javascript Date object representing the current time.
  */
 Reservations.prototype.getReservationsWithUser = function(now, user, callback) {
-  this.getReservations(now, function(err, reservations) {
-    if (err) {
-      callback(err);
-      return;
-    }
-    var userReservations = [];
-    for (var i = 0; i < reservations.length; i++) {
-      var reservation = reservations[i];
-      for (var j = 0; j < reservation.attendees.length; j++) {
-        var attendee = reservation.attendees[j];
-        if (attendee && attendee.email === user.email) {
-          userReservations.push(reservation);
-          break;
+    this.getReservations(now, function(err, reservations) {
+        if (err) {
+            callback(err);
+            return;
         }
-      }
-    }
-    callback(false, userReservations);
-  });
+        var userReservations = [];
+        for (var i = 0; i < reservations.length; i++) {
+            var reservation = reservations[i];
+            for (var j = 0; j < reservation.attendees.length; j++) {
+                var attendee = reservation.attendees[j];
+                if (attendee && attendee.email === user.email) {
+                    userReservations.push(reservation);
+                    break;
+                }
+            }
+        }
+        callback(false, userReservations);
+    });
 }
 
 /*
  * Returns the Reservation with the given ID, or false if nonexistent
  */
 Reservations.prototype.getReservation = function(id, callback) {
-  gaccount.auth(function(err, access_token) {
-    getEvent(access_token, id, function(err, res, event) {
-      err = err || event.error;
-      callback(err, err ? false : new Reservation(event));
+    gaccount.auth(function(err, access_token) {
+        getEvent(access_token, id, function(err, res, event) {
+            err = err || event.error;
+            callback(err, err ? false : new Reservation(event));
+        });
     });
-  });
 }
 
 /******************************************************************************
@@ -260,63 +271,63 @@ Reservations.prototype.getReservation = function(id, callback) {
  *   description: 'Cooking things'}
  */
 Reservations.prototype.reserve = function(params, callback) {
-  logger.info('Reservation request made. Params: ' + JSON.stringify(params));
-  gaccount.auth(function(err, access_token) {
-    // Construct start and end Date objects
-    var startTime = new Date(params.date);
-    setTime(startTime, params.start);
-    var endTime = new Date(params.date);
-    if (params.end === '12:00am') {
-      params.end = '11:59pm';  // hack to keep start and end times on same day
-    }
-    setTime(endTime, params.end);
+    logger.info('Reservation request made. Params: ' + JSON.stringify(params));
+    gaccount.auth(function(err, access_token) {
+        // Construct start and end Date objects
+        var startTime = new Date(params.date);
+        setTime(startTime, params.start);
+        var endTime = new Date(params.date);
+        if (params.end === '12:00am') {
+            params.end = '11:59pm'; // hack to keep start and end times on same day
+        }
+        setTime(endTime, params.end);
 
-    // Construct attendees list
-    var attendees = [];
-    for (var i = 1; i <= MAX_NUM_SIGNATORIES; i++) {
-      var kerberos = params[signatoryField(i)];
-      if (kerberos) {
-        attendees.push({email: kerberos + '@mit.edu'});
-      }
-    }
-
-    listEvents(access_token, toRFC3339(startTime), toRFC3339(endTime),
-      function(err, res, body) {
-        // Check for conflicts
-        if (body.items) {
-          for (var i = 0; i < body.items.length; i++) {
-            if (body.items[i].location === params.room) {
-              callback('Reservation conflict');
-              return;
+        // Construct attendees list
+        var attendees = [];
+        for (var i = 1; i <= MAX_NUM_SIGNATORIES; i++) {
+            var kerberos = params[signatoryField(i)];
+            if (kerberos) {
+                attendees.push({ email: kerberos + '@mit.edu' });
             }
-          }
         }
 
-        // Construct new Event resource
-        var newEvent = {
-          start: {dateTime: toRFC3339(startTime)},
-          end: {dateTime: toRFC3339(endTime)},
-          location: params.room,
-          description: params.reason,
-          summary: params.room + ' - ' + params.signatory1,
-          status: 'tentative',
-          visibility: 'public',
-          attendees: attendees
-        };
+        listEvents(access_token, toRFC3339(startTime), toRFC3339(endTime),
+            function(err, res, body) {
+                // Check for conflicts
+                if (body.items) {
+                    for (var i = 0; i < body.items.length; i++) {
+                        if (body.items[i].location === params.room) {
+                            callback('Reservation conflict');
+                            return;
+                        }
+                    }
+                }
 
-        // Add new Event to calendar
-        insertEvent(access_token, newEvent, function(err, res, body) {
-          if (body.error) {
-            logger.info('Malformed request ' + JSON.stringify(params));
-            callback('Malformed request: invalid date/time.');
-          } else {
-            logger.info('Put on google calendar as id ' + body.id);
-            Mailer.reserveRoom(params, attendees);
-            callback(false);
-          }
-        });
-      });
-  });
+                // Construct new Event resource
+                var newEvent = {
+                    start: { dateTime: toRFC3339(startTime) },
+                    end: { dateTime: toRFC3339(endTime) },
+                    location: params.room,
+                    description: params.reason,
+                    summary: params.room + ' - ' + params.signatory1,
+                    status: 'tentative',
+                    visibility: 'public',
+                    attendees: attendees
+                };
+
+                // Add new Event to calendar
+                insertEvent(access_token, newEvent, function(err, res, body) {
+                    if (body.error) {
+                        logger.info('Malformed request ' + JSON.stringify(params));
+                        callback('Malformed request: invalid date/time.');
+                    } else {
+                        logger.info('Put on google calendar as id ' + body.id);
+                        Mailer.reserveRoom(params, attendees);
+                        callback(false);
+                    }
+                });
+            });
+    });
 }
 
 /******************************************************************************
@@ -330,57 +341,57 @@ Reservations.prototype.reserve = function(params, callback) {
  *   this reservation)
  */
 Reservation.prototype.getParams = function(callback) {
-  var hasThreeSignatories = this.attendees[2];
-  var start = fromRFC3339(this.start.dateTime);
-  var end = fromRFC3339(this.end.dateTime);
-  var params = {
-    room: this.location,
-    people: hasThreeSignatories ? 1 : 0,
-    date: df.dateFormat(start, 'yyyy-mm-dd'),
-    start: df.dateFormat(start, 'h:MMtt'),
-    end: df.dateFormat(end, 'h:MMtt'),
-    reason: this.description
-  };
-  for (var i = 0; i < MAX_NUM_SIGNATORIES; i++) {
-    if (this.attendees[i]) {
-      params[signatoryField(i + 1)] =
-        this.attendees[i].email.slice(0, -('@mit.edu'.length));
+    var hasThreeSignatories = this.attendees[2];
+    var start = fromRFC3339(this.start.dateTime);
+    var end = fromRFC3339(this.end.dateTime);
+    var params = {
+        room: this.location,
+        people: hasThreeSignatories ? 1 : 0,
+        date: df.dateFormat(start, 'yyyy-mm-dd'),
+        start: df.dateFormat(start, 'h:MMtt'),
+        end: df.dateFormat(end, 'h:MMtt'),
+        reason: this.description
+    };
+    for (var i = 0; i < MAX_NUM_SIGNATORIES; i++) {
+        if (this.attendees[i]) {
+            params[signatoryField(i + 1)] =
+                this.attendees[i].email.slice(0, -('@mit.edu'.length));
+        }
     }
-  }
-  callback(false, params);
+    callback(false, params);
 }
 
 /*
  * Confirm this reservation.
  */
 Reservation.prototype.confirm = function(callback) {
-  var id = this.id;
-  gaccount.auth(function(err, access_token) {
-    getEvent(access_token, id, function(err, res, event) {
-      event.status = 'confirmed';
-      editEvent(access_token, event, function(err, res, body) {
-        callback(err || body.error);
-      });
+    var id = this.id;
+    gaccount.auth(function(err, access_token) {
+        getEvent(access_token, id, function(err, res, event) {
+            event.status = 'confirmed';
+            editEvent(access_token, event, function(err, res, body) {
+                callback(err || body.error);
+            });
+        });
     });
-  });
 }
 
 /*
  * Deny this reservation.
  */
 Reservation.prototype.deny = function(reason, callback) {
-  Mailer.denyRoom(this, reason);
-  this.remove(callback);
+    Mailer.denyRoom(this, reason);
+    this.remove(callback);
 }
 
 /*
  * Remove this reservation.
  */
 Reservation.prototype.remove = function(callback) {
-  var id = this.id;
-  gaccount.auth(function(err, access_token) {
-    removeEvent(access_token, id, callback);
-  });
+    var id = this.id;
+    gaccount.auth(function(err, access_token) {
+        removeEvent(access_token, id, callback);
+    });
 }
 
 module.exports.Reservations = new Reservations();
