@@ -124,7 +124,7 @@ GuestLists.prototype.guestListToObj = function(guestlist) {
  */
 GuestLists.prototype.listGuests = function(params, callback) {
   var query = db.query().select(['*']).from('next-users')
-    .rightJoin('next-guestlist').on('`next-users`.id=`next-guestlist`.userID');
+    .innerJoin('next-guestlist').on('`next-users`.id=`next-guestlist`.userID');
   if (params && params.hostSearchPattern) {
     var pattern = '%' + params.hostSearchPattern + '%';
     query = query.where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', 
@@ -141,8 +141,10 @@ GuestLists.prototype.listGuests = function(params, callback) {
     }
     query = query.where(whereClause.join(' OR '), whereArgs);
   }
-  if (params && params.sortBy) {
+  if ((params.hostSearchPattern || params.guestSearchPattern) && params.sortBy) {
     query = query.orderBy(params.sortBy);
+  } else {
+    query = query.orderBy("kerberos");
   }
   query.execute(callback);
 }

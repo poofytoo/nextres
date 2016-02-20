@@ -190,6 +190,16 @@ Query.prototype.leftJoin = function(table) {
 }
 
 /*
+ * Inner join on the given table
+ * e.g. innerJoin('next-users')
+ */
+Query.prototype.innerJoin = function(table) {
+  this.query += "INNER JOIN ?? ";
+  this.args.push(table);
+  return this;
+}
+
+/*
  * Order by the given column
  * e.g. orderBy('id')
  */

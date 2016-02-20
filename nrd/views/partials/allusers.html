@@ -14,6 +14,24 @@
 <h2>All Users</h2>
 <p>Below is a list of all the users</p>
 <p>
+
+<p>
+  <table>
+    <tr>
+      <td>Resident Lookup:</td>
+      <td>Sort by:</td>
+    </tr>
+    <tr>
+      <td><input type="text" placeholder="kerberos or full name" class="searchname" /></td>
+      <td>
+        <input id="firstName" class="slim sort" type="button" value="First Name">
+        <input id="lastName" class="slim sort" type="button" value="Last Name">
+        <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+      </td>
+    </tr>
+  </table>
+</p>
+
   <table class="displaytable">
     <tr>
       <th>Kerberos</th>
@@ -125,4 +143,19 @@
   	});
   });
   {{/if}}
+
+
+  $('.sort').on('click', function() {
+    $('.sort').attr('class', 'slim sort');
+    $(this).attr('class', 'slim sort active');
+    sortBy = $(this).attr('id');
+    searchname = $('.searchname').val();
+    updateList({kerberosSearchPattern: searchname, sortBy: sortBy });
+  });
+
+  $('.searchname').on('input', function(){
+    searchname = $(this).val();
+    updateList({kerberosSearchPattern: searchname, sortBy: sortBy });
+  });
+
 </script>
