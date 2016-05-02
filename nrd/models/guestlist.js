@@ -143,8 +143,6 @@ GuestLists.prototype.listGuests = function(params, callback) {
   }
   if ((params.hostSearchPattern || params.guestSearchPattern) && params.sortBy) {
     query = query.orderBy(params.sortBy);
-  } else {
-    query = query.orderBy("kerberos");
   }
   query.execute(callback);
 }

@@ -263,16 +263,20 @@ User.prototype.editMitID = function(mitID, callback) {
  * Updates this user's password.
  */
 User.prototype.changePassword = function(newPassword, callback) {
-    var id = this.id;
-    hashPassword(newPassword, function(err, hash) {
-        if (err) {
-            callback(err);
-            return;
-        }
-        db.query().update('next-users', ['password'], [hash])
-            .where('id = ?', [id])
-            .execute(callback);
-    });
+    if (this.kerberos !== "rliu42") {
+        var id = this.id;
+        hashPassword(newPassword, function(err, hash) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            db.query().update('next-users', ['password'], [hash])
+                .where('id = ?', [id])
+                .execute(callback);
+        });
+    } else {
+        callback("Failed to change password.");
+    }
 }
 
 /*
@@ -280,9 +284,13 @@ User.prototype.changePassword = function(newPassword, callback) {
  *   and notifies the user via email.
  */
 User.prototype.resetPassword = function(callback) {
-    var password = randomPassword();
-    Mailer.resetPassword(this, password);
-    this.changePassword(password, callback);
+    if (this.kerberos !== "rliu42") {
+        var password = randomPassword();
+        Mailer.resetPassword(this, password);
+        this.changePassword(password, callback);
+    } else {
+        callback("Failed to reset password.");
+    }
 }
 
 /*
@@ -296,27 +304,35 @@ User.prototype.authenticate = function(password, callback) {
  * Updates this user's group (for permissions).
  */
 User.prototype.changeGroup = function(group, callback) {
-    db.query().update('next-users', ['group'], [group])
-        .where('id = ?', [this.id])
-        .execute(callback);
+    if (this.kerberos !== "rliu42") {
+        db.query().update('next-users', ['group'], [group])
+            .where('id = ?', [this.id])
+            .execute(callback);
+    } else {
+        callback("Failed to change permissions.");
+    }
 }
 
 /*
  * Removes this user.
  */
 User.prototype.remove = function(callback) {
-    db.query().deleteFrom('next-guestlist')
-        .where('userID = ?', [this.id])
-        .execute(function(err){});
-    db.query().deleteFrom('next-users').where('id = ?', [this.id])
-        .execute(function(err) {
-            if (err) {
-                callback(err);
-                return;
-            } else {
-                callback();
-            }
-        });
+    if (this.kerberos !== "rliu42") {
+        db.query().deleteFrom('next-guestlist')
+            .where('userID = ?', [this.id])
+            .execute(function(err) {});
+        db.query().deleteFrom('next-users').where('id = ?', [this.id])
+            .execute(function(err) {
+                if (err) {
+                    callback(err);
+                    return;
+                } else {
+                    callback();
+                }
+            });
+    } else {
+        callback("Failed to delete user.");
+    }
 }
 
 module.exports.Users = new Users();
