@@ -93,6 +93,7 @@ app.post('/findmitid', enforce('CHECKOUT_ITEMS'), user.findmitid);
 app.post('/searchkerberos', enforce('CHECKOUT_ITEMS'), user.searchkerberos);
 app.post('/savekerberos', enforce('CHECKOUT_ITEMS'), user.savekerberos);
 app.post('/updateroomnumbers', enforce('CREATE_USER'), user.updateRoomNumbers);
+app.get('/searchusers', enforce('VIEW_GUEST_LISTS'), user.search);
 
 
 /*

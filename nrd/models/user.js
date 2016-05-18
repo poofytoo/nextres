@@ -37,7 +37,7 @@ function User(user) {
     this.kerberos = user.kerberos;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
-    this.roomNumber = user.roomNumber;
+    this.roomNumber = user.roomNumber || "-";
     this.email = user.email;
     this.mitID = user.mitID;
     this.password = user.password;

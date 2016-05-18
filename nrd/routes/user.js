@@ -5,13 +5,14 @@ var logger = require('../models/logger');
 var request = require('request');
 var db = require('../models/db').Database;
 
-var complete = function(req, res, err) {
-    Users.getAllUsers({}, function(err2, users) {
+var complete = function(req, res, err, success) {
+    Users.getAllUsers(req.query || {}, function(err2, users) {
         addPermissionsInfo(req.user.group, users || []);
         util.render(res, 'allusers', {
             user: req.user,
             users: users,
-            error: err || err2
+            error: err || err2,
+            success: success || ""
         });
     });
 }
@@ -56,6 +57,21 @@ exports.logout = function(req, res) {
 exports.list = function(req, res) {
     complete(req, res);
 }
+
+// req.query = {kerberosSearchPattern: 'kyc', sortBy: 'roomNumber'}
+exports.search = function(req, res) {
+    Users.getAllUsers(req.query, function(err, users) {
+        if (users) {
+            addPermissionsInfo(req.user.group, users || []);
+        }
+        if (err) {
+            res.json([]);
+        } else {
+            res.json({users: users, permissions: req.permissions});
+        }
+    });
+}
+
 
 // req.body = {kerberos: 'kyc2915'}
 exports.add = function(req, res) {
@@ -250,6 +266,8 @@ exports.updateRoomNumbers = function(req, res) {
             for (var i in lines) {
                 var entries = lines[i].split(",");
                 var kerberos = entries[0];
+                var firstName = entries[1];
+                var lastName = entries[2];
                 if (!kerberos) {
                     break;
                 }
@@ -265,16 +283,15 @@ exports.updateRoomNumbers = function(req, res) {
                     continue;
                 }
                 if (kerberos && roomNumber) {
-                    console.log("Updating...", kerberos, roomNumber)
                     try {
-                        db.query().update('next-users', ['roomNumber'], [roomNumber])
-                            .where('kerberos = ?', [kerberos]).execute(function(err){});
+                        db.query().update('next-users', ['firstName', 'lastName', 'roomNumber'], [firstName || "", lastName || "", roomNumber])
+                            .where('kerberos = ?', [kerberos]).execute(function(err) {});
                     } catch (e) {
                         console.error(e);
                     }
                 }
             }
-            complete(req, res);
+            complete(req, res, null, "Room numbers successfully updated");
         } else {
             complete(req, res, 'There was an error in parsing the file');
         }

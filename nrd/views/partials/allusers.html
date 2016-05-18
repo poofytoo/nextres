@@ -9,8 +9,8 @@
     <input type="submit" value="Create">
   </form>
 </p>
-<h2>Updating Room Numbers</h2>
-<p>URL to .csv file with kerberoses and room numbers</p>
+<h2>Updating Resident Info</h2>
+<p>URL to .csv file with kerberoses, resident names, and room numbers (see <a href='http://72.29.29.198/safetythird/data/fall2016-roster.csv'>example</a>)</p>
   <form method="post" action="updateroomnumbers">
     <input type="text" name="url" placeholder="URL of .csv file"></input>
     <input type="submit" value="Update">
@@ -34,6 +34,7 @@
         <input id="firstName" class="slim sort" type="button" value="First Name">
         <input id="lastName" class="slim sort" type="button" value="Last Name">
         <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+        <input id="roomNumber" class="slim sort" type="button" value="Room Number">
       </td>
     </tr>
   </table>
@@ -99,7 +100,6 @@
   {{/if}}
 
   {{#if permissions.CREATE_USER}}
-  // removing a user
   $('.remove').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -115,7 +115,6 @@
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
   });
 
-  // resetting a password
   $('.pwreset').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -133,24 +132,68 @@
   {{/if}}
   
   {{#if permissions.MAKE_USERS_DESKWORKERS}}
-  // changing a user permission
   $('select').change(function(e) {
   	var chosen = $(this).val();
     var selectId = e.target.id;
     kerberos = selectId.split('-')[0];
-  	$.post('/changepermission',{kerberos:kerberos, permission:chosen}, function(data) {
-          if (!data.error) {
-  	  	$flashmsg = $('#' + selectId).parent().find('.permissionStatus');
-  	  	$flashmsg.
-  	  		show().text('done').
-  	  		delay(1000).fadeOut(500);
-  	  } else {
-  	    $('#' + selectId).parent().find('.permissionStatus').text('error - contact nextres-dev@mit.edu');
-  	  }
+  	$.post('/changepermission', {kerberos:kerberos, permission:chosen}, function(data) {
+        if (!data.error) {
+  	  	  $flashmsg = $('#' + selectId).parent().find('.permissionStatus');
+  	  	  $flashmsg.show().text('done').delay(1000).fadeOut(500);
+  	    } else {
+  	      $('#' + selectId).parent().find('.permissionStatus').text('error - contact nextres-dev@mit.edu');
+  	    }
   	});
   });
-  {{/if}}
 
+  var updateList = function(query){
+    $.get("searchusers", query)
+      .done(function(data) {
+        if (data) {
+          var users = data.users;
+          var permissions = data.permissions;
+          var html = '<tr><th>Kerberos</th><th>Resident Name</th><th>Room</th><th>Role</th>';
+          if (permissions.CREATE_USER) {
+            html += '<th>Reset Password</th><th>Remove</th>';
+          }
+          if (permissions.FULL_PERMISSIONS_CONTROL) {
+            html += "<th>Login AS</th>" ;
+          }
+          html += "</tr>";
+          for (var i in users) {
+            var user = users[i];
+            html += '<tr id="' + user.kerberos + '-tr">'
+            html += "<td>" + user.kerberos + "</td>"
+            html += "<td>" + user.firstName + " " + user.lastName + "</td>"
+            html += "<td>" + user.roomNumber + "</td>"
+            var select = '<select id="' + user.kerberos + '-changeperms">'
+            for (var j in user.changeOptions) {
+              var option = user.changeOptions[j];
+              select += '<option value="' + option.value + '" ' + option.selected + '>' + option.name + "</option>"
+
+            }
+            select += '</select><span class="permissionStatus"></span>'
+            html += "<td>" + (user.changeable ? select : user.groupName) + "</td>"
+            if (permissions.CREATE_USER) {
+              html += '<td><a id="' + user.kerberos + '-pwreset" class="pwreset">reset pass</a></td>'
+              html += '<td><a id="' + user.kerberos + '-remove" class="remove">X</a></td>'
+            }
+            if (permissions.FULL_PERMISSIONS_CONTROL) {
+              html += '<td><a id="' + user.kerberos + '-loginas" class="loginas">login</a></td>'
+            }
+            html += "</tr>"
+          }
+          $(".displaytable").html(html);
+        } else {
+          $(".displaytable").hide();
+          $('.error-msg').show();
+        }
+    }).fail(function() {
+        $('.error-msg').show();
+        $('.error-msg').html('A serious error has occured. Please contact nextres-dev@mit.edu, or refresh the page');
+    });
+  }
+  {{/if}}
 
   $('.sort').on('click', function() {
     $('.sort').attr('class', 'slim sort');
