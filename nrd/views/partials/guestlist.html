@@ -1,22 +1,33 @@
 {{#unless user.firstName}}
 <div class="todo">Please update your <em>residence info</em>. Your guestlist will not work unless your information is valid.</div>
 {{/unless}}
-<h1>View/Edit Your Guestlist</h1>
-<p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="http://studentlife.mit.edu/studentlife.mit.edu/reslifeanddining/news/residencehallsecurity">MIT security policies</a></p>
+
+<section class="content-header">
+      <h1>
+        View/Edit Your Guestlist
+      </h1>
+      <p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="http://studentlife.mit.edu/studentlife.mit.edu/reslifeanddining/news/residencehallsecurity">MIT security policies</a></p>
+</section>
+
+<section class="content">
+
 <form action='guestlist' method='post'>
+
 <p>
-<table>
-  <tr>
-    <th>Full Name</th><th>Kerberos</th>
-  </tr>
-  {{#each guests.guests}}
-  <tr>
-      <td><input type='text' name='guest{{this.index}}Name' value='{{this.name}}' /></td>
-      <td><input type='text' name='guest{{this.index}}Kerberos' value='{{this.kerberos}}' /></td>
-  </tr>
-  {{/each}}
-</table>
+<div class="row">
+  <div class="col-lg-4 col-xs-6"><b>Fullname</b></div>
+  <div class="col-lg-4 col-xs-6"><b>Kerberos</b></div>
+</div>
 </p>
+<p>
+  {{#each guests.guests}}
+  <div class="row">
+      <div class="col-lg-4 col-xs-6"><input class="form-control" type='text' name='guest{{this.index}}Name' value='{{this.name}}' /></div>
+      <div class="col-lg-3 col-xs-6"><input class="form-control" type='text' name='guest{{this.index}}Kerberos' value='{{this.kerberos}}' /></div>
+  </div>
+  {{/each}}
+</p>
+
 {{#if guests.hasTempGuests}}
 {{else}}
 <span id="temp-guest-closed">
@@ -26,23 +37,30 @@
 <span id="temp-guest-open" style="display:none;">
   <p>Temporary guests (resets every morning at 7AM)</p>
   <p>
-  <table>
-    <tr>
-      <th>Full Name</th><th>Kerberos</th>
-    </tr>
-    {{#each guests.tempGuests}}
-    <tr>
-      <td><input type='text' name='guest{{this.index}}Name' value='{{this.name}}' /></td>
-      <td><input type='text' name='guest{{this.index}}Kerberos' value='{{this.kerberos}}' /></td>
-    </tr>
-    {{/each}}
-  </table>
+<div class="row">
+  <div class="col-lg-4 col-xs-6"><b>Fullname</b></div>
+  <div class="col-lg-4 col-xs-6"><b>Kerberos</b></div>
+</div>
+</p>
+<p>
+  {{#each guests.tempGuests}}
+  <div class="row ">
+      <div class="col-lg-4 col-xs-6"><input class="form-control" name='guest{{this.index}}Name' value='{{this.name}}' /></div>
+      <div class="col-lg-3 col-xs-6"><input class="form-control" name='guest{{this.index}}Kerberos' value='{{this.kerberos}}' /></div>
+  </div>
+  {{/each}}
   </p>
 </span>
+
 <p>
-<input type='submit' value='Save'>
+<button class="btn btn-success" type='submit' value='Save'>Save</button>
 </p>
+
 </form>
+
+</section>
+
+
 <script type="text/javascript">
   $(document).ready(function() {
 {{#if guests.hasTempGuests}}

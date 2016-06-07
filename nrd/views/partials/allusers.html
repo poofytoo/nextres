@@ -1,89 +1,112 @@
-<h1>All Residents</h1>
-<p>User controls</p>
+<style>
+th {
+    font-weight: bold;
+}
+</style>
+<section class="content-header">
+    <h1>
+        All Residents
+        <small>User controls</small>
+      </h1>
+</section>
+<section class="content">
+    {{#if permissions.CREATE_USER}}
+    <h3>Adding Users</h3>
+    <p>One kerberos per line. Adding a new user will create an account and send them an email. <br> When inputting Kerberos, <em>do not include @mit.edu</em>.</p>
+    <form method="post" action="users">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-9">
+                <textarea class="form-control" name="kerberosList"></textarea>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-6">
+                <button type="submit" class="btn btn-success" value="Create">Create</button>
+            </div>
+        </div>
+    </form>
+    <h3>Updating Resident Info</h3>
+    <p>URL to .csv file with kerberoses, resident names, and room numbers (see <a href='http://72.29.29.198/safetythird/data/fall2016-roster.csv'>example</a>)</p>
+    <form method="post" action="updateroomnumbers">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-9">
+                <input type="text" class="form-control" name="url" placeholder="URL of .csv file"></input>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-6">
+                <button type="submit" class="btn btn-success" value="Update">Update</button>
+            </div>
+        </div>
+    </form>
+    {{/if}}
+    <br>
+        <table>
+            <tr style="font-weight:bold">
+                <td>Resident Lookup:</td>
+                <td>Sort by:</td>
+            </tr>
+            <tr>
+                <td>
+                    <input class="form-control" type="text" placeholder="kerberos or full name" class="searchname" />
+                </td>
+                <td>
+                    <input id="firstName" class="slim sort" type="button" value="First Name">
+                    <input id="lastName" class="slim sort" type="button" value="Last Name">
+                    <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+                    <input id="roomNumber" class="slim sort" type="button" value="Room Number">
+                </td>
+            </tr>
+        </table>
+    </p>
+    <br>
+    <div class="row">
+        <div class="col-xs-12 col-lg-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">All Users</h3>
+                </div>
+                <div class="box-body table-responsive no-padding">
+                    <table class="displaytable table table-hover">
+                        <tr>
+                            <th>Kerberos</th>
+                            <th width="120">Resident Name</th>
+                            <th>Room</th>
+                            <th>Role</th>
+                            {{#if permissions.CREATE_USER}}
+                            <th>Reset Password</th>
+                            <th>Remove</th>
+                            {{/if}} {{#if permissions.FULL_PERMISSIONS_CONTROL}}
+                            <th>Login AS</th>
+                            {{/if}}
+                        </tr>
+                        {{#each users}}
+                        <tr id="{{this.kerberos}}-tr">
+                            <td>{{this.kerberos}}</td>
+                            <td>{{this.firstName}} {{this.lastName}}</td>
+                            <td>{{this.roomNumber}}</td>
+                            <td>
+                                {{#if this.changeable}}
+                                <select id="{{this.kerberos}}-changeperms">
+                                    {{#each this.changeOptions}}
+                                    <option value="{{this.value}}" {{this.selected}}>
+                                        {{this.name}}
+                                    </option>
+                                    {{/each}}
+                                </select>
+                                <span class="permissionStatus"></span> {{else}} {{this.groupName}} {{/if}}
+                            </td>
+                            {{#if ../permissions.CREATE_USER}}
+                            <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
+                            <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
+                            {{/if}} {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
+                            <td><a id="{{this.kerberos}}-loginas" class="loginas">login</a></td>
+                            {{/if}}
+                        </tr>
+                        {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-{{#if permissions.CREATE_USER}}
-<h2>Adding Users</h2>
-<p>One kerberos per line. Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
-  <form method="post" action="users">
-    <textarea name="kerberosList"></textarea>
-    <input type="submit" value="Create">
-  </form>
-</p>
-<h2>Updating Resident Info</h2>
-<p>URL to .csv file with kerberoses, resident names, and room numbers (see <a href='http://72.29.29.198/safetythird/data/fall2016-roster.csv'>example</a>)</p>
-  <form method="post" action="updateroomnumbers">
-    <input type="text" name="url" placeholder="URL of .csv file"></input>
-    <input type="submit" value="Update">
-  </form>
-</p>
-{{/if}}
-
-<h2>All Users</h2>
-<p>Below is a list of all the users</p>
-<p>
-
-<p>
-  <table>
-    <tr>
-      <td>Resident Lookup:</td>
-      <td>Sort by:</td>
-    </tr>
-    <tr>
-      <td><input type="text" placeholder="kerberos or full name" class="searchname" /></td>
-      <td>
-        <input id="firstName" class="slim sort" type="button" value="First Name">
-        <input id="lastName" class="slim sort" type="button" value="Last Name">
-        <input id="kerberos" class="slim sort" type="button" value="Kerberos">
-        <input id="roomNumber" class="slim sort" type="button" value="Room Number">
-      </td>
-    </tr>
-  </table>
-</p>
-
-  <table class="displaytable">
-    <tr>
-      <th>Kerberos</th>
-      <th width="240">Resident Name</th>
-      <th>Room</th>
-      <th>Role</th>
-      {{#if permissions.CREATE_USER}}
-      <th>Reset Password</th>
-      <th>Remove</th>
-      {{/if}}
-      {{#if permissions.FULL_PERMISSIONS_CONTROL}}
-      <th>Login AS</th>
-      {{/if}}
-    </tr>
-    {{#each users}}
-    <tr id="{{this.kerberos}}-tr">
-      <td>{{this.kerberos}}</td>
-      <td>{{this.firstName}} {{this.lastName}}</td>
-      <td>{{this.roomNumber}}</td>
-      <td>
-        {{#if this.changeable}}
-        <select id="{{this.kerberos}}-changeperms">
-          {{#each this.changeOptions}}
-          <option value="{{this.value}}" {{this.selected}}>
-          {{this.name}}
-          </option>
-          {{/each}}
-        </select>
-        <span class="permissionStatus"></span>
-        {{else}}
-        {{this.groupName}}
-        {{/if}}
-      </td>
-      {{#if ../permissions.CREATE_USER}}
-      <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
-      <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
-      {{/if}}
-      {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
-      <td><a id="{{this.kerberos}}-loginas" class="loginas">login</a></td>
-      {{/if}}
-    </tr>
-    {{/each}}
-  </table>
-  </p>
 
 <script type="text/javascript">
   {{#if permissions.FULL_PERMISSIONS_CONTROL}}

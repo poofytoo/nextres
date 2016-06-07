@@ -1,75 +1,242 @@
-<h1>Next Desk Item Checkout</h1>
-<p>Deskworker Checkout Page</p>
+<style>
+th {
+    font-weight: bold;
+}
+.barcode {
+    font-family: monospace;
+}
 
-<div class="item-checkout">
-  <div class="scan-box">
-    <div class="scan-circle go">
-      <span class="st">scan</span>
-      <div class="scan-effect"></div>
+/** Item Checkout **/
+
+.item-checkout .scan-box {
+    border: 1px solid #dddddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.item-checkout .scan-box em {
+    font-weight: bold;
+}
+
+.item-checkout .scan-box .scan-circle {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    line-height: 60px;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 100;
+    position: relative;
+}
+
+.item-checkout .scan-box .scan-circle .st {
+    color: #fff;
+}
+
+.item-checkout .scan-box .scan-circle.wait {
+    background-color: #e9370e;
+}
+
+.item-checkout .scan-box .scan-circle.type {
+    background-color: #f2e22a;
+}
+
+.item-checkout .scan-box .scan-circle.go {
+    background-color: #56c444;
+}
+
+.item-checkout .scan-box .scan-circle.go .scan-effect {
+    position: absolute;
+    top: 0px;
+    left: -20px;
+    width: 7px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+    animation: scaneffect 3s infinite;
+    -webkit-animation: scaneffect 3s infinite;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-timing-function: ease-in-out;
+}
+
+.item-checkout .scan-box .scan-instructions {
+    margin-top: 10px;
+    line-height: normal;
+}
+
+.item-checkout .scan-box .scan-instructions .checkout-notice {
+    color: #999;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.item-checkout .scan-box .scan-instructions .kerberos {
+    font-weight: bold;
+    color: #999;
+}
+
+.item-checkout .scan-box .scan-instructions .checkout-kerberos,
+.item-checkout .scan-box .scan-instructions .restart,
+.item-checkout .scan-box .scan-instructions .first-checkout,
+.item-checkout .scan-box .scan-instructions .overdue-buttons,
+.item-checkout .scan-box .scan-instructions .checkout-overdue {
+    display: none;
+}
+
+.item-checkout .scan-box .scan-instructions .init {
+    display: block;
+}
+
+.item-checkout .scan-box .scan-instructions #submit-kerberos {
+    width: auto;
+    margin: 10px auto 0;
+}
+
+.item-checkout .scan-box .feedback-bar {
+    margin-top: 10px;
+    display: none;
+}
+
+.item-checkout .scan-box .feedback-bar.success {
+    color: #a4d654;
+}
+
+.item-checkout .scan-box .feedback-bar.fail {
+    color: #c94f4f;
+}
+
+.item-checkout .hidden-textbox {
+    width: 0;
+    display: inline;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+}
+
+@keyframes scaneffect {
+    20% {
+        left: -10px;
+    }
+    60% {
+        left: 60px;
+    }
+    90% {
+        left: -10px;
+    }
+}
+
+@-webkit-keyframes scaneffect {
+    20% {
+        left: -10px;
+    }
+    60% {
+        left: 60px;
+    }
+    90% {
+        left: -10px;
+    }
+}
+</style>
+
+<section class="content-header">
+    <h1>
+        Desk Item Checkout
+        <small>Deskworker item checkout page</small>
+      </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>Deskworker</a></li>
+        <li class="active">Desk Item Checkout</li>
+    </ol>
+</section>
+<section class="content">
+    <div class="item-checkout">
+        <div class="scan-box">
+            <div class="scan-circle go">
+                <span class="st">scan</span>
+                <div class="scan-effect"></div>
+            </div>
+            <div class="scan-instructions">
+                <div class="scan-command init">
+                    Scan an MIT ID to begin <em>checkout</em>
+                    <br /> Scan an item to <em>return</em>
+                </div>
+                <div class="scan-command checkout-overdue">
+                    <span class="kerberos"></span> has <em>overdue items</em>
+                    <div class="checkout-notice">Press Override to override, Cancel to cancel.</div>
+                </div>
+                <div class="scan-command checkout-kerberos">
+                    <div class="checkout-notice">Checkout item for <span class="kerberos"></span></div>
+                    Scan an item to <em>checkout</em>
+                </div>
+                <div class="scan-command overdue-buttons">
+                    <input type="button" id="override-overdue" value="Override">
+                    <input type="button" id="cancel-checkout" value="Cancel">
+                </div>
+                <div class="scan-command restart">
+                    <input type="button" id="submit-barcode" value="Done">
+                </div>
+                <div class="scan-command first-checkout">
+                    This person is checking an item out for the first time
+                    <br /> Please enter their kerberos:
+                    <input type="text" id="submit-kerberos" placeholder="eg: joesmi">
+                </div>
+                <div class="feedback-bar fail">
+                    Feedback Bar
+                </div>
+                <input class="hidden-textbox" type="text" />
+            </div>
+        </div>
     </div>
-    <div class="scan-instructions">
-      <div class="scan-command init">
-        Scan an MIT ID to begin <em>checkout</em><br />
-        Scan an item to <em>return</em>
-      </div>
-      <div class="scan-command checkout-overdue">
-        <span class="kerberos"></span> has <em>overdue items</em>
-        <div class="checkout-notice">Press Override to override, Cancel to cancel.</div>
-      </div>
-      <div class="scan-command checkout-kerberos">
-        <div class="checkout-notice">Checkout item for <span class="kerberos"></span></div>
-        Scan an item to <em>checkout</em>
-      </div>
-      <div class="scan-command overdue-buttons">
-        <input type="button" id="override-overdue" value="Override">
-        <input type="button" id="cancel-checkout" value="Cancel">
-      </div>
-      <div class="scan-command restart">
-        <input type="button" id="submit-barcode" value="Done">
-      </div>
-      <div class="scan-command first-checkout">
-        This person is checking an item out for the first time<br />
-        Please enter their kerberos:
-        <input type="text" id="submit-kerberos" placeholder="eg: joesmi">
-      </div>
-      <div class="feedback-bar fail">
-        Feedback Bar
-      </div>
-      <input class="hidden-textbox" type="text"/>
+    <div class="row">
+        <div class="col-xs-12 col-lg-9">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">Items</h3>
+                    <div class="box-tools">
+                        <div class="input-group input-group-sm" style="width: 150px;">
+                            <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
+                            <div class="input-group-btn">
+                                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-body table-responsive no-padding">
+                    <table class="displaytable table table-hover">
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Name</th>
+                            <th>Checked out by</th>
+                            <th>Days since checkout</th>
+                            <th>Returned</th>
+                            <th>Remove</th>
+                        </tr>
+                        {{#each items}}
+                        <tr id="{{this.barcode}}-tr">
+                            <td class="barcode">{{this.barcode}}</td>
+                            <td>{{this.name}}</td>
+                            <td id="{{this.barcode}}-borrower">{{this.borrower}}</td>
+                            {{#if this.overdue}}
+                            <td id="{{this.barcode}}-daydiff" class="overdue">{{this.daydiff}} <span class="label label-danger">(overdue)</span></td>
+                            {{else}}
+                            <td id="{{this.barcode}}-daydiff">{{this.daydiff}}</td>
+                            {{/if}} {{#if this.borrower}}
+                            <td>
+                                <input type="checkbox" id="{{this.barcode}}-returned" class="returned">
+                            </td>
+                            {{else}}
+                            <td>
+                                <input type="checkbox" id="{{this.barcode}}-returned" class="returned" style="display: none;">
+                            </td>
+                            {{/if}}
+                            <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
+                        </tr>
+                        {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<p>
-  <table class="displaytable">
-  <tr>
-    <th>Barcode</th>
-    <th>Name</th>
-    <th>Checked out by</th>
-    <th>Days since checkout</th>
-    <th>Returned</th>
-    <th>Remove</th>
-  </tr>
-  {{#each items}}
-  <tr id="{{this.barcode}}-tr">
-    <td>{{this.barcode}}</td>
-    <td>{{this.name}}</td>
-    <td id="{{this.barcode}}-borrower">{{this.borrower}}</td>
-    {{#if this.overdue}}
-      <td id="{{this.barcode}}-daydiff" class="overdue">{{this.daydiff}} (overdue)</td>
-    {{else}}
-      <td id="{{this.barcode}}-daydiff">{{this.daydiff}}</td>
-    {{/if}}
-    {{#if this.borrower}}
-      <td><input type="checkbox" id="{{this.barcode}}-returned" class="returned"></td>
-    {{else}}
-      <td><input type="checkbox" id="{{this.barcode}}-returned" class="returned" style="display: none;"></td>
-    {{/if}}
-    <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
-  </tr>
-  {{/each}}
-  </table>
-</p>
-
-
-<script src="js/checkout.js"></script>
+    <section>
+        <script src="js/checkout.js"></script>

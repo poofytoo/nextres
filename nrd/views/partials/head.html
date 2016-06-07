@@ -1,21 +1,46 @@
 <head>
-    <title>Next Resident Dashboard</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <base href="/">
+    <meta name="description" content="">
+    <meta name="fragment" content="!">
+    <!-- Apple META -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- Facebook META -->
+    <meta property="og:site_name" content="Next House Resident Dashboard">
+    <meta property="og:title" content="Next House Resident Dashboard">
+    <meta property="og:description" content="">
+    <meta property="og:url" content="http://nextres.mit.edu">
+    <meta property="og:type" content="website">
+    <!-- Twitter META -->
+    <meta name="twitter:title" content="Next House Resident Dashboard">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:url" content="http://nextres.mit.edu">
+    <title>Next House Resident Dashboard</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/reset.css">
-    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="admin-lte/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="admin-lte/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="admin-lte/dist/css/skins/_all-skins.min.css">
+    <script>
+    if (/nextcode/i.test(location.href)) {
+        location.href = location.href.replace("nextcode", "nextres")
+    }
+    </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="/js/handlebars.js"></script>
     <script src="/js/jquery.scrollTo-1.4.3.1-min.js"></script>
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-    
     <!-- jonthronton's datetimepicker -->
-  	<script type="text/javascript" src="/plugins/jonthornton/jquery.timepicker.js"></script>
+    <script type="text/javascript" src="/plugins/jonthornton/jquery.timepicker.js"></script>
     <link rel="stylesheet" type="text/css" href="/plugins/jonthornton/jquery.timepicker.css" />
-    
     <!-- validating html5 existance -->
-	<script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
-	<script>
-		if (/nextcode/i.test(location.href)) {
-			location.href = location.href.replace("nextcode", "nextres")
-		}
-	</script>
-  </head>
+    <script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
+</head>

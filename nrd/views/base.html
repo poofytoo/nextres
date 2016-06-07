@@ -1,26 +1,35 @@
 <html>
-  {{> head}}
-  <body>
+{{> head}}
+
+<body class="hold-transition skin-aqua sidebar-mini">
+  <div class="wrapper">
     {{> header}}
-    <div class="main">
-      {{> navigation}}
-      <div class="content">
-        {{#if error}}
-        <div class="error-msg">{{error}}</div>
-        {{else}}
-        {{#if success}}
-        <div class="success-msg">{{success}}</div>
-        {{/if}}
-        {{#each warnings}}
-        <div class="warning-msg">{{this}}</div>
-        {{/each}}
-        {{/if}}
-        {{#if user}}
-        {{> content}}
-        {{else}}
-        <h1>Log in to see interesting things</h1>
-        {{/if}}
-      </div>
-    </div>
-  </body>
+    {{> navigation}}
+        <div class="content-wrapper">
+            {{#if error}}
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{error}}
+            </div>
+            {{else}} {{#if success}}
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{success}}
+            </div>
+            {{/if}} {{#each warnings}}
+            <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{this}}
+            </div>
+            {{/each}} {{/if}}
+              {{#if user}}
+                {{> content}}
+              {{else}}
+                <h1>Log in to see interesting things</h1> 
+              {{/if}}
+        </div>
+
+    </div> <!-- wrapper -->
+</body>
+{{> footer}}
 </html>

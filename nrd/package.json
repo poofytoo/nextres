@@ -6,23 +6,25 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "admin-lte": "^2.3.3",
     "async": "*",
+    "bcrypt": "*",
+    "bower": "^1.7.9",
     "connect-flash": "*",
-    "express": "3.4.0",
-    "jade": "*",
+    "connect-mysql": "2.0.5",
     "consolidate": "*",
+    "express": "3.4.0",
+    "google-oauth-serviceaccount": "*",
+    "handlebars": "*",
+    "hbs": "*",
+    "jade": "*",
+    "mysql2": "0.11.4",
+    "node-schedule": "*",
+    "nodemailer": "~0.7.1",
     "passport": "*",
     "passport-local": "*",
-    "handlebars": "*",
-    "bcrypt": "*",
-    "mysql2": "0.11.4",
-    "hbs": "*",
-    "nodemailer": "~0.7.1",
-    "request": "*",
-    "google-oauth-serviceaccount": "*",
     "qs": "*",
-    "time": "*",
-    "node-schedule": "*",
-    "connect-mysql": "2.0.5"
+    "request": "*",
+    "time": "*"
   }
 }

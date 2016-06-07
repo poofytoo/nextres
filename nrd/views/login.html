@@ -1,15 +1,41 @@
 <html>
-	<head>
-		<title>Next Resident Dashboard</title>
-		<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
-		<link rel="stylesheet" type="text/css" href="stylesheets/login.css">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script>
-	if (/nextcode/i.test(location.href)) {
-		location.href = location.href.replace("nextcode", "nextres");
-	}
-</script>
-	</head>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <base href="/">
+    <meta name="description" content="">
+    <meta name="fragment" content="!">
+    <!-- Apple META -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- Facebook META -->
+    <meta property="og:site_name" content="Next House Resident Dashboard">
+    <meta property="og:title" content="Next House Resident Dashboard">
+    <meta property="og:description" content="">
+    <meta property="og:url" content="http://nextres.mit.edu">
+    <meta property="og:type" content="website">
+    <!-- Twitter META -->
+    <meta name="twitter:title" content="Next House Resident Dashboard">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:url" content="http://nextres.mit.edu">
+    <title>Next House Resident Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/reset.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
+    <!-- Bootstrap 3.3.6 -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <script>
+    if (/nextcode/i.test(location.href)) {
+        location.href = location.href.replace("nextcode", "nextres")
+    }
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+
 	<body>
 	<form  method="post" action="/login">
 		<div class="container">
@@ -36,7 +62,7 @@
 				</table>
 				<input type="submit" value="login">
 				<p>
-                                	Forgot your password? Click <a href="http://next.scripts.mit.edu/nextres/resetpassword.php">here</a>. <br />
+                    Forgot your password? Click <a href="http://next.scripts.mit.edu/nextres/resetpassword.php">here</a>. <br />
 					Other questions? contact: nextres@mit.edu
 				</p>
 			</div>
@@ -46,4 +72,6 @@
 			$(".username").focus();
 		</script>
 	</body>
+
+	
 </html>
