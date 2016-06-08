@@ -364,7 +364,7 @@ exports.resetPassword = function(req, res) {
                             return res.render('new-password', { error: "There was an error resetting your password. Please contact nextres@mit.edu to reset it manually." })
                         } else {
                             mailer.confirmResetPassword(user.kerberos);
-                            return res.render('new-password', { success: "Password was successfully reset. Please try logging in." })
+                            return res.render('new-password', { success: "Password was successfully reset. Please try logging in again <a href='/login'>here</a>." })
                         }
                     });
                 } else {
