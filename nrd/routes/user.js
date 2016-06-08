@@ -2,8 +2,11 @@ var util = require('./util');
 var Users = require('../models/user').Users;
 var pm = require('../models/permissions').Permissions;
 var logger = require('../models/logger');
+var mailer = require('../models/mailer').Mailer;
 var request = require('request');
 var db = require('../models/db').Database;
+var async = require('async');
+var crypto = require('crypto');
 
 var complete = function(req, res, err, success) {
     Users.getAllUsers(req.query || {}, function(err2, users) {
@@ -67,7 +70,7 @@ exports.search = function(req, res) {
         if (err) {
             res.json([]);
         } else {
-            res.json({users: users, permissions: req.permissions});
+            res.json({ users: users, permissions: req.permissions });
         }
     });
 }
@@ -297,3 +300,79 @@ exports.updateRoomNumbers = function(req, res) {
         }
     });
 }
+
+
+resetPasswordTokens = {};
+resetPasswordExpires = {};
+
+exports.forgotPassword = function(req, res, next) {
+    crypto.randomBytes(20, function(err, buffer) {
+        if (!err) {
+            var token = buffer.toString('hex');
+            if (req.body.kerberos) {
+                Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+                    if (!user || err) {
+                        return res.render('reset-password', { error: 'No account with that kerberos has been found' })
+                    } else {
+                        resetPasswordTokens[token] = user.kerberos;
+                        resetPasswordExpires[token] = Date.now() + 3600000; // 1 hour
+                        var url = 'http://' + req.headers.host + '/auth/reset/' + token;
+                        mailer.resetPasswordToken(user.kerberos, url);
+                        return res.render('reset-password', { success: 'An email has been sent to ' + user.kerberos + '@mit.edu with further instructions.' })
+                    }
+                });
+            } else {
+                return res.render('reset-password', { error: 'Kerberos field must not be left blank' });
+            }
+        } else {
+            return res.render('reset-password', { error: 'An unexpected error occured. Please contact nextres@mit.edu to reset your password manually.' });
+        }
+    });
+};
+
+
+/**
+ * Reset password GET from email token
+ */
+exports.validateResetToken = function(req, res) {
+    var kerberos = resetPasswordTokens[req.params.token];
+    if (!kerberos) {
+        return res.render('reset-password', { error: 'Password reset token is invalid or expired.' })
+    }
+    if (resetPasswordExpires[req.params.token] < Date.now()) {
+        return res.render('reset-password', { error: 'Password reset token is invalid or expired.' })
+    }
+    return res.render('new-password', { token: req.params.token })
+}
+
+exports.resetPassword = function(req, res) {
+    var passwordDetails = req.body;
+    var kerberos = resetPasswordTokens[req.params.token];
+    if (resetPasswordExpires[req.params.token] < Date.now()) {
+        return res.render('new-password', { error: 'Password reset is expired or invalid.' })
+    }
+    if (!kerberos) {
+        return res.render('new-password', { error: 'Password reset is expired or invalid.' })
+    } else {
+        Users.getUserWithKerberos(kerberos, function(err, user) {
+            if (user && !err) {
+                if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
+                    resetPasswordTokens[req.params.token] = undefined;
+                    resetPasswordExpires[req.params.token] = undefined;
+                    user.changePassword(passwordDetails.newPassword, function(err) {
+                        if (err) {
+                            return res.render('new-password', { error: "There was an error resetting your password. Please contact nextres@mit.edu to reset it manually." })
+                        } else {
+                            mailer.confirmResetPassword(user.kerberos);
+                            return res.render('new-password', { success: "Password was successfully reset. Please try logging in." })
+                        }
+                    });
+                } else {
+                    return res.render('new-password', { error: "Passwords do not match." });
+                }
+            } else {
+                return res.render('new-password', { error: "There was an error resetting your password. Please contact nextres@mit.edu to reset it manually." })
+            }
+        });
+    }
+};

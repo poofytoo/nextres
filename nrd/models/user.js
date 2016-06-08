@@ -263,20 +263,16 @@ User.prototype.editMitID = function(mitID, callback) {
  * Updates this user's password.
  */
 User.prototype.changePassword = function(newPassword, callback) {
-    if (this.kerberos !== "rliu42") {
-        var id = this.id;
-        hashPassword(newPassword, function(err, hash) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            db.query().update('next-users', ['password'], [hash])
-                .where('id = ?', [id])
-                .execute(callback);
-        });
-    } else {
-        callback("Failed to change password.");
-    }
+    var id = this.id;
+    hashPassword(newPassword, function(err, hash) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        db.query().update('next-users', ['password'], [hash])
+            .where('id = ?', [id])
+            .execute(callback);
+    });
 }
 
 /*

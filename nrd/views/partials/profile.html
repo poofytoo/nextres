@@ -12,20 +12,24 @@
 <section class="content">
     <form method="post" action="residentinfo">
         <div class="input-group col-lg-4 col-xs-12">
-        	<label> First Name </label>
+            <label> First Name </label>
             <input name="firstname" value="{{user.firstName}}" class="form-control" placeholder="First Name">
         </div>
         <br>
         <div class="input-group col-lg-4 col-xs-12">
-        	<label> Last Name </label>
+            <label> Last Name </label>
             <input name="lastname" value="{{user.lastName}}" class="form-control" placeholder="Last Name">
         </div>
         <br>
         <div class="input-group col-lg-4 col-xs-12">
-        	<label> Room Number </label>
+            <label> Room Number </label>
             <input type="text" name="roomnumber" value="{{user.roomNumber}}" class="form-control" placeholder="Room Number">
         </div>
         <br>
-        <button type="submit" class="btn btn-success pull-left">Save</button>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <button class="btn btn-success col-lg-6 col-md-6 col-xs-12" type='submit' value='Save'>Save</button>
+            </div>
+        </div>
     </form>
 </section>

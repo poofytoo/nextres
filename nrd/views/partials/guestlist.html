@@ -1,11 +1,12 @@
 {{#unless user.firstName}}
-<div class="todo">Please update your <em>residence info</em>. Your guestlist will not work unless your information is valid.</div>
+<div class="alert alert-warning">Please update your <em>residence info</em>. Your guestlist will not work unless your information is valid.</div>
 {{/unless}}
 
 <section class="content-header">
       <h1>
         View/Edit Your Guestlist
       </h1>
+      <br>
       <p>Guests must be MIT students. For more details about the Guestlist policy, please check the <a href="http://studentlife.mit.edu/studentlife.mit.edu/reslifeanddining/news/residencehallsecurity">MIT security policies</a></p>
 </section>
 
@@ -35,7 +36,7 @@
 </span>
 {{/if}}
 <span id="temp-guest-open" style="display:none;">
-  <p>Temporary guests (resets every morning at 7AM)</p>
+  <p><b>Temporary guests</b> (resets every morning at 7AM)</p>
   <p>
 <div class="row">
   <div class="col-lg-4 col-xs-6"><b>Fullname</b></div>
@@ -51,9 +52,12 @@
   {{/each}}
   </p>
 </span>
-
 <p>
-<button class="btn btn-success" type='submit' value='Save'>Save</button>
+  <div class="row">
+    <div class="col-lg-4 col-md-6 col-xs-12">
+      <button class="btn btn-success col-lg-6 col-md-6 col-xs-12" type='submit' value='Save'>Save</button>
+    </div>
+  </div>
 </p>
 
 </form>

@@ -229,4 +229,47 @@ Mailer.prototype.informOverdue = function(email, itemList) {
   this.mail({to: to, cc: cc, subject: subject, html: html, text: text});
 }
 
+Mailer.prototype.resetPasswordToken = function(kerberos, url, callback) {
+  var to = [kerberos + "@mit.edu"];
+  var cc = [];
+  var subject = "[NextRes] Resetting Your Password";
+  var html = "Hello " + kerberos + ", <br />" +
+             "<p>You have requested the password to your NextRes Dashboard account be reset.</p>" +
+             "<p>Please visit this url to reset your password:</p>" +
+             "<p>" + url + "</p>" +
+             "<strong>If you didn't make this request, you can ignore this email.</strong><br /><br />" + 
+             "<p>Cheers, <br />the NextRes Dev team</p>"
+  var text = html;
+  console.log(html);
+  this.mail({to:to, cc:cc, subject:subject, html:html, text:text}, function(err) {
+    if (callback) {
+      if (err) {
+        callback(err);
+      } else {
+        callback();
+      }
+    }
+  });
+}
+
+Mailer.prototype.confirmResetPassword = function(kerberos, callback) {
+  var to = [kerberos + "@mit.edu"];
+  var cc = [];
+  var subject = "[NextRes] Password Reset Confirmation";
+  var html = "Hello " + kerberos + ", <br />" +
+             "<p>This is a confirmation that the password for your NextRes account has just been changed.</p> <br />" +
+             "<strong>If you didn't make this request, then please contact nextres@mit.edu immediately.</strong><br /><br />" + 
+             "<p>Cheers, <br />the NextRes Dev team</p>"
+  var text = html;
+  this.mail({to:to, cc:cc, subject:subject, html:html, text:text}, function(err) {
+    if (callback) {
+      if (err) {
+        callback(err);
+      } else {
+        callback();
+      }
+    }
+  });
+}
+
 module.exports.Mailer = new Mailer();

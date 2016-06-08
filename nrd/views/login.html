@@ -35,6 +35,14 @@
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
+<style>
+.google-badge>img {
+  border-radius:6px;
+  box-sizing:border-box;
+  height:60px;
+}
+</style>
+
 
 	<body>
 	<form  method="post" action="/login">
@@ -62,14 +70,24 @@
 				</table>
 				<input type="submit" value="login">
 				<p>
-                    Forgot your password? Click <a href="http://next.scripts.mit.edu/nextres/resetpassword.php">here</a>. <br />
+                    Forgot your password? Click <a href="/auth/forgot">here</a>. <br />
 					Other questions? contact: nextres@mit.edu
 				</p>
 			</div>
+			<p>
+			<div style="inline-block">
+				<a style="display:none" class="google-badge" href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' ><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a><span class="reference google"></span>
+			</div>
+
+		</p>
 		</div>
 		</form>
 		<script>
 			$(".username").focus();
+			if( !/android|iOS|iphone|ipad/i.test(navigator.userAgent) ) {
+				$('.google-badge').show();
+				$('.app-badge').show();
+			}
 		</script>
 	</body>
 

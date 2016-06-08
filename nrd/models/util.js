@@ -30,7 +30,7 @@ module.exports.router = function(req, res, next) {
     next();
   } else {
     logger.info("[Unknown user] " + req.url);
-    if (req.url === '/login' || req.url === '/logout') {
+    if (req.url === '/login' || req.url === '/logout' || req.url.indexOf('reset') > -1 || req.url.indexOf('forgot') > -1) {
       next()
     } else {
       if (req.session) {

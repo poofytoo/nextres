@@ -69,6 +69,16 @@ if ('development' == app.get('env')) {
 app.get('/', user.viewprofile);
 app.get('/home', user.viewprofile);
 
+
+/*
+* Password reset
+*/
+app.get('/auth/forgot', function(req, res) {
+  res.render('reset-password');
+})
+app.post('/auth/forgot', user.forgotPassword);
+app.get('/auth/reset/:token', user.validateResetToken);
+app.post('/auth/reset/:token', user.resetPassword);
 /*
  * User functions
  */
