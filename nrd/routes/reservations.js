@@ -77,7 +77,7 @@ function validateReservation(reservation, user, callback) {
               done(err || !user);
             });
           }, function(invalidKerberos) {
-              callback(invalidKerberos.length > 0 ?
+              callback(invalidKerberos && invalidKerberos.length > 0 ?
                   'The following signatories are invalid: ' +
                   invalidKerberos.join(', ') : '');
           });

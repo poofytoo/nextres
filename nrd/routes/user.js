@@ -312,7 +312,7 @@ exports.forgotPassword = function(req, res, next) {
             if (req.body.kerberos) {
                 Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
                     if (!user || err) {
-                        return res.render('reset-password', { error: 'No account with that kerberos has been found' })
+                        return res.render('reset-password', { error: 'No account with that kerberos has been found. If you believe this is a mistake, please contact nextres@mit.edu.' })
                     } else {
                         resetPasswordTokens[token] = user.kerberos;
                         resetPasswordExpires[token] = Date.now() + 3600000; // 1 hour

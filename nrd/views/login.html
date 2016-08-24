@@ -27,13 +27,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
     <script>
     if (/nextcode/i.test(location.href)) {
         location.href = location.href.replace("nextcode", "nextres")
     }
     </script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+     <!-- Framework 7 -->
+	<script src="bower_components/Framework7/dist/js/framework7.min.js"></script>
+	<script>
+	(function() {
+	    if (Framework7.prototype.device.android) {
+	        Dom7('head').append(
+	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.material.min.css">' +
+	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.material.colors.min.css">'
+	        );
+	    } else {
+	        Dom7('head').append(
+	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.ios.min.css">' +
+	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.ios.colors.min.css">'
+	        );
+	    }
+	})();
+	</script>
+    <script src="js/nextres.js"></script>
 </head>
 <style>
 .google-badge>img {
@@ -41,55 +58,125 @@
   box-sizing:border-box;
   height:60px;
 }
+.mobile, .browser {
+	display: none;
+}
 </style>
 
-
-	<body>
-	<form  method="post" action="/login">
-		<div class="container">
-			<div class="header"><span class="circle">N</span></div>
-			<div class="loginform">
-			{{#if error}}
-				<h1 class="error">
+<body>
+	<!-- Browser UI -->
+    <form class="browser" method="post" action="/login">
+        <div class="container browser">
+            <div class="header"><span class="circle">N</span></div>
+            <div class="loginform">
+                {{#if error}}
+                <h1 class="error">
 					Invalid login
-				</h1>
-			{{else}}
-				<h1>
+				</h1> {{else}}
+                <h1>
 					Next Resident Dashboard
-				</h1>
-			{{/if}}
-				<table>
-					<tr>
-						<td>kerberos</td>
-						<td><input type="text" class="username" name="username"></td>
-					</tr>
-					<tr>
-						<td>password</td>
-					 	<td><input type="password" name="password"></td>
-					</tr>
-				</table>
-				<input type="submit" value="login">
-				<p>
-                    Forgot your password? Click <a href="/auth/forgot">here</a>. <br />
-					Other questions? contact: nextres@mit.edu
-				</p>
-			</div>
-			<p>
-			<div style="inline-block">
-				<a style="display:none" class="google-badge" href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' ><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a><span class="reference google"></span>
-			</div>
+				</h1> {{/if}}
+                <table>
+                    <tr>
+                        <td>kerberos</td>
+                        <td>
+                            <input type="text" class="username" name="username" onkeyup="return forceLower(this);" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>password</td>
+                        <td>
+                            <input type="password" name="password" required>
+                        </td>
+                    </tr>
+                </table>
+                <input type="submit" value="login">
+                <p>
+                    <a href="/auth/forgot" class="forgot">Forgot your password?</a>
+                    <br /> Other questions? contact: nextres@mit.edu
+                </p>
+            </div>
+            <p>
+                <div style="inline-block">
+                    <a class="google-badge" href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' /></a>
+                </div>
+            </p>
+        </div>
+    </form>
+    <!-- Mobile UI -->
+    <div class="mobile">
+        <div class="statusbar-overlay"></div>
+        <div class="views">
+            <div class="view view-main navbar-through">
+                <div class="navbar theme-white">
+                    <div class="navbar-inner">
+                        <div class="center sliding">NextRes</div>
+                    </div>
+                </div>
+                <div class="pages">
+                    <div data-page="index" class="page">
+                        <div class="page-content">
+                            <form method="post" action="/login">
+                                <div class="list-block">
+                                    <ul>
+                                        <li class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title label">Kerberos</div>
+                                                <div class="item-input input-group">
+                                                    <input name="username" type="text" name="username" id="username" placeholder="username" onkeyup="return forceLower(this);" required>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title label">Password</div>
+                                                <div class="item-input input-group" show-errors>
+                                                    <input name="password" type="password" name="password" id="password" placeholder="password" required>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="list-block">
+                                    <ul>
+                                    	<br>
+                                        <li>
+                                            <a id="signin" type="submit" class="button button-fill button-big button-round color-lightblue">Sign In</a>
+                                        </li>
+                                        <br>
+                                        <li>
+                                            <a href='/auth/forgot' class="button color-red forgot">Forgot your password?</a>
+                                        </li>
+                                        <br>
+                                    </ul>
+                                    <div class="list-block-label"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		</p>
-		</div>
-		</form>
-		<script>
-			$(".username").focus();
-			if( !/android|iOS|iphone|ipad/i.test(navigator.userAgent) ) {
-				$('.google-badge').show();
-				$('.app-badge').show();
-			}
-		</script>
-	</body>
+	<script>
+	$("#signin").click(function() {
+	    $("form").submit();
+	});
+	$('.forgot').click(function(){
+		location.href = "/auth/forgot"
+	});
+	$(".username").focus();
+    var forceLower = function(s) { s.value = s.value.toLowerCase(); };
 
-	
+	{{#if error}}
+		if (isAndroid || isIos) {
+			NR.alert('<span class="color-red">Invalid Login</span>', 'NextRes');
+		}
+	{{/if}}
+	</script>
+
+
+</body>
+
 </html>

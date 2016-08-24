@@ -1,7 +1,7 @@
 <html>
 {{> head}}
 
-<body class="hold-transition skin-aqua sidebar-mini">
+<body class="hold-transition fixed sidebar-mini">
   <div class="wrapper">
     {{> header}}
     {{> navigation}}
@@ -33,3 +33,10 @@
 </body>
 {{> footer}}
 </html>
+<script>
+    if (location.href.lastIndexOf("/") == location.href.length-1) {
+        setTimeout(function() {
+            $("body").addClass("sidebar-open");
+        }, 250);
+    }
+</script>

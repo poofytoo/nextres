@@ -8,7 +8,7 @@
 
 <section class='content'>
 <p>Below are all the upcoming room reservations for Next House. <br />
-Include a reason for denying the room reservation before hitting <span class="label label-danger">Deny</span></p>
+Include a reason for denying the room reservation before hitting &nbsp; <a class="label label-danger">Deny</a></p>
 
 <p>Show confirmed reservations? <input type="checkbox" id="hide-confirms"/> </p>
 
@@ -18,12 +18,12 @@ Include a reason for denying the room reservation before hitting <span class="la
   {{this.summary}} at <b>{{this.formattedTime}}</b>
   &nbsp;-&nbsp; <small>{{this.description}}</small>
   <br>
-  <span>Reason: <textarea cols="60" max-width:"600px" class="form-control" id="deny-reservation-reason-{{this.id}}"></textarea></span>
+  <span><textarea placeholder="Reason" cols="60" max-width:"600px" class="form-control" id="deny-reservation-reason-{{this.id}}"></textarea></span>
   <p>
   <span class="status-{{this.status}}-confirm">
-    <span class="label label-success" id="confirm-reservation-{{this.id}}" class="confirm-reservation">Confirm</span>
+    <a class="label label-success confirm-reservation" id="confirm-reservation-{{this.id}}">Confirm</a>
   </span>
-  <span class="label label-danger" id="deny-reservation-{{this.id}}" class="deny-reservation">Deny</span>
+  <a class="label label-danger deny-reservation" id="deny-reservation-{{this.id}}">Deny</a>
   </p>
   </li>
   {{/each}}
@@ -36,6 +36,7 @@ Include a reason for denying the room reservation before hitting <span class="la
 
 <script type="text/javascript">
   $('.confirm-reservation').on('click', function(e) {
+      console.log(e);
       event_id = e.target.id.substring('confirm-reservation-'.length);
       $.ajax('/roomreservationconfirm', {data: {id: event_id}, type: "POST"});
       $('#process-reservation-li-' + event_id).toggleClass('status-tentative status-confirmed');

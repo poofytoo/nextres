@@ -11,17 +11,18 @@
 <!-- Main content -->
 <section class="content">
     <form method="post" action="residentinfo">
-        <div class="input-group col-lg-4 col-xs-12">
-            <label> First Name </label>
-            <input name="firstname" value="{{user.firstName}}" class="form-control" placeholder="First Name">
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-5 col-xs-12">
+                <label> First Name </label>
+                <input name="firstname" value="{{user.firstName}}" class="form-control" placeholder="First Name">
+            </div>
+            <div class="form-group col-lg-3 col-md-5 col-xs-12">
+                <label> Last Name </label>
+                <input name="lastname" value="{{user.lastName}}" class="form-control" placeholder="Last Name">
+            </div>
         </div>
         <br>
-        <div class="input-group col-lg-4 col-xs-12">
-            <label> Last Name </label>
-            <input name="lastname" value="{{user.lastName}}" class="form-control" placeholder="Last Name">
-        </div>
-        <br>
-        <div class="input-group col-lg-4 col-xs-12">
+        <div class="input-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
             <label> Room Number </label>
             <input type="text" name="roomnumber" value="{{user.roomNumber}}" class="form-control" placeholder="Room Number">
         </div>
