@@ -73,7 +73,7 @@ function validateGuestlist(guestlist, callback) {
       }
     });
   }, function(invalidKerberos) {
-    callback(invalidKerberos.length > 0 ?
+    callback(invalidKerberos && invalidKerberos.length > 0 ?
         'The following guest kerberos are invalid: ' +
         invalidKerberos.join(', ') : '');
   });

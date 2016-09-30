@@ -189,7 +189,7 @@ th {
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-lg-9">
+        <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
                     <h3 class="box-title">Items</h3>
@@ -216,21 +216,28 @@ th {
                         <tr id="{{this.barcode}}-tr">
                             <td class="barcode">{{this.barcode}}</td>
                             <td>{{this.name}}</td>
-                            <td id="{{this.barcode}}-borrower">{{this.borrower}}</td>
+                            <td id="{{this.barcode}}-borrower">
+                                {{#if this.borrower}}
+                                    {{this.borrower}}
+                                {{else}}
+                                    <span class="label label-success">available</span>
+                                {{/if}}
+                            </td>
                             {{#if this.overdue}}
-                            <td id="{{this.barcode}}-daydiff" class="overdue">{{this.daydiff}} <span class="label label-danger">(overdue)</span></td>
+                            <td id="{{this.barcode}}-daydiff" class="overdue">{{this.daydiff}} <span class="label label-danger">overdue</span></td>
                             {{else}}
                             <td id="{{this.barcode}}-daydiff">{{this.daydiff}}</td>
-                            {{/if}} {{#if this.borrower}}
+                            {{/if}} 
+                            {{#if this.borrower}}
                             <td>
                                 <input type="checkbox" id="{{this.barcode}}-returned" class="returned">
                             </td>
                             {{else}}
                             <td>
-                                <input type="checkbox" id="{{this.barcode}}-returned" class="returned" style="display: none;">
+                                <input type="checkbox" id="{{this.barcode}}-returned" class="returned" style="display:none;">
                             </td>
                             {{/if}}
-                            <td><a id="{{this.barcode}}-remove" class="remove">X</a></td>
+                            <td><a id="{{this.barcode}}-remove" class="remove label label-danger">X</a></td>
                         </tr>
                         {{/each}}
                     </table>

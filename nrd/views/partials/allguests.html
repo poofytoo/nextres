@@ -19,14 +19,14 @@
         <table>
             <tr style="font-weight:bold">
                 <td>Resident Lookup:</td>
-                <td>Sort by:</td>
+                <td>&nbsp; Sort by:</td>
             </tr>
             <tr>
                 <td>
                     <input type="text" placeholder="kerberos or full name" class="searchname form-control" />
                 </td>
                 <td>
-                    <input id="firstName" class="slim sort" type="button" value="First Name">
+                    &nbsp; <input id="firstName" class="slim sort" type="button" value="First Name">
                     <input id="lastName" class="slim sort" type="button" value="Last Name">
                     <input id="kerberos" class="slim sort" type="button" value="Kerberos">
                 </td>
@@ -61,7 +61,7 @@
                         </tr>
                         {{#each guestlists}}
                         <tr>
-                            <td>
+                            <td style="font-family:monospace">
                                 {{this.kerberos}}
                             </td>
                             <td>
@@ -70,7 +70,7 @@
                             </td>
                             {{#each this.guests}}
                             <td>
-                                {{#if this.kerberos}} {{this.name}} ({{this.kerberos}}) {{else}}
+                                {{#if this.kerberos}} {{this.name}} <small>[{{this.kerberos}}]</small> {{else}}
                                 <span class="empty"><small>empty</small></span> {{/if}}
                             </td>
                             {{/each}}
@@ -136,16 +136,16 @@ var updateList = function(query) {
                 var html = '';
                 var appendRow = function(isTempGuests) {
                     html += '<tr>';
-                    html += '<td>' + guestlists[i].kerberos + '</td>';
+                    html += '<td style="font-family:monospace">' + guestlists[i].kerberos + '</td>';
                     html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + (isTempGuests ? ' (TEMP)' : '') + '</td>';
                     var attr = isTempGuests ? 'tempGuests' : 'guests';
                     for (var j = 0; j < guestlists[i][attr].length; j++) {
                         var guest = guestlists[i][attr][j];
                         html += '<td>';
                         if (guest.kerberos) {
-                            html += guest.name + ' (' + guest.kerberos + ')';
+                            html += guest.name + ' <small>[' + guest.kerberos + ']</small>';
                         } else {
-                            html += '<span class="empty">empty</span>';
+                            html += '<span class="empty"><small>empty</small></span>';
                         }
                         html += '</td>';
                     }

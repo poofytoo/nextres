@@ -27,10 +27,10 @@ th {
     <p>URL to .csv file with kerberoses, resident names, and room numbers (see <a href='http://72.29.29.198/safetythird/data/fall2016-roster.csv'>example</a>)</p>
     <form method="post" action="updateroomnumbers">
         <div class="row">
-            <div class="col-lg-4 col-md-6 col-xs-9">
+            <div class="col-lg-4 col-md-6 col-xs-12">
                 <input type="text" class="form-control" name="url" placeholder="URL of .csv file"></input>
             </div>
-            <div class="col-lg-3 col-md-4 col-xs-6">
+            <div class="col-lg-3 col-md-4 col-xs-12">
                 <button type="submit" class="btn btn-success" value="Update">Update</button>
             </div>
         </div>
@@ -40,13 +40,14 @@ th {
         <table>
             <tr style="font-weight:bold">
                 <td>Resident Lookup:</td>
-                <td>Sort by:</td>
+                <td>&nbsp; Sort by:</td>
             </tr>
             <tr>
                 <td>
                     <input class="form-control" type="text" placeholder="kerberos or full name" class="searchname" />
                 </td>
                 <td>
+                    &nbsp; 
                     <input id="firstName" class="slim sort" type="button" value="First Name">
                     <input id="lastName" class="slim sort" type="button" value="Last Name">
                     <input id="kerberos" class="slim sort" type="button" value="Kerberos">
@@ -66,19 +67,19 @@ th {
                     <table class="displaytable table table-hover">
                         <tr>
                             <th>Kerberos</th>
-                            <th width="120">Resident Name</th>
+                            <th>Name</th>
                             <th>Room</th>
                             <th>Role</th>
                             {{#if permissions.CREATE_USER}}
                             <th>Reset Password</th>
                             <th>Remove</th>
                             {{/if}} {{#if permissions.FULL_PERMISSIONS_CONTROL}}
-                            <th>Login AS</th>
+                            <th>Login as</th>
                             {{/if}}
                         </tr>
                         {{#each users}}
                         <tr id="{{this.kerberos}}-tr">
-                            <td>{{this.kerberos}}</td>
+                            <td style="font-family:monospace">{{this.kerberos}}</td>
                             <td>{{this.firstName}} {{this.lastName}}</td>
                             <td>{{this.roomNumber}}</td>
                             <td>
@@ -93,10 +94,10 @@ th {
                                 <span class="permissionStatus"></span> {{else}} {{this.groupName}} {{/if}}
                             </td>
                             {{#if ../permissions.CREATE_USER}}
-                            <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
-                            <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
+                            <td><a id="{{this.kerberos}}-pwreset" class="pwreset label label-warning">reset pass</a></td>
+                            <td><a id="{{this.kerberos}}-remove" class="remove label label-danger">X</a></td>
                             {{/if}} {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
-                            <td><a id="{{this.kerberos}}-loginas" class="loginas">login</a></td>
+                            <td><a id="{{this.kerberos}}-loginas" class="loginas label label-info">login</a></td>
                             {{/if}}
                         </tr>
                         {{/each}}

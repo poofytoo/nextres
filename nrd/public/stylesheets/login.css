@@ -1,5 +1,6 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,300italic,400italic,600italic");
 body {
-  font-family: sans-serif; }
+  font-family: 'Open Sans', sans-serif; }
 
 .header {
   text-align: center;
@@ -48,6 +49,7 @@ body {
     line-height: 16px; }
 
 input[type="text"], input[type="password"] {
+  font-family: 'Open Sans', sans-serif;
   border: 1px solid #ccc;
   padding: 5px;
   outline: none;
@@ -56,7 +58,7 @@ input[type="text"], input[type="password"] {
     border: 1px solid #FFAC00; }
 
 input[type="submit"] {
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 200;
   font-size: 14px;
   padding: 7px;
@@ -69,3 +71,7 @@ input[type="submit"] {
   input[type="submit"]:hover {
     background-color: #94C447;
     cursor: pointer; }
+
+.forgot:hover{
+  color: #ffb732;
+}

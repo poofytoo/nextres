@@ -42,7 +42,7 @@
 	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.material.min.css">' +
 	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.material.colors.min.css">'
 	        );
-	    } else {
+	    } else if (Framework7.prototype.device.ios) {
 	        Dom7('head').append(
 	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.ios.min.css">' +
 	            '<link rel="stylesheet" href="bower_components/Framework7/dist/css/framework7.ios.colors.min.css">'
@@ -97,8 +97,10 @@
                 </p>
             </div>
             <p>
-                <div style="inline-block">
-                    <a class="google-badge" href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' /></a>
+                <div style="display:inline-block">
+                    <a class="google-badge" target="_blank" onclick="location.href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'">
+                        <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
+                    </a>
                 </div>
             </p>
         </div>
@@ -166,6 +168,9 @@
 	$('.forgot').click(function(){
 		location.href = "/auth/forgot"
 	});
+    /*$('.google-badge').click(function() {
+        window.open("https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1");
+    })*/
 	$(".username").focus();
     var forceLower = function(s) { s.value = s.value.toLowerCase(); };
 
