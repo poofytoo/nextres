@@ -65,6 +65,8 @@ Mailer.prototype.newUser = function(user, rawPassword) {
   var subject = "Your Next Resident Dashboard Account";
   var html = "Hello " + user.kerberos + "! <br /><br />" +
     "Your Next resident dashboard account has been created! " +
+    "The Next resident dashboard is where you can edit your guest list, " +
+    "reserve rooms, and view items available for check out at desk."
     "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     "<b>" + rawPassword + "</b>. Once you have logged in, " +
@@ -76,6 +78,8 @@ Mailer.prototype.newUser = function(user, rawPassword) {
     "Sparky, the Next House Mailbot";
   var text = "Hello " + user.kerberos + "! " +
     "Your Next resident dashboard account has been created! " +
+    "The Next resident dashboard is where you can edit your guest list, " +
+    "reserve rooms, and view items available for check out at desk."
     "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     rawPassword + ". Once you have logged in, please change your password. " +
