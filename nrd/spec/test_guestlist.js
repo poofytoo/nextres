@@ -187,7 +187,7 @@ util.runFunctions([
     },
     function(done) {
       // Check updating a guest with null value
-      GuestLists.getGuestListOfUser(1, function(err, guestlist) {  // kyc2915
+      GuestLists.findByUserId(1, function(err, guestlist) {  // kyc2915
         guestlist.updateGuests({
           guest1Name: '',
           guest1Kerberos: ''
@@ -195,14 +195,14 @@ util.runFunctions([
       });
     },
     function(done) {
-      GuestLists.getGuestListOfUser(1, function(err, guestlist) {  // kyc2915
+      GuestLists.findByUserId(1, function(err, guestlist) {  // kyc2915
         test(guestlist.guest1Name === '');
         test(guestlist.guest1Kerberos === '');
         done();
       });
     },
     function(done) {
-      // test getGuestListOfUser
+      // test findByUserId
       // first insert user and guestlist with different IDs
       db.execute("INSERT INTO `next-users` (id, kerberos) VALUES (5, 'test1')", done);
     },
@@ -212,7 +212,7 @@ util.runFunctions([
           "VALUES (6, 5, 'guest', 'guest')", done);
     },
     function(done) {
-      GuestLists.getGuestListOfUser(5, function(err, guestlist) {
+      GuestLists.findByUserId(5, function(err, guestlist) {
         test(guestlist.userID === 5);
         test(guestlist.guest1Name === 'guest');
         test(guestlist.guest1Kerberos === 'guest');
@@ -220,7 +220,7 @@ util.runFunctions([
       });
     },
     function(done) {
-      GuestLists.getGuestListOfUser(6, function(err, guestlist) {
+      GuestLists.findByUserId(6, function(err, guestlist) {
         test(err);
         done();
       });

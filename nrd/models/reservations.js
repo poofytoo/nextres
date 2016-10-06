@@ -47,11 +47,9 @@ var request = require('request');
 var df = require('./dateformat');
 var logger = require('./logger');
 var Mailer = require('./mailer').Mailer;
-var User = require('./user').User;
 if (!config.isWindows) {
     var time = require('time');
 }
-
 
 var calendar_settings = require('./config').config_data.calendar_settings;
 
@@ -60,17 +58,20 @@ const TIME_ZONE = 'America/New_York';
 const MAX_NUM_SIGNATORIES = 3;
 const NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE = 60;
 
-function Reservations() {
-    this.MAX_NUM_SIGNATORIES = MAX_NUM_SIGNATORIES;
-}
+var Reservations = function () {
+    var that = Object.create(Reservations.prototype);
+    that.MAX_NUM_SIGNATORIES = MAX_NUM_SIGNATORIES;
+    Object.freeze(that);
+    return that;
+};
 
-function signatoryField(index) {
+var signatoryField = function(index) {
     return 'signatory' + index;
-}
+};
 
 Reservations.prototype.signatoryField = signatoryField;
 
-function Reservation(reservation) {
+var Reservation = function(reservation) {
     this.id = reservation.id;
     this.start = { dateTime: reservation.start.dateTime };
     this.end = { dateTime: reservation.end.dateTime };
@@ -87,7 +88,7 @@ function Reservation(reservation) {
         }
     this.formattedTime = df.dateFormat(fromRFC3339(this.start.dateTime),
         "h:MM TT 'on' mmm d, yyyy");
-}
+};
 
 // Convert a Javascript Date object to RFC3339 format used by Google.
 function toRFC3339(datetime) {
@@ -208,7 +209,7 @@ Reservations.prototype.getReservations = function(now, callback) {
             }
         });
     });
-}
+};
 
 /*
  * Returns a list of Reservations from the Google Calendar, from today until
@@ -234,7 +235,7 @@ Reservations.prototype.getReservationsWithUser = function(now, user, callback) {
         }
         callback(false, userReservations);
     });
-}
+};
 
 /*
  * Returns the Reservation with the given ID, or false if nonexistent
@@ -246,7 +247,7 @@ Reservations.prototype.getReservation = function(id, callback) {
             callback(err, err ? false : new Reservation(event));
         });
     });
-}
+};
 
 /******************************************************************************
  *
@@ -328,7 +329,7 @@ Reservations.prototype.reserve = function(params, callback) {
                 });
             });
     });
-}
+};
 
 /******************************************************************************
  *
@@ -359,7 +360,7 @@ Reservation.prototype.getParams = function(callback) {
         }
     }
     callback(false, params);
-}
+};
 
 /*
  * Confirm this reservation.
@@ -374,7 +375,7 @@ Reservation.prototype.confirm = function(callback) {
             });
         });
     });
-}
+};
 
 /*
  * Deny this reservation.
@@ -382,7 +383,7 @@ Reservation.prototype.confirm = function(callback) {
 Reservation.prototype.deny = function(reason, callback) {
     Mailer.denyRoom(this, reason);
     this.remove(callback);
-}
+};
 
 /*
  * Remove this reservation.
@@ -392,6 +393,6 @@ Reservation.prototype.remove = function(callback) {
     gaccount.auth(function(err, access_token) {
         removeEvent(access_token, id, callback);
     });
-}
+};
 
 module.exports.Reservations = new Reservations();

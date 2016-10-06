@@ -21,7 +21,7 @@ var GROUPS = [
         'DESKWORKER',  // 2
         'NEXT-EXEC',  // 3
         'DESKCAPTAIN',  // 4
-        ]
+        ];
 var PERMISSIONS = [
         'NULL',  // 0
         'CREATE_USER',  // 1
@@ -33,28 +33,33 @@ var PERMISSIONS = [
         'NULL2',  // 7
         'NULL3',  // 8
         'MAKE_USERS_DESKWORKERS',  // 9
-        ]
+        ];
 var GROUP_PERMISSIONS = [
   [],  // 0
   [1, 2, 3, 4, 5, 6, 9],  // 1
   [3, 6],  // 2
   [1, 4, 5, 6, 9],  // 3
   [3, 6, 9],  // 4
-]
+];
 var CHANGE_PERMISSIONS = [
   [],  // 0
   [0, 1, 2, 3, 4],  // 1
   [],  // 2
   [0, 2, 3, 4],  // 3
   [0, 2, 4],  // 4
-]
+];
 
-function Permissions() {
-  this.GROUPS = GROUPS;
-  this.PERMISSIONS = PERMISSIONS;
-  this.GROUP_PERMISSIONS = GROUP_PERMISSIONS;
-  this.CHANGE_PERMISSIONS = CHANGE_PERMISSIONS;
-}
+var Permissions = function() {
+    var that = Object.create(Permissions.prototype);
+
+    that.GROUPS = GROUPS;
+    that.PERMISSIONS = PERMISSIONS;
+    that.GROUP_PERMISSIONS = GROUP_PERMISSIONS;
+    that.CHANGE_PERMISSIONS = CHANGE_PERMISSIONS;
+
+    Object.freeze(that);
+    return that;
+};
 
 /*
  * Given a group ID (an index of the GROUPS array), returns an object with
@@ -64,11 +69,11 @@ function Permissions() {
 Permissions.prototype.getPermissions = function(group) {
   var permissions = {};
   if (group >= 0 && group < GROUP_PERMISSIONS.length) {
-    for (var i = 0; i < GROUP_PERMISSIONS[group].length; i++) {
-      permissions[PERMISSIONS[GROUP_PERMISSIONS[group][i]]] = true;
-    }
+      GROUP_PERMISSIONS[group].forEach(function(permId){
+          permissions[PERMISSIONS[permId]] = true;
+      });
   }
   return permissions;
-}
+};
 
 module.exports.Permissions = new Permissions();

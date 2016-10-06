@@ -2,15 +2,15 @@
  * USER API
  *
  * A User object contains the following fields:
- *      id: unique int id
- *      kerberos: string
- *      firstName: string
- *      lastName: string
- *      roomNumber: int
- *      email: email string
- *      mitID: 9 digit longint
- *      password: string (bcrypt hash)
- *      group: int (for permissions)
+ *      {Integer} id - user's unique ID
+ *      {String} kerberos - user's MIT kerberos
+ *      {String} firstName - user's first name
+ *      {String} lastName - user's last name
+ *      {Integer} roomNumber - user's room number at Next House
+ *      {String} email - user's MIT e-mail address
+ *      {Integer} mitID - user's 9-digit MIT ID number
+ *      {String} password - user's bcrypt-hashed password
+ *      {Integer} group - user's permission ID
  *
  * e.g. {id: 1, kerberos: 'kyc2915', firstName: 'Kevin', lastName: 'Chen',
  *      roomNumber: 310, email: 'kyc2915@mit.edu',
@@ -19,44 +19,48 @@
 
 var config = require('./config');
 var async = require('async');
-if (config.isWindows) {
-    var bcrypt = require('bcryptjs');
-} else {
-    var bcrypt = require('bcrypt');
-}
+var bcrypt = config.isWindows ? require('bcryptjs') : require('bcrypt');
 var logger = require('./logger');
 var db = require('./db').Database;
 var Permissions = require('./permissions').Permissions;
 var Mailer = require('./mailer').Mailer;
 var exec = require('child_process').exec;
 
-function Users() {}
+var Users  = function() {
+    var that = Object.create(Users.prototype);
+    Object.freeze(that);
+    return that;
+};
 
-function User(user) {
-    this.id = user.id;
-    this.kerberos = user.kerberos;
-    this.firstName = user.firstName;
-    this.lastName = user.lastName;
-    this.roomNumber = user.roomNumber || "-";
-    this.email = user.email;
-    this.mitID = user.mitID;
-    this.password = user.password;
-    this.group = user.group;
-    this.groupName = Permissions.GROUPS[this.group];
-}
+var User = function(user) {
+    var that = Object.create(User.prototype);
+
+    that.id = user.id;
+    that.kerberos = user.kerberos;
+    that.firstName = user.firstName;
+    that.lastName = user.lastName;
+    that.roomNumber = user.roomNumber || "-";
+    that.email = user.email;
+    that.mitID = user.mitID;
+    that.password = user.password;
+    that.group = user.group;
+    that.groupName = Permissions.GROUPS[this.group];
+
+    return that;
+};
 
 // Generate a random password
-function randomPassword() {
+var randomPassword = function() {
     var text = "";
     var possible = "abcdefghjkmnpqrstuvwxyz23456789";
     for (var i = 0; i < 7; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
-}
+};
 
 // Hash the password with bcrypt
 // callback(error, hash)
-function hashPassword(password, callback) {
+var hashPassword = function(password, callback) {
     bcrypt.genSalt(10, function(err, salt) {
         if (err) {
             callback(err);
@@ -64,10 +68,10 @@ function hashPassword(password, callback) {
             bcrypt.hash(password, salt, callback);
         }
     });
-}
+};
 
 // Convenience function for SELECT with where, sort, and limit clauses
-function get(params, callback) {
+var get = function(params, callback) {
     var query = db.query().select(['*']).from('next-users');
     if (params.whereClause) {
         query = query.where(params.whereClause, params.whereArgs);
@@ -82,27 +86,27 @@ function get(params, callback) {
         if (err) {
             callback(err);
         } else {
-            for (var i = 0; i < rows.length; i++) {
-                rows[i] = new User(rows[i]);
-            }
-            callback(err, rows);
+            var users = rows.map(function(userData){
+                return new User(userData);
+            });
+            callback(err, users);
         }
     });
-}
+};
 
 // Convenience function for SELECT one
-function getOne(params, callback) {
+var getOne = function(params, callback) {
     params.limit = 1;
     get(params, function(err, users) {
         if (err) {
             callback(err);
         } else if (users.length === 0) {
-            callback('No user found.');
+            callback('User does not exist.');
         } else {
-            callback(false, users[0]);
+            callback(null, users[0]);
         }
     });
-}
+};
 
 /******************************************************************************
  *
@@ -136,14 +140,14 @@ Users.prototype.getProfile = function(kerberos, callback) {
                 });
             }
         });
-}
+};
 
 /*
  * Returns a list of all Users
  * params contains an optional kerberosSearchPattern and sortBy parameter.
  * e.g. params = {kerberosSearchPattern: 'kyc', sortBy: 'firstName'}
  */
-Users.prototype.getAllUsers = function(params, callback) {
+Users.prototype.findAll = function(params, callback) {
     var queryParams = {};
     if (params && params.kerberosSearchPattern) {
         var pattern = '%' + params.kerberosSearchPattern + '%';
@@ -156,28 +160,28 @@ Users.prototype.getAllUsers = function(params, callback) {
         queryParams.sortBy = "kerberos";
     }
     get(queryParams, callback);
-}
+};
 
 /*
  * Returns the User with the given ID, or false if nonexistent
  */
-Users.prototype.getUser = function(id, callback) {
+Users.prototype.findById = function(id, callback) {
     getOne({ whereClause: 'id = ?', whereArgs: [id] }, callback);
-}
+};
 
 /*
  * Returns the User with the given kerberos, or false if nonexistent
  */
-Users.prototype.getUserWithKerberos = function(kerberos, callback) {
+Users.prototype.findByKerberos = function(kerberos, callback) {
     getOne({ whereClause: 'kerberos = ?', whereArgs: [kerberos] }, callback);
-}
+};
 
 /*
  * Returns the User with the MIT ID, or false if nonexistent
  */
-Users.prototype.getUserWithMitID = function(mitID, callback) {
+Users.prototype.findByMITId = function(mitID, callback) {
     getOne({ whereClause: 'mitID = ?', whereArgs: [mitID] }, callback);
-}
+};
 
 /******************************************************************************
  *
@@ -190,11 +194,11 @@ Users.prototype.getUserWithMitID = function(mitID, callback) {
  *   and notify the user via email
  */
 Users.prototype.createUser = function(kerberos, callback) {
-    if (kerberos.length > 8) {
-        callback('Kerberos must be at most 8 characters');
+    if (kerberos.length < 3 || kerberos.length > 8) {
+        callback('Kerberos must be between 3 and 8 characters');
         return;
     }
-    var getUserWithKerberos = this.getUserWithKerberos;
+    var getUserWithKerberos = this.findByKerberos;
     this.getProfile(kerberos, function(err, profile) {
         var password = randomPassword();
         hashPassword(password, function(err2, hash) {
@@ -224,7 +228,7 @@ Users.prototype.createUser = function(kerberos, callback) {
                 });
         });
     });
-}
+};
 
 /*
  * Creates all users in the given kerberosList,
@@ -232,7 +236,7 @@ Users.prototype.createUser = function(kerberos, callback) {
  */
 Users.prototype.createUsers = function(kerberosList, callback) {
     async.each(kerberosList, this.createUser.bind(this), callback);
-}
+};
 
 /******************************************************************************
  *
@@ -248,7 +252,7 @@ User.prototype.updateProfile = function(firstName, lastName, roomNumber, callbac
     db.query().update('next-users', ['firstName', 'lastName', 'roomNumber'], [firstName, lastName, roomNumber])
         .where('id = ?', [this.id])
         .execute(callback);
-}
+};
 
 /*
  * Updates this user's MIT ID.
@@ -257,7 +261,7 @@ User.prototype.editMitID = function(mitID, callback) {
     db.query().update('next-users', ['mitID'], [mitID])
         .where('id = ?', [this.id])
         .execute(callback);
-}
+};
 
 /*
  * Updates this user's password.
@@ -273,7 +277,7 @@ User.prototype.changePassword = function(newPassword, callback) {
             .where('id = ?', [id])
             .execute(callback);
     });
-}
+};
 
 /*
  * Resets this user's password to a random default password,
@@ -287,14 +291,14 @@ User.prototype.resetPassword = function(callback) {
     } else {
         callback("Failed to reset password.");
     }
-}
+};
 
 /*
  * Authenticate the user with the password.
  */
 User.prototype.authenticate = function(password, callback) {
     bcrypt.compare(password, this.password, callback);
-}
+};
 
 /*
  * Updates this user's group (for permissions).
@@ -307,7 +311,7 @@ User.prototype.changeGroup = function(group, callback) {
     } else {
         callback("Failed to change permissions.");
     }
-}
+};
 
 /*
  * Removes this user.
@@ -319,16 +323,11 @@ User.prototype.remove = function(callback) {
             .execute(function(err) {});
         db.query().deleteFrom('next-users').where('id = ?', [this.id])
             .execute(function(err) {
-                if (err) {
-                    callback(err);
-                    return;
-                } else {
-                    callback();
-                }
+                callback(err ? err : null);
             });
     } else {
         callback("Failed to delete user.");
     }
-}
+};
 
 module.exports.Users = new Users();

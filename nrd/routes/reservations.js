@@ -19,14 +19,13 @@ function complete(req, res, success, err, prevParams) {
         prevParams: prevParams
         });
       });
-};
-
+}
 exports.list = function(req, res) {
   complete(req, res);
 };
 
 // Ensure reservation has sufficient signatories that are not duplicate/invalid
-function validateReservation(reservation, user, callback) {
+var validateReservation = function(reservation, user, callback) {
   reservation.signatory1 = user.kerberos;
 
   // Check for duplicates
@@ -72,7 +71,7 @@ function validateReservation(reservation, user, callback) {
               ' outstanding reservations at a time.');
         } else {
           async.filter(kerberosList, function(kerberos, done) {
-            Users.getUserWithKerberos(kerberos, function(err, user) {
+            Users.findByKerberos(kerberos, function(err, user) {
               // Valid signatories must be users on the NextRes system
               done(err || !user);
             });
@@ -85,7 +84,7 @@ function validateReservation(reservation, user, callback) {
   });
 }
 
-function reserve(req, res) {
+var reserve = function(req, res) {
   validateReservation(req.body, req.user, function(err) {
     if (err) {
       complete(req, res, null, err, req.body);
@@ -96,7 +95,7 @@ function reserve(req, res) {
         err, err ? req.body : null);
     });
   });
-}
+};
 
 // req.body = reservation params, see documentation of Reservations.reserve()
 exports.add = reserve;
@@ -119,7 +118,7 @@ exports.view = function(req, res) {
       complete(req, res, 'Editing reservation.', null, params);
     });
   });
-}
+};
 
 // req.params = {id: [event ID]}
 exports.edit = function(req, res) {
@@ -133,7 +132,7 @@ exports.edit = function(req, res) {
       reserve(req, res);
     });
   });
-}
+};
 
 // req.body = {id: [event ID]}
 exports.confirm = function(req, res) {
@@ -142,7 +141,7 @@ exports.confirm = function(req, res) {
       res.json({'okay': !err});
     });
   });
-}
+};
 
 // req.body = {id: [event ID], reason: 'Silly reservation'}
 exports.deny = function(req, res) {
@@ -151,7 +150,7 @@ exports.deny = function(req, res) {
       res.json({'okay': !err});
     });
   });
-}
+};
 
 // req.body = {id: [event ID]}
 exports.remove = function(req, res) {
@@ -160,7 +159,7 @@ exports.remove = function(req, res) {
       res.json({'okay': !err});
     });
   });
-}
+};
 
 exports.manage = function(req, res) {
   Reservations.getReservations(new Date(), function(err, reservations) {
@@ -169,5 +168,5 @@ exports.manage = function(req, res) {
       reservations: reservations
     });
   });
-}
+};
 

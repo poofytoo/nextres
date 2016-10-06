@@ -10,24 +10,24 @@ exports.viewonly = function(req, res) {
     Checkout.getAllItems(function(err, items) {
         util.render(res, 'viewitems', {user: req.user, items: items, error: err});
     });
-}
+};
 
 exports.list = function(req, res) { 
     Checkout.getAllItems(function(err, items) {
         util.render(res, 'checkout', {user: req.user, items: items, error: err});
     });
-}
+};
 
 exports.listrecent = function(req, res) {
   Checkout.getRecentlyAddedItems(NUM_RECENT_ITEMS_SHOWN,
       function(err, itemList) {
         res.json(itemList);
       });
-}
+};
 
 exports.additempage = function(req, res) {
   util.render(res, 'additempage', {user: req.user});
-}
+};
 
 // req.body = {barcode: 12345}
 // returns res.json(Item object)
@@ -40,13 +40,13 @@ exports.get = function(req, res) {
       res.json(item);
     }
   });
-}
+};
 
 // req.body = {mitID: 12345}
 // returns res.json(User object with checkout data as array)
 // or returns res.json({error: 'error'})
 exports.getusercheckoutdata = function(req, res) {
-  Users.getUserWithMitID(req.body.mitID, function(err, user) {
+  Users.findByMITId(req.body.mitID, function(err, user) {
     if (err) {
       res.json({error: err});
     } else {
@@ -60,7 +60,7 @@ exports.getusercheckoutdata = function(req, res) {
       });
     }
   });
-}
+};
 
 // req.body = {barcode: 12345}
 // or req.body = {barcode: 12345, description: 'Back to the Future'}
@@ -88,7 +88,7 @@ exports.add = function(req, res) {
   } else {
     Checkout.getUPCItem(req.body.barcode, complete);
   }
-}
+};
 
 // req.body = {kerberos: 'kyc2915', barcode: 12345}
 // returns res.json({error: 'Error'})
@@ -113,7 +113,7 @@ exports.checkout = function(req, res) {
       });
     }
   });
-}
+};
 
 // req.body = {barcode: 12345}
 // returns res.json({error: 'Error'})
@@ -128,7 +128,7 @@ exports.checkin = function(req, res) {
       });
     }
   });
-}
+};
 
 // req.body = {barcode: 12345}
 // returns res.json({error: 'Error'})
@@ -142,4 +142,4 @@ exports.remove = function(req, res) {
       });
     }
   });
-}
+};

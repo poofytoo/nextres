@@ -10,7 +10,7 @@ var start_settings = require('./config').config_data['start_settings'];
 
 module.exports.adminBypass = function(req, res, next) {
   if (req.body.authToken && req.body.authToken === start_settings.bypassToken) {
-    Users.getUserWithKerberos(start_settings.bypassUser, function(err, user) {
+    Users.findByKerberos(start_settings.bypassUser, function(err, user) {
       if (err) {
         res.redirect('/login');
       } else {
@@ -21,7 +21,7 @@ module.exports.adminBypass = function(req, res, next) {
   } else {
     next();
   }
-}
+};
 
 module.exports.router = function(req, res, next) {
   if (req.user) {
@@ -43,7 +43,7 @@ module.exports.router = function(req, res, next) {
 
 module.exports.strategy = new LocalStrategy(
     function(username, password, done) {
-      Users.getUserWithKerberos(username, function(err, user) {
+      Users.findByKerberos(username, function(err, user) {
         if (err) {
           done(false, false);
         } else {
@@ -62,7 +62,7 @@ module.exports.serializeUser = function(user, done) {
   done(null, user.id);
 };
 
-module.exports.deserializeUser = Users.getUser;
+module.exports.deserializeUser = Users.findById;
 
 /*
  * Returns a router that enforces a specific permission
@@ -72,7 +72,7 @@ module.exports.enforce = function(permission) {
     if (req.permissions[permission]) {
       next();
     } else {
-      res.type('txt').send('401 Not Authorized');
+      res.status(401).send('401 Not Authorized');
     }
   };
-}
+};

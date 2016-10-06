@@ -17,7 +17,6 @@
 
 var request = require('request');
 var db = require('./db').Database;
-var Mailer = require('./mailer').Mailer;
 var logger = require('./logger');
 
 const DAY_LENGTH = 24 * 60 * 60 * 1000;
@@ -27,10 +26,13 @@ const UPC_DATABASE_URL = (
 const UPC_API_KEY = 'SEM34857CE5768677843A55996BFCAEECF3D';
 const UPC_API_SECRET = 'NmZmMDMwMjVhZTZhMzZlODZhZWQ5OTdhMzI1ODk5Njc';
 
-function Checkout() {
-}
+var Checkout = function() {
+  var that = Object.create(Checkout.prototype);
+  Object.freeze(that);
+  return that;
+};
 
-function Item(item) {
+var Item = function(item) {
   this.id = item.id;
   this.barcode = item.barcode;
   this.name = item.name;
@@ -39,7 +41,7 @@ function Item(item) {
   this.timeBorrowed = item.timeBorrowed;
   this.deskworker = item.deskworker;
   this.getCheckoutDuration();
-}
+};
 
 // Convenience function for SELECT with where, sort, and limit clauses
 function get(params, callback) {
@@ -80,21 +82,21 @@ function get(params, callback) {
  */
 Checkout.prototype.getAllItems = function(callback) {
   get({}, callback);
-}
+};
 
 /*
  * Returns a list of all reserved items (borrower not null)
  */
 Checkout.prototype.getReservedItems = function(callback) {
   get({whereClause: 'borrower != ?', whereArgs: ['']}, callback);
-}
+};
 
 /*
  * Returns a list of all unreserved items (borrower is null)
  */
 Checkout.prototype.getUnreservedItems = function(callback) {
   get({whereClause: 'borrower = ?', whereArgs: ['']}, callback);
-}
+};
 
 /*
  * Returns the Item with the given barcode, or false if nonexistent
@@ -110,14 +112,14 @@ Checkout.prototype.getItemWithBarcode = function(barcode, callback) {
           callback(false, items[0]);
         }
       });
-}
+};
 
 /*
  * Returns a list of Items checked out by the user with the given kerberos
  */
 Checkout.prototype.getCheckedOutItems = function(kerberos, callback) {
   get({whereClause: 'borrower = ?', whereArgs: [kerberos]}, callback);
-}
+};
 
 /*
  * Returns a list of Items checked out after the specified time
@@ -126,14 +128,14 @@ Checkout.prototype.getCheckedOutItems = function(kerberos, callback) {
 Checkout.prototype.getRecentlyCheckedOutItems = function(time, callback) {
   get({whereClause: 'borrower != ? && timeBorrowed > ?',
     whereArgs: ['', time], sortBy: 'timeBorrowed', isDesc: true}, callback);
-}
+};
 
 /*
  * Returns a list of most recent Items added (returns up to [limit] rows)
  */
 Checkout.prototype.getRecentlyAddedItems = function(limit, callback) {
   get({sortBy: 'timeBorrowed', isDesc: true, limit: limit}, callback);
-}
+};
 
 /*
  * Returns a list of Items whose name contains the specified substring
@@ -141,7 +143,7 @@ Checkout.prototype.getRecentlyAddedItems = function(limit, callback) {
 Checkout.prototype.searchItems = function(pattern, callback) {
   get({whereClause: 'name LIKE ?', whereArgs: ['%' + pattern + '%']},
       callback);
-}
+};
 
 /*
  * Returns the description of an object given its barcode,
@@ -161,7 +163,7 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
     qs: {
       q: '{"upc":"' + barcode + '"}'
     }
-  }
+  };
   request(options, function(err, response, body) {
     if (err) {
       callback(err);
@@ -177,7 +179,7 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
       }
     }
   });
-}
+};
 
 
 /******************************************************************************
@@ -194,7 +196,7 @@ Checkout.prototype.getUPCItem = function(barcode, callback) {
 Checkout.prototype.addItem = function(barcode, name, now, callback) {
   db.query().insert('next-checkout-items',
         ['barcode', 'name', 'timeAdded'], [barcode, name, now]).execute(callback);
-}
+};
 
 /*
  * Returns a map from each user kerberos to a list of all overdue Items
@@ -215,7 +217,7 @@ Checkout.prototype.getOverdueItems = function(callback) {
     }
     callback(false, userOverdueItems);
   });
-}
+};
 
 /******************************************************************************
  *
@@ -234,7 +236,7 @@ Item.prototype.getCheckoutDuration = function() {
   } else {
     this.daydiff = this.overdue = null;
   }
-}
+};
 
 /*
  * Checks out this Item
@@ -248,7 +250,7 @@ Item.prototype.checkout = function(kerberos, deskworker, now, callback) {
   db.query().update('next-checkout-items',
       ['borrower', 'timeBorrowed', 'deskworker'], [kerberos, now, deskworker])
     .where('id = ?', [this.id]).execute(callback);
-}
+};
 
 /*
  * Checks in this Item
@@ -261,7 +263,7 @@ Item.prototype.checkin = function(deskworker, callback) {
   db.query().update('next-checkout-items',
       ['borrower', 'timeBorrowed', 'deskworker'], ['', 0, deskworker])
     .where('id = ?', [this.id]).execute(callback);
-}
+};
 
 /*
  * Removes this Item from the list
@@ -269,6 +271,6 @@ Item.prototype.checkin = function(deskworker, callback) {
 Item.prototype.remove = function(callback) {
   db.query().deleteFrom('next-checkout-items')
     .where('id = ?', [this.id]).execute(callback);
-}
+};
 
 module.exports.Checkout = new Checkout();

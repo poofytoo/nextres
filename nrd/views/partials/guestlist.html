@@ -17,7 +17,7 @@
 <p>
 <div class="row">
   <div class="col-lg-4 col-xs-6"><b>Fullname</b></div>
-  <div class="col-lg-4 col-xs-6"><b>Kerberos</b></div>
+  <div class="col-lg-3 col-xs-6"><b>Kerberos</b></div>
 </div>
 </p>
 <p>
@@ -32,15 +32,15 @@
 {{#if guests.hasTempGuests}}
 {{else}}
 <span id="temp-guest-closed">
-  <p><a id="temp-guest-add" href="#">Add temporary guests</a></p>
+  <p><a id="temp-guest-add" class="btn btn-flat btn-default">Add temporary guests</a></p>
 </span>
 {{/if}}
 <span id="temp-guest-open" style="display:none;">
-  <p><b>Temporary guests</b> (resets every morning at 7AM)</p>
-  <p>
+  <h4> Temporary Guests <small>(resets every morning at 7AM)</small>
+  </h4>
 <div class="row">
   <div class="col-lg-4 col-xs-6"><b>Fullname</b></div>
-  <div class="col-lg-4 col-xs-6"><b>Kerberos</b></div>
+  <div class="col-lg-3 col-xs-6"><b>Kerberos</b></div>
 </div>
 </p>
 <p>

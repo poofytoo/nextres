@@ -9,7 +9,7 @@ var async = require('async');
 var crypto = require('crypto');
 
 var complete = function(req, res, err, success) {
-    Users.getAllUsers(req.query || {}, function(err2, users) {
+    Users.findAll(req.query || {}, function(err2, users) {
         addPermissionsInfo(req.user.group, users || []);
         util.render(res, 'allusers', {
             user: req.user,
@@ -18,11 +18,11 @@ var complete = function(req, res, err, success) {
             success: success || ""
         });
     });
-}
+};
 
 exports.login = function(req, res) {
     res.render('login.html', { error: req.flash('error') });
-}
+};
 
 exports.loginsuccess = function(req, res) {
     if (req.session && req.session.returnTo) {
@@ -31,12 +31,12 @@ exports.loginsuccess = function(req, res) {
     } else {
         res.redirect('/');
     }
-}
+};
 
 // req.body = {kerberos: 'kyc2915'}
 exports.loginas = function(req, res) {
     if (req.body.kerberos !== "rliu42") {
-        Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+        Users.findByKerberos(req.body.kerberos, function(err, user) {
             if (err) {
                 res.json({ error: err });
             } else {
@@ -48,22 +48,22 @@ exports.loginas = function(req, res) {
         });
     }
 
-}
+};
 
 exports.logout = function(req, res) {
     req.session.regenerate(function() {
         req.logout();
         res.redirect('/login');
     });
-}
+};
 
 exports.list = function(req, res) {
     complete(req, res);
-}
+};
 
 // req.query = {kerberosSearchPattern: 'kyc', sortBy: 'roomNumber'}
 exports.search = function(req, res) {
-    Users.getAllUsers(req.query, function(err, users) {
+    Users.findAll(req.query, function(err, users) {
         if (users) {
             addPermissionsInfo(req.user.group, users || []);
         }
@@ -73,7 +73,7 @@ exports.search = function(req, res) {
             res.json({ users: users, permissions: req.permissions });
         }
     });
-}
+};
 
 
 // req.body = {kerberos: 'kyc2915'}
@@ -81,7 +81,7 @@ exports.add = function(req, res) {
     Users.createUser(req.body.kerberos, function(err) {
         complete(req, res, err);
     });
-}
+};
 
 // req.body = {kerberosList: 'kyc2915\nvhung'}
 exports.massadd = function(req, res) {
@@ -89,21 +89,21 @@ exports.massadd = function(req, res) {
     Users.createUsers(kerberosList, function(err) {
         complete(req, res, err);
     });
-}
+};
 
 // req.body = {kerberos: 'kyc2915'}
 exports.remove = function(req, res) {
-    Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+    Users.findByKerberos(req.body.kerberos, function(err, user) {
         if (user) {
             user.remove(function() {});
         }
         res.end();
     });
-}
+};
 
 exports.viewprofile = function(req, res) {
     util.render(res, 'profile', { user: req.user });
-}
+};
 
 // req.body = {firstname: 'Kevin', 'lastname': 'Chen', 'roomnumber': 310}
 exports.editprofile = function(req, res) {
@@ -113,7 +113,7 @@ exports.editprofile = function(req, res) {
     req.user.updateProfile(req.body.firstname,
         req.body.lastname, req.body.roomnumber,
         function(err) {
-            Users.getUser(req.user.id, function(err2, user) {
+            Users.findById(req.user.id, function(err2, user) {
                 util.render(res, 'profile', {
                     user: user,
                     success: 'Your residence info has been updated.',
@@ -121,11 +121,11 @@ exports.editprofile = function(req, res) {
                 });
             });
         });
-}
+};
 
 exports.viewpassword = function(req, res) {
     util.render(res, 'changepassword', { user: req.user });
-}
+};
 
 // req.body = {oldpassword: 'password': newpassword: 's+r0Ng3r'}
 exports.editpassword = function(req, res) {
@@ -145,27 +145,27 @@ exports.editpassword = function(req, res) {
             });
         }
     });
-}
+};
 
 // req.body = {kerberos: 'kyc2915'}
 exports.resetpassword = function(req, res) {
-    Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+    Users.findByKerberos(req.body.kerberos, function(err, user) {
         if (user) {
             user.resetPassword(function() {});
         }
         res.end();
     });
-}
+};
 
 /*
  * Returns whether a user in the given [group] can change a user
  *   with the [start] permission to the [end] permission.
  */
-function canChangePermission(group, start, end) {
+var canChangePermission = function(group, start, end) {
     var changePermissions = pm.CHANGE_PERMISSIONS[group];
     return changePermissions.indexOf(start) != -1 &&
         changePermissions.indexOf(end) != -1;
-}
+};
 
 /*
  * For each user in the list of users, adds the following properties,
@@ -174,10 +174,9 @@ function canChangePermission(group, start, end) {
  *     changeOptions: list of (value, name, selected) pairs, parsed as
  *       <option value=[value] [selected]>[name]</option>
  */
-function addPermissionsInfo(group, users) {
+var addPermissionsInfo = function(group, users) {
     var changePermissions = pm.CHANGE_PERMISSIONS[group];
-    for (var i = 0; i < users.length; i++) {
-        var user = users[i];
+    users.forEach(function(user){
         user.changeable = changePermissions.indexOf(user.group) != -1;
         user.changeOptions = [];
         for (var j = 0; j < changePermissions.length; j++) {
@@ -188,12 +187,12 @@ function addPermissionsInfo(group, users) {
                 selected: value == user.group ? 'selected' : ''
             });
         }
-    }
-}
+    });
+};
 
 // req.body = {kerberos: 'kyc2915', permission: 1}
 exports.changepermission = function(req, res) {
-    Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+    Users.findByKerberos(req.body.kerberos, function(err, user) {
         if (err || !user) {
             res.json({ error: err });
             return;
@@ -207,25 +206,25 @@ exports.changepermission = function(req, res) {
             res.json({});
         });
     });
-}
+};
 
 // req.body = {mitID: 12345}
 // returns res.json({error: 'error'})
 // or returns res.json(User object)
 exports.findmitid = function(req, res) {
-    Users.getUserWithMitID(req.body.mitID, function(err, user) {
+    Users.findByMITId(req.body.mitID, function(err, user) {
         if (err) {
             res.json({ error: err });
         } else {
             res.json(user);
         }
     });
-}
+};
 
 // req.body = {kerberosSearchPattern: 'kyc', limit: 5}
 // returns res.json([User object, User object])
 exports.searchkerberos = function(req, res) {
-    Users.getAllUsers({
+    Users.findAll({
         kerberosSearchPattern: req.body.kerberosSearchPattern,
         limit: req.body.limit
     }, function(err, users) {
@@ -233,20 +232,20 @@ exports.searchkerberos = function(req, res) {
             res.json({ error: err });
         } else {
             // sanitize the User object
-            for (var i = 0; i < users.length; i++) {
-                delete users[i].id;
-                delete users[i].mitID;
-                delete users[i].password;
-            }
+            users.forEach(function(user){
+                delete user.id;
+                delete user.mitID;
+                delete user.password;
+            });
             res.json(users);
         }
     });
-}
+};
 
 // req.body = {kerberos: 'kyc2915', mitID: 12345}
 // saves the mitID to the User with the given kerberos
 exports.savekerberos = function(req, res) {
-    Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+    Users.findByKerberos(req.body.kerberos, function(err, user) {
         if (err) {
             res.json({ error: err });
         } else {
@@ -255,7 +254,7 @@ exports.savekerberos = function(req, res) {
             });
         }
     });
-}
+};
 
 // req.body = {url: 'https://next.mit.edu/data/fall2016-roster.csv'}
 // updates room numbers of residents listed by rows in a CSV file
@@ -266,51 +265,50 @@ exports.updateRoomNumbers = function(req, res) {
         if (!error && response.statusCode == 200) {
             var csv = body;
             var lines = csv.split("\n");
-            for (var i in lines) {
-                var entries = lines[i].split(",");
+            lines.forEach(function(line) {
+               var entries = line.split(",");
                 var kerberos = entries[0];
                 var firstName = entries[1];
                 var lastName = entries[2];
+                var roomNumber;
                 if (!kerberos) {
-                    break;
+                    return;
                 }
-                roomFound = false;
-                for (var j in entries) {
-                    if (/^\d+$/.test(entries[j].trim())) {
-                        var roomNumber = entries[j];
-                        roomFound = true;
-                        break;
+                entries.forEach(function(entry){
+                    if (/^\d+$/.test(entry.trim())) {
+                        roomNumber = entry;
+                        return;
                     }
-                }
-                if (!roomFound) {
-                    continue;
+                });
+                if (!roomNumber) {
+                    return;
                 }
                 if (kerberos && roomNumber) {
                     try {
-                        db.query().update('next-users', ['firstName', 'lastName', 'roomNumber'], [firstName || "", lastName || "", roomNumber])
+                        db.query().update('next-users', ['firstName', 'lastName', 'roomNumber'],
+                            [firstName || "", lastName || "", roomNumber])
                             .where('kerberos = ?', [kerberos]).execute(function(err) {});
                     } catch (e) {
                         console.error(e);
                     }
                 }
-            }
+            });
             complete(req, res, null, "Room numbers successfully updated");
         } else {
             complete(req, res, 'There was an error in parsing the file');
         }
     });
-}
+};
 
-
-resetPasswordTokens = {};
-resetPasswordExpires = {};
+var resetPasswordTokens = {};
+var resetPasswordExpires = {};
 
 exports.forgotPassword = function(req, res, next) {
     crypto.randomBytes(20, function(err, buffer) {
         if (!err) {
             var token = buffer.toString('hex');
             if (req.body.kerberos) {
-                Users.getUserWithKerberos(req.body.kerberos, function(err, user) {
+                Users.findByKerberos(req.body.kerberos, function(err, user) {
                     if (!user || err) {
                         return res.render('reset-password', { error: 'No account with that kerberos has been found. If you believe this is a mistake, please contact nextres@mit.edu.' })
                     } else {
@@ -343,7 +341,7 @@ exports.validateResetToken = function(req, res) {
         return res.render('reset-password', { error: 'Password reset token is invalid or expired.' })
     }
     return res.render('new-password', { token: req.params.token })
-}
+};
 
 exports.resetPassword = function(req, res) {
     var passwordDetails = req.body;
@@ -354,7 +352,7 @@ exports.resetPassword = function(req, res) {
     if (!kerberos) {
         return res.render('new-password', { error: 'Password reset is expired or invalid.' })
     } else {
-        Users.getUserWithKerberos(kerberos, function(err, user) {
+        Users.findByKerberos(kerberos, function(err, user) {
             if (user && !err) {
                 if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
                     resetPasswordTokens[req.params.token] = undefined;

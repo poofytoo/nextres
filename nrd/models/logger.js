@@ -22,7 +22,7 @@ Object.defineProperty(global, '__stack', {
   }
 });
 
-function log(level, message) {
+var log = function(level, message) {
   var stack = __stack[2];
   var fileName = stack.getFileName();
   fileName = fileName.substring(fileName.indexOf('nrd'));  // shorten path
@@ -35,17 +35,17 @@ function log(level, message) {
   if (level >= minOutputToConsoleLevel) {
     console.log(output);
   }
-}
+};
 
 exports.debug = function(message) {
   log(DEBUG, message);
-}
+};
 exports.info = function(message) {
   log(INFO, message);
-}
+};
 exports.warn = function(message) {
   log(WARN, message);
-}
+};
 exports.error = function(message) {
   log(ERROR, message);
-}
+};

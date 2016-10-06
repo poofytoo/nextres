@@ -8,7 +8,7 @@ var nameField = GuestLists.nameField;
 var kerberosField = GuestLists.kerberosField;
 
 function complete(req, res, success, error, warnings) {
-  GuestLists.getGuestListOfUser(req.user.id, function(err, guestlist) {
+  GuestLists.findByUserId(req.user.id, function(err, guestlist) {
     if (guestlist) {
       guestlist = GuestLists.guestListToObj(guestlist);
     }
@@ -33,7 +33,7 @@ exports.list = function(req, res) {
       error: err
     });
   });
-}
+};
 
 // req.query = {hostSearchPattern: 'kyc', sortBy: 'kerberos'}
 //   or {guestSearchPattern: 'cky', sortBy: 'firstName'}
@@ -44,11 +44,11 @@ exports.search = function(req, res) {
     }
     res.json(guestlists);
   });
-}
+};
 
 exports.view = function(req, res) {
   complete(req, res);
-}
+};
 
 function validateGuestlist(guestlist, callback) {
   var kerberosList = [];
@@ -73,7 +73,7 @@ function validateGuestlist(guestlist, callback) {
       }
     });
   }, function(invalidKerberos) {
-    callback(invalidKerberos.length > 0 ?
+    callback(invalidKerberos && invalidKerberos.length > 0 ?
         'The following guest kerberos are invalid: ' +
         invalidKerberos.join(', ') : '');
   });
@@ -91,7 +91,7 @@ exports.edit = function(req, res) {
       complete(req, res, null, err);
       return;
     }
-    GuestLists.getGuestListOfUser(req.user.id, function(err, guestlist) {
+    GuestLists.findByUserId(req.user.id, function(err, guestlist) {
       if (err) {
         complete(req, res, null, err);
       } else {
@@ -114,4 +114,4 @@ exports.edit = function(req, res) {
       }
     });
   });
-}
+};

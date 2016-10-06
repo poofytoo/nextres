@@ -75,7 +75,7 @@ app.get('/home', user.viewprofile);
 */
 app.get('/auth/forgot', function(req, res) {
   res.render('reset-password');
-})
+});
 app.post('/auth/forgot', user.forgotPassword);
 app.get('/auth/reset/:token', user.validateResetToken);
 app.post('/auth/reset/:token', user.resetPassword);
@@ -160,7 +160,6 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var rule = new schedule.RecurrenceRule();
 schedule.scheduleJob({hour: 0, minute: 0, second:0}, function() {
   Checkout.getOverdueItems(function(err, overdueItems) {
     for (var user in overdueItems) {

@@ -12,6 +12,5 @@ if (!fs.existsSync(CONFIG_FILE)) {
 }
 
 data = fs.readFileSync(CONFIG_FILE);
-json_data = JSON.parse(data);
-exports.config_data = json_data;
+exports.config_data = JSON.parse(data);
 exports.isWindows = /^win/i.test(process.platform);
