@@ -7,19 +7,27 @@ Web interface for Nexties to edit guest lists, checkout desk items, and reserve 
 
 # Technologies
 
-You will need the following tools to run and develop the NextRes web server on your local machine. Please install these if you don't already have them.
+You will need the following tools to run and develop the NextRes web server on your local machine. Please download and install these if you don't already have them.
 
 1. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-2. [Node/npm](https://nodejs.org/en/)
+- Note that OSX and Linux machines typically have this already installed.
+
+2. [Node.js/NPM](https://nodejs.org/en/)
 
 ## Node and NPM installation guide
 
-Suggested methods of installing Node.js and NOM for your OS:
+Suggested methods of installing Node.js/NPM for your OS:
 
 * [Mac OSX](https://changelog.com/install-node-js-with-homebrew-on-os-x/)
 * [Windows](http://blog.teamtreehouse.com/install-node-js-npm-windows)
 * [Linux](http://blog.teamtreehouse.com/install-node-js-npm-linux)
+
+## Components and Tutorials
+
+[**Node.js**](https://nodejs.org/dist/latest-v4.x/docs/api/) is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications.
+
+[**ExpressJS**](http://expressjs.com/en/3x/api.html) - a flexible Node.js web application framework that provides a robust set of features for web and mobile applications. The best way to understand Express is through its [Official Website](http://expressjs.com/), which has a [Getting Started](http://expressjs.com/starter/installing.html) guide, as well as an [ExpressJS](http://expressjs.com/en/guide/routing.html) guide for general express topics. You can also go through this [StackOverflow Thread](http://stackoverflow.com/questions/8144214/learning-express-for-node-js) for more resources.
 
 ## Server Startup
 If this is the _first time_ running the NextRes server on your machine, do all steps. Otherwise, just skip to step 5.
