@@ -10,9 +10,8 @@
 	<ul>
 	{{#each userReservations}}
 	<li class="reservation" id="remove-reservation-li-{{this.id}}">
-        <span><a href="/roomreservations/{{this.id}}" class="edit_reservation">{{this.summary}} at <b>{{this.formattedTime}}</b>
-  &nbsp;-&nbsp; <small>{{this.description}}</small></a></span>
-		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove label label-danger">cancel reservation</a></span>
+        <span><a href="/roomreservations/{{this.id}}" class="edit_reservation">{{this.summary}} at <b>{{this.formattedTime}}</b></a></span> &nbsp;
+		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove label label-danger">cancel?</a></span>
 	</li>
 	{{/each}}
 	</ul>
