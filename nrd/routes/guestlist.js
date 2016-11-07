@@ -58,7 +58,7 @@ function validateGuestlist(guestlist, callback) {
 
   // Find invalid kerberos.
   async.filter(kerberosList, function(kerberos, done) {
-    if (kerberos === '') {
+    if (kerberos === '' || kerberos === null) {
       done(false);  // empty guest fields are not invalid
       return;
     }
