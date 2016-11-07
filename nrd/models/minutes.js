@@ -25,7 +25,7 @@ function Minutes() {
 function Minute(minute) {
   this.id = minute.id;
   this.name = minute.name;
-  this.date = new Date(minute.date).toUTCString();
+  this.date = new Date(minute.date).toLocaleDateString('en-US', {weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'});
   this.path = minute.path || MINUTES_DIR + minute.name;
 }
 
