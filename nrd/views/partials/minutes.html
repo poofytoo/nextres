@@ -1,42 +1,53 @@
-<h1>Next Exec Meeting Minutes</h1>
-<p>Below are the archived Next Exec Meeting Minutes</p>
+<section class="content-header">
+    <h1>
+        Next Exec Meeting Minutes
+      </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>House</a></li>
+        <li class="active">Next Exec Meeting Minutes</li>
+    </ol>
+    <br>
+      <p>Below are the archived Next Exec Meeting Minutes.</a></p>
+</section>
 
-<ul>
-{{#each minutes}}
-        <li id="remove-minutes-li-{{this.id}}">
-		<a class="file" href="minutes/{{this.id}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
-                <a id="remove-minutes-{{this.id}}" class="remove remove-minute" href="#">remove</a>
-	</li>
-{{/each}}
-</ul>
+<section class="content">
+    <ul>
+    {{#each minutes}}
+            <li id="remove-minutes-li-{{this.id}}">
+        <a class="file" href="minutes/{{this.id}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
+                    <a id="remove-minutes-{{this.id}}" class="remove remove-minute" href="#">remove</a>
+      </li>
+    {{/each}}
+    </ul>
 
-{{#if permissions.EDIT_MINUTES}}
-<h1>
-	Upload Minutes
-</h1>
-<p>Upload meeting minutes in .docx, .doc, .pdf formats</p>
-<form action="minutes" method="post" enctype="multipart/form-data">
-  <input type="file" name="minute">
-  <span class="nodate"></span>
-  <p>Date: <input type="date" name="date"></p>
-  <input type="submit">
-</form>
+    {{#if permissions.EDIT_MINUTES}}
+    <h1>
+      Upload Minutes
+    </h1>
+    <p>Upload meeting minutes in .docx, .doc, .pdf formats</p>
+    <form action="minutes" method="post" enctype="multipart/form-data">
+      <input type="file" name="minute">
+      <span class="nodate"></span>
+      <p>Date: <input type="date" name="date"></p>
+      <input type="submit">
+    </form>
 
-{{else}}
-<script>
-$('.remove').remove();
-</script>
-{{/if}}
+    {{else}}
+    <script>
+    $('.remove').remove();
+    </script>
+    {{/if}}
 
-<script>
-$(document).ready(function(){
-	if (!Modernizr.inputtypes.date) {
-		$('.nodate').text('Format YYYY-MM-DD');
-	}
-});
-$('.remove-minute').on('click', function(e) {
-  id = e.target.id.substring('remove-minutes-'.length);
-  $.ajax('/minutes', { data: { id: id}, type: "DELETE" });
-  $('#remove-minutes-li-' + id).remove();
-});
-</script>
+    <script>
+    $(document).ready(function(){
+      if (!Modernizr.inputtypes.date) {
+        $('.nodate').text('Format YYYY-MM-DD');
+      }
+    });
+    $('.remove-minute').on('click', function(e) {
+      id = e.target.id.substring('remove-minutes-'.length);
+      $.ajax('/minutes', { data: { id: id}, type: "DELETE" });
+      $('#remove-minutes-li-' + id).remove();
+    });
+    </script>
+</section>
