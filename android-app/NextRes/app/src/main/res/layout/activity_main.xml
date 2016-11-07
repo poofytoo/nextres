@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:a="http://schemas.android.com/apk/res/android"
+    a:layout_width="fill_parent"
+    a:layout_height="fill_parent"
+    a:background="#efefef"
+    a:orientation="vertical" >
+
+    <WebView
+        a:id="@+id/webView1"
+        a:layout_width="fill_parent"
+        a:layout_height="fill_parent"
+        a:visibility="gone"/>
+
+    <ImageView
+        a:id="@+id/imageView1"
+        a:layout_width="wrap_content"
+        a:layout_height="wrap_content"
+        a:layout_alignParentTop="true"
+        a:layout_centerHorizontal="true"
+        a:layout_marginTop="46dp"
+        a:src="@drawable/nextres_logo" />
+
+    <ProgressBar
+        a:id="@+id/progressBar1"
+        a:layout_width="wrap_content"
+        a:layout_height="wrap_content"
+        a:layout_below="@+id/imageView1"
+        a:background ="@xml/progress"
+        a:layout_centerHorizontal="true" />
+
+</RelativeLayout>

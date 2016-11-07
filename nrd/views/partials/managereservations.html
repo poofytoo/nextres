@@ -1,30 +1,42 @@
+
 {{#if permissions.EDIT_RESERVATIONS}}
-<h1>All Room Resrvations</h1>
+<section class="content-header">
+  <h1>
+    All Room Reservations
+  </h1>
+</section>
+
+<section class='content'>
 <p>Below are all the upcoming room reservations for Next House. <br />
-Include a reason for denying the room reservation before hitting Deny.</p>
+Include a reason for denying the room reservation before hitting &nbsp; <a class="label label-danger">Deny</a></p>
 
-Show confirmed reservations: <input type="checkbox" id="hide-confirms">
-
+<p>Show confirmed reservations? <input type="checkbox" id="hide-confirms"/> </p>
 
 <ul class="manage-reservations">
   {{#each reservations}}
   <li class="reservation status-{{this.status}}" id="process-reservation-li-{{this.id}}">
-  {{this.summary}} at {{this.formattedTime}}
-  for: {{this.description}}
-  <span>Reason: <textarea id="deny-reservation-reason-{{this.id}}"></textarea></span>
+  {{this.summary}} at <b>{{this.formattedTime}}</b>
+  &nbsp;-&nbsp; <small>{{this.description}}</small>
+  <br>
+  <span><textarea placeholder="Reason" cols="60" style="max-width:600px" class="form-control" id="deny-reservation-reason-{{this.id}}"></textarea></span>
+  <p>
   <span class="status-{{this.status}}-confirm">
-    <span id="confirm-reservation-{{this.id}}" class="confirm-reservation">Confirm</span>
+    <a class="label label-success confirm-reservation" id="confirm-reservation-{{this.id}}">Confirm</a>
   </span>
-    <span id="deny-reservation-{{this.id}}" class="deny-reservation">Deny</span>
+  <a class="label label-danger deny-reservation" id="deny-reservation-{{this.id}}">Deny</a>
+  </p>
   </li>
   {{/each}}
 </ul>
 {{/if}}
 
-<iframe class="calendarIframeManage" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
+<iframe class="calendarIframe" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+
+</section>
 
 <script type="text/javascript">
   $('.confirm-reservation').on('click', function(e) {
+      console.log(e);
       event_id = e.target.id.substring('confirm-reservation-'.length);
       $.ajax('/roomreservationconfirm', {data: {id: event_id}, type: "POST"});
       $('#process-reservation-li-' + event_id).toggleClass('status-tentative status-confirmed');
@@ -46,6 +58,5 @@ Show confirmed reservations: <input type="checkbox" id="hide-confirms">
       } else {
       $('.status-confirmed').css('display', 'none');
     } });
-  $('.status-confirmed-confirm').remove();
-  
+  $('.status-confirmed-confirm').remove();  
 </script>

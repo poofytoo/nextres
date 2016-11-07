@@ -1,151 +1,172 @@
-<h1>Search and View Guestlists</h1>
-<div class="todo">Always verify the <em>full name and the kerberos</em> of the resident</div>
-<p>
-	<table>
-		<tr>
-			<td>Resident Lookup:</td>
-			<td>Sort by:</td>
-		</tr>
-		<tr>
-			<td><input type="text" placeholder="kerberos or full name" class="searchname" /></td>
-			<td>
-			  <input id="firstName" class="slim sort" type="button" value="First Name">
-			  <input id="lastName" class="slim sort" type="button" value="Last Name">
-			  <input id="kerberos" class="slim sort" type="button" value="Kerberos">
-			</td>
-		</tr>
-	</table>
-</p>
-  <div class="error-msg" style="display: none">
-  No records found.
-  <p>
-  	Suggest updating the resident's records, or verifying the resident's last name. <br />
-  </p>
-  </div>
-<p>
-  <table class="displaytable">
-    <tr>
-      <th width="100">Resident Kerb</th>
-      <th>Name</th>
-      <th>Guest 1</th>
-      <th>Guest 2</th>
-      <th>Guest 3</th>
-      <th>Guest 4</th>
-      <th>Guest 5</th>
-    </tr>
-    {{#each guestlists}}
-	<tr>
-	  <td>
-	    {{this.kerberos}}
-	  </td>
-	  <td>
-	    {{#if this.firstName}} 
-	      {{this.firstName}} {{this.lastName}}
-	    {{else}}
-	      <span class="invalid">guestlist invalid</span>
-	    {{/if}}
-	  </td>
-          {{#each this.guests}}
-	  <td>
-            {{#if this.kerberos}}
-              {{this.name}} ({{this.kerberos}})
-            {{else}}
-	      <span class="empty">empty</span>
-	    {{/if}}
-	  </td>
-          {{/each}}
-	</tr>
-        {{#if this.hasTempGuests}}
-	<tr>
-	  <td>
-	    {{this.kerberos}}
-	  </td>
-	  <td>
-	    {{#if this.firstName}}
-	      {{this.firstName}} {{this.lastName}} (TEMP)
-	    {{else}}
-	      <span class="invalid">guestlist invalid</span>
-	    {{/if}}
-	  </td>
-          {{#each this.tempGuests}}
-	  <td>
-            {{#if this.kerberos}}
-              {{this.name}} ({{this.kerberos}})
-            {{else}}
-	      <span class="empty">empty</span>
-	    {{/if}}
-	  </td>
-          {{/each}}
-	</tr>
-        {{/if}}
-    {{/each}}
-  </table>
-</p>
+<style>
+.empty, .empty>small {
+  color: blue;
+}
+.invalid, .invalid>small {
+  color: red;
+}
+</style>
+
+<section class="content-header">
+    <h1>
+        Search and View Guestlists
+        <small>Always verify the <em>full name and kerberos</em> of a resident</small>
+      </h1>
+</section>
+
+<section class="content">
+    <p>
+        <table>
+            <tr style="font-weight:bold">
+                <td>Resident Lookup:</td>
+                <td>&nbsp; Sort by:</td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" placeholder="kerberos or full name" class="searchname form-control" />
+                </td>
+                <td>
+                    &nbsp; <input id="firstName" class="slim sort" type="button" value="First Name">
+                    <input id="lastName" class="slim sort" type="button" value="Last Name">
+                    <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+                </td>
+            </tr>
+        </table>
+    </p>
+    <br>
+    <div class="error-msg" style="display: none">
+        No records found.
+        <p>
+            Suggest updating the resident's records, or verifying the resident's last name.
+            <br />
+        </p>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">All Guests</h3>
+                </div>
+                <div class="box-body table-responsive no-padding">
+                    <table class="displaytable table table-hover">
+                        <tr style="font-weight:bold">
+                            <th width="100">Resident Kerb</th>
+                            <th>Name</th>
+                            <th>Guest 1</th>
+                            <th>Guest 2</th>
+                            <th>Guest 3</th>
+                            <th>Guest 4</th>
+                            <th>Guest 5</th>
+                        </tr>
+                        {{#each guestlists}}
+                        <tr>
+                            <td style="font-family:monospace">
+                                {{this.kerberos}}
+                            </td>
+                            <td>
+                                {{#if this.firstName}} {{this.firstName}} {{this.lastName}} {{else}}
+                                <span class="invalid"><small>guestlist invalid</small></span> {{/if}}
+                            </td>
+                            {{#each this.guests}}
+                            <td>
+                                {{#if this.kerberos}} {{this.name}} <small>[{{this.kerberos}}]</small> {{else}}
+                                <span class="empty"><small>empty</small></span> {{/if}}
+                            </td>
+                            {{/each}}
+                        </tr>
+                        {{#if this.hasTempGuests}}
+                        <tr>
+                            <td>
+                                {{this.kerberos}}
+                            </td>
+                            <td>
+                                {{#if this.firstName}} {{this.firstName}} {{this.lastName}} (TEMP) {{else}}
+                                <span class="invalid"><small>guestlist invalid</small></span> {{/if}}
+                            </td>
+                            {{#each this.tempGuests}}
+                            <td>
+                                {{#if this.kerberos}} {{this.name}} ({{this.kerberos}}) {{else}}
+                                <span class="empty"><small>empty</small></span> {{/if}}
+                            </td>
+                            {{/each}}
+                        </tr>
+                        {{/if}} {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
+</section>
 
 <script type="text/javascript">
 var sortBy = "kerberos";
 
 $('.searchname').focus();
 
-$('.sort').on('click', function(){
-  $('.sort').attr('class', 'slim sort');
-  $(this).attr('class', 'slim sort active');
-  sortBy = $(this).attr('id');
-  searchname = $('.searchname').val();
-  
-  updateList({hostSearchPattern: searchname, sortBy: sortBy });
-  
+$('.sort').on('click', function() {
+    $('.sort').attr('class', 'slim sort');
+    $(this).attr('class', 'slim sort active');
+    sortBy = $(this).attr('id');
+    searchname = $('.searchname').val();
+
+    updateList({
+        hostSearchPattern: searchname,
+        sortBy: sortBy
+    });
+
 });
 
-$('.searchname').on('input', function(){
-  searchname = $(this).val();
-  updateList({hostSearchPattern: searchname, sortBy: sortBy });
+$('.searchname').on('input', function() {
+    searchname = $(this).val();
+    updateList({
+        hostSearchPattern: searchname,
+        sortBy: sortBy
+    });
 })
 
-var updateList = function(query){
-  $.get("searchguests", query)
-    .done(function(guestlists) {
-        // TODO: Refactor to use handlebar client, error last time tried.
-        if (guestlists) {
-          $('.error-msg').hide();
-          $('.displaytable').show();
-          var header = '<tr><th>Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th><th>Guest 4</th><th>Guest 5</th></tr>';
-          var html = '';
-          var appendRow = function(isTempGuests) {
-            html += '<tr>';
-            html += '<td>' + guestlists[i].kerberos + '</td>';
-            html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + (isTempGuests ? ' (TEMP)' : '') + '</td>';
-            var attr = isTempGuests ? 'tempGuests' : 'guests';
-            for (var j = 0; j < guestlists[i][attr].length; j++) {
-              var guest = guestlists[i][attr][j];
-              html += '<td>';
-              if (guest.kerberos) {
-                html += guest.name + ' (' + guest.kerberos + ')';
-              } else {
-                html += '<span class="empty">empty</span>';
-              }
-              html += '</td>';
+var updateList = function(query) {
+    $.get("searchguests", query)
+        .done(function(guestlists) {
+            // TODO: Refactor to use handlebar client, error last time tried.
+            if (guestlists) {
+                $('.error-msg').hide();
+                $('.displaytable').show();
+                $(".displaytable").addClass("table").addClass("table-hover");
+                var header = '<tr style="font-weight:bold"><th width="100">Resident Kerb</th><th>Name</th><th>Guest 1 </th><th>Guest 2</th><th>Guest 3</th><th>Guest 4</th><th>Guest 5</th></tr>';
+                var html = '';
+                var appendRow = function(isTempGuests) {
+                    html += '<tr>';
+                    html += '<td style="font-family:monospace">' + guestlists[i].kerberos + '</td>';
+                    html += '<td>' + guestlists[i].firstName + ' ' + guestlists[i].lastName + (isTempGuests ? ' (TEMP)' : '') + '</td>';
+                    var attr = isTempGuests ? 'tempGuests' : 'guests';
+                    for (var j = 0; j < guestlists[i][attr].length; j++) {
+                        var guest = guestlists[i][attr][j];
+                        html += '<td>';
+                        if (guest.kerberos) {
+                            html += guest.name + ' <small>[' + guest.kerberos + ']</small>';
+                        } else {
+                            html += '<span class="empty"><small>empty</small></span>';
+                        }
+                        html += '</td>';
+                    }
+                    html += '</tr>';
+                }
+                for (var i = 0; i < guestlists.length; i++) {
+                    appendRow(false);
+                    if (guestlists[i].hasTempGuests) {
+                        appendRow(true);
+                    }
+                }
+                $('.displaytable').html(header + html).addClass("table").addClass("table-hover");
+            } else {
+                $('.displaytable').hide();
+                $('.error-msg').show();
             }
-            html += '</tr>';
-          }
-          for (var i = 0; i < guestlists.length; i++) {
-            appendRow(false);
-            if (guestlists[i].hasTempGuests) {
-              appendRow(true);
-            }
-          }
-          $('.displaytable').html(header + html);
-        } else {
-          $('.displaytable').hide();
-          $('.error-msg').show();
-        }
 
-      })
-    .fail(function(){
-        $('.error-msg').show();
-        $('.error-msg').html('A serious error has occured. Please contact vhung@mit.edu, or refresh the page');
+        })
+        .fail(function() {
+            $('.error-msg').show();
+            $('.error-msg').html('A serious error has occured. Please contact nextres-dev@mit.edu, or refresh the page');
         });
-
-    }
-
-  </script>
+}
+</script>

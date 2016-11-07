@@ -21,28 +21,33 @@ var db = require('./db').Database;
 const MAX_NUM_GUESTS = 10;
 const NUM_GUESTS = 5;
 
-function GuestLists() {
-  this.MAX_NUM_GUESTS = MAX_NUM_GUESTS;
-}
+var GuestLists = function() {
+  var that = Object.create(GuestLists.prototype);
+  that.MAX_NUM_GUESTS = MAX_NUM_GUESTS;
+  Object.freeze(that);
+  return that;
+};
 
-function nameField(index) {
+var nameField = function(index) {
   return 'guest' + index + 'Name';
-}
+};
 
-function kerberosField(index) {
+var kerberosField = function(index) {
   return 'guest' + index + 'Kerberos';
-}
+};
 
 GuestLists.prototype.nameField = nameField;
 GuestLists.prototype.kerberosField = kerberosField;
 
 function GuestList(guestlist) {
-  this.id = guestlist.id;
-  this.userID = guestlist.userID;
+  var that = Object.create(GuestList.prototype);
+  that.id = guestlist.id;
+  that.userID = guestlist.userID;
   for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
-    this[nameField(i)] = guestlist[nameField(i)];
-    this[kerberosField(i)] = guestlist[kerberosField(i)];
+    that[nameField(i)] = guestlist[nameField(i)];
+    that[kerberosField(i)] = guestlist[kerberosField(i)];
   }
+  return that;
 }
 
 /******************************************************************************
@@ -65,12 +70,12 @@ GuestLists.prototype.getGuestList = function(id, callback) {
         callback(false, new GuestList(rows[0]));
       }
     });
-}
+};
 
 /*
  * Returns the GuestList with the given userID, or false if nonexistent
  */
-GuestLists.prototype.getGuestListOfUser = function(userID, callback) {
+GuestLists.prototype.findByUserId = function(userID, callback) {
   db.query().select(['*']).from('next-guestlist').where('userID = ?', [userID])
     .execute(function(err, rows) {
       if (err) {
@@ -81,7 +86,7 @@ GuestLists.prototype.getGuestListOfUser = function(userID, callback) {
         callback(false, new GuestList(rows[0]));
       }
     });
-}
+};
 
 /*
  * Converts the GuestList in a form easy for handlebars parsing
@@ -108,7 +113,7 @@ GuestLists.prototype.guestListToObj = function(guestlist) {
     }
   }
   return guestlist;
-}
+};
 
 /*
  * Returns a list of objects representing each GuestList and its user info.
@@ -124,7 +129,7 @@ GuestLists.prototype.guestListToObj = function(guestlist) {
  */
 GuestLists.prototype.listGuests = function(params, callback) {
   var query = db.query().select(['*']).from('next-users')
-    .rightJoin('next-guestlist').on('`next-users`.id=`next-guestlist`.userID');
+    .innerJoin('next-guestlist').on('`next-users`.id=`next-guestlist`.userID');
   if (params && params.hostSearchPattern) {
     var pattern = '%' + params.hostSearchPattern + '%';
     query = query.where('firstName LIKE ? OR lastName LIKE ? OR kerberos LIKE ?', 
@@ -141,11 +146,11 @@ GuestLists.prototype.listGuests = function(params, callback) {
     }
     query = query.where(whereClause.join(' OR '), whereArgs);
   }
-  if (params && params.sortBy) {
+  if ((params.hostSearchPattern || params.guestSearchPattern) && params.sortBy) {
     query = query.orderBy(params.sortBy);
   }
   query.execute(callback);
-}
+};
 
 /*
  * Returns all guests that are already on the guestlist, but not
@@ -178,7 +183,7 @@ GuestLists.prototype.findRepeatedGuests = function(guestlist, user, callback) {
               callback(false, repeatedGuests);
             }
           });
-      }
+      };
       loop(guestlist[kerberosField(i)]);
     } else {
       count--;
@@ -187,7 +192,7 @@ GuestLists.prototype.findRepeatedGuests = function(guestlist, user, callback) {
   if (count == 0) {  // if no loops are called
     callback(false, repeatedGuests);
   }
-}
+};
 
 /******************************************************************************
  *
@@ -202,8 +207,8 @@ GuestLists.prototype.findRepeatedGuests = function(guestlist, user, callback) {
  * e.g. {guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
  */
 GuestList.prototype.updateGuests = function(guests, callback) {
-  columns = [];
-  values = [];
+  var columns = [];
+  var values = [];
   for (var i = 1; i <= MAX_NUM_GUESTS; i++) {
     if (guests[kerberosField(i)] != null) {
       columns.push(nameField(i));
@@ -214,6 +219,6 @@ GuestList.prototype.updateGuests = function(guests, callback) {
   }
   db.query().update('next-guestlist', columns, values)
     .where('id = ?', [this.id]).execute(callback);
-}
+};
 
 module.exports.GuestLists = new GuestLists();

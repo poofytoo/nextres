@@ -28,6 +28,7 @@
 
 var mysql = require('mysql2');
 var logger = require('./logger');
+var connect = require('connect-mysql');
 
 var db_settings = require('./config').config_data.db_settings;
 var db_url = 'mysql://' + db_settings.host + ':' +
@@ -35,13 +36,16 @@ var db_url = 'mysql://' + db_settings.host + ':' +
         '?user=' + db_settings.user + '&password=' + db_settings.password;
 var pool = mysql.createPool(db_url);
 
-function Database() {
-}
+var Database = function() {
+  var that = Object.create(Database.prototype);
+  Object.freeze(that);
+  return that;
+};
 
-function Query() {
+var Query = function() {
   this.query = '';
   this.args = [];
-}
+};
 
 /*
  * Function to construct a new query.
@@ -49,7 +53,7 @@ function Query() {
  */
 Database.prototype.query = function() {
   return new Query();
-}
+};
 
 /*
  * Convenience function to execute any query.
@@ -60,13 +64,13 @@ Database.prototype.execute = function(command, callback) {
   var query = new Query();
   query.query = command;
   query.execute(callback);
-}
+};
 
 /*
  * Get a session store for this database.
  */
 Database.prototype.store = function(express) {
-  var MySQLStore = require('connect-mysql')(express);
+  var MySQLStore = connect(express);
   var options = {
     pool: pool,
     config: {
@@ -76,7 +80,7 @@ Database.prototype.store = function(express) {
     }
   };
   return new MySQLStore(options);
-}
+};
 
 /*
  * Select the given columns; should be followed with a .from().
@@ -98,7 +102,7 @@ Query.prototype.select = function(args) {
     this.query += args[args.length - 1] + ' ' ;
   }
   return this;
-}
+};
 
 /*
  * Delete from the specified table.
@@ -107,7 +111,7 @@ Query.prototype.select = function(args) {
 Query.prototype.deleteFrom = function(table) {
   this.query += 'DELETE ';
   return this.from(table);
-}
+};
 
 /*
  * Clause from the specified table; should be preceded with .select().
@@ -117,7 +121,7 @@ Query.prototype.from = function(table) {
   this.query += 'FROM ?? ';
   this.args.push(table);
   return this;
-}
+};
 
 /*
  * Insert where clause with the given rules and arguments.
@@ -131,7 +135,7 @@ Query.prototype.where = function(rules, args) {
     this.args.push(args[i]);
   }
   return this;
-}
+};
 
 /*
  * Limit clause
@@ -140,7 +144,7 @@ Query.prototype.where = function(rules, args) {
 Query.prototype.limit = function(limit) {
   this.query += 'LIMIT ' + limit + ' ';
   return this;
-}
+};
 
 /*
  * Insert given values into the columns in the table
@@ -152,7 +156,7 @@ Query.prototype.insert = function(table, columns, values) {
   this.query += 'VALUES (?) ';
   this.args.push(values);
   return this;
-}
+};
 
 /*
  * Update given values in the columns in the table
@@ -167,7 +171,7 @@ Query.prototype.update = function(table, columns, values) {
   this.query += "??=? ";
   this.args.push(columns[columns.length-1],values[columns.length-1]);
   return this;
-}
+};
 
 /*
  * Right join on the given table
@@ -177,7 +181,7 @@ Query.prototype.rightJoin = function(table) {
   this.query += "RIGHT JOIN ?? ";
   this.args.push(table);
   return this;
-}
+};
 
 /*
  * Left join on the given table
@@ -187,7 +191,17 @@ Query.prototype.leftJoin = function(table) {
   this.query += "LEFT JOIN ?? ";
   this.args.push(table);
   return this;
-}
+};
+
+/*
+ * Inner join on the given table
+ * e.g. innerJoin('next-users')
+ */
+Query.prototype.innerJoin = function(table) {
+  this.query += "INNER JOIN ?? ";
+  this.args.push(table);
+  return this;
+};
 
 /*
  * Order by the given column
@@ -197,7 +211,7 @@ Query.prototype.orderBy = function(column) {
   this.query += 'ORDER BY ?? ';
   this.args.push(column);
   return this;
-}
+};
 
 /*
  * Order by the given column, in decreasing order
@@ -207,7 +221,7 @@ Query.prototype.orderByDesc = function(column) {
   this.orderBy(column);
   this.query += 'DESC ';
   return this;
-}
+};
 
 /*
  * On clause, should be preceded by join().
@@ -216,7 +230,7 @@ Query.prototype.orderByDesc = function(column) {
 Query.prototype.on = function(conditions) {
   this.query += "ON " + conditions + " ";
   return this;
-}
+};
 
 /*
  * Execute a given query.
@@ -241,6 +255,6 @@ Query.prototype.execute = function(callback) {
       }
     });
   }
-}
+};
 
 module.exports.Database = new Database();

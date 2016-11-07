@@ -69,6 +69,16 @@ if ('development' == app.get('env')) {
 app.get('/', user.viewprofile);
 app.get('/home', user.viewprofile);
 
+
+/*
+* Password reset
+*/
+app.get('/auth/forgot', function(req, res) {
+  res.render('reset-password');
+});
+app.post('/auth/forgot', user.forgotPassword);
+app.get('/auth/reset/:token', user.validateResetToken);
+app.post('/auth/reset/:token', user.resetPassword);
 /*
  * User functions
  */
@@ -92,6 +102,8 @@ app.post('/changepermission', enforce('MAKE_USERS_DESKWORKERS'), user.changeperm
 app.post('/findmitid', enforce('CHECKOUT_ITEMS'), user.findmitid);
 app.post('/searchkerberos', enforce('CHECKOUT_ITEMS'), user.searchkerberos);
 app.post('/savekerberos', enforce('CHECKOUT_ITEMS'), user.savekerberos);
+app.post('/updateroomnumbers', enforce('CREATE_USER'), user.updateRoomNumbers);
+app.get('/searchusers', enforce('VIEW_GUEST_LISTS'), user.search);
 
 
 /*
@@ -148,7 +160,6 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var rule = new schedule.RecurrenceRule();
 schedule.scheduleJob({hour: 0, minute: 0, second:0}, function() {
   Checkout.getOverdueItems(function(err, overdueItems) {
     for (var user in overdueItems) {

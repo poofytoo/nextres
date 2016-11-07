@@ -1,31 +1,36 @@
-<h1>Residence Info</h1>
-<p>Please update your information</p>
-<form method="post" action="residentinfo">
-<table>
-	<tr>
-		<td>
-			First Name
-		</td>
-		<td>
-			<input type="text" name="firstname" value="{{user.firstName}}">
-		</td>
-	</tr>
-	<tr>
-		<td>
-			Last Name
-		</td>
-		<td>
-			<input type="text" name="lastname" value="{{user.lastName}}">
-		</td>
-	</tr>
-	<tr>
-		<td>
-			Room Number
-		</td>
-		<td>
-			<input type="text" name="roomnumber" value="{{user.roomNumber}}">
-		</td>
-	</tr>
-</table>
-<input type="submit" value="save"/> 
-</form>
+<section class="content-header">
+    <h1>
+        Resident Info
+        <small>Please update your information</small>
+      </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>Account</a></li>
+        <li class="active">Resident Info</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <form method="post" action="residentinfo">
+        <div class="row">
+            <div class="form-group col-lg-3 col-md-5 col-xs-12">
+                <label> First Name </label>
+                <input name="firstname" value="{{user.firstName}}" class="form-control" placeholder="First Name">
+            </div>
+            <div class="form-group col-lg-3 col-md-5 col-xs-12">
+                <label> Last Name </label>
+                <input name="lastname" value="{{user.lastName}}" class="form-control" placeholder="Last Name">
+            </div>
+        </div>
+        <br>
+        <div class="input-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
+            <label> Room Number </label>
+            <input type="text" name="roomnumber" value="{{user.roomNumber}}" class="form-control" placeholder="Room Number">
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <button class="btn btn-success col-lg-6 col-md-6 col-xs-12" type='submit' value='Save'>Save</button>
+            </div>
+        </div>
+    </form>
+</section>

@@ -1,96 +1,173 @@
+<link rel="stylesheet" href="admin-lte/plugins/datepicker/datepicker3.css">
+
 {{#if userReservations}}
-	<h1>Your Room Reservations</h1>
-	<p>Below are the rooms you have reserved. Click on a reservation to edit</p>
+  <section class="content-header">
+      <h1>
+          Your Room Reservations
+          <small>Below are the rooms you have reserved. Click on a reservation to edit.</small>
+        </h1>
+  </section>
 	<ul>
 	{{#each userReservations}}
 	<li class="reservation" id="remove-reservation-li-{{this.id}}">
-                <span><a href="/roomreservations/{{this.id}}" class="edit_reservation">{{this.summary}} at {{this.formattedTime}}</a></span>
-		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove">cancel reservation</a></span>
+        <span><a href="/roomreservations/{{this.id}}" class="edit_reservation">{{this.summary}} at <b>{{this.formattedTime}}</b></a></span> &nbsp;
+		<span><a id="remove-reservation-{{this.id}}" class="remove_reservation remove label label-danger">cancel?</a></span>
 	</li>
 	{{/each}}
 	</ul>
 {{/if}}
 
+<section class="content" style="margin-top:-10px">
+<h3>Reserve a Room</h3>
 
-<h1>Reserve a Room</h1>
-<p>All room reservations follow the policies updated on October 23, 2013, which can be found <a href="http://nextres.mit.edu/documents/NextHouseUpdatedReservationPolicies.pdf">here</a> as well as in the updated in the updated community handbook. <em>Please review these policies if you are unsure of how to reserve a room.</em></p>
-<p>Note: only three outstanding reservations are allowed at a time. For more reservations, please contact next-exec.</p>
+<p>All room reservations must follow House policies found <a href="http://nextres.mit.edu/documents/NextHouseUpdatedReservationPolicies.pdf">here</a> as well as in the updated Community Handbook.</p>
 
+<p><em>Please review these policies if you are unsure of how to reserve a room.</em></p>
+
+<p><b>Note:</b> only three outstanding reservations are allowed at a time. For more reservations, please contact next-exec@mit.edu.</p>
 
 <form method="post">
 
-    <fieldset>
-    	<label for="room">Room</label>
-    	<select class="sel_room" name="room">
-        	<option value="">--</option>
-        	<option value="Country Kitchen">Country Kitchen</option>
-        	<option value="Conference Room">Conference Room</option>
-        	<option value="TFL">TFL</option>
-        	<option value="PDR">Private Dining Room (PDR)</option>
-        	<option value="Courtyard">Courtyard & BBQ Pits</option>
-        	<option value="TFL TV area">TFL TV Area</option>
-        	<option value="Music Room">Music Room</option>
-    	</select>
-    </fieldset>
-    <fieldset>
-    	<label for="people">Number of People</label>
-    	<select class="sel_people" name="people">
-        	<option value="">--</option>
-        	<option value="0">&lt;10</option>
-        	<option value="1">&ge;10</option>
-    	</select>
-    </fieldset>
-    <!-- reservation part 2 -->
-    <div class="part2" style="display: none;">
-    <h2>Signatories</h2>
-    <p><span class='nres'></span> Next House Residents are required to reserve the <span class='nroom'></span>. Please enter their <em>Kerberos</em></p>
-    <table class="room-reserve">
-    	<tr>
-    		<td><label for="signatory1">Resident 1</label></td>
-    		<td><input type="text" placeholder="kerberos" value="{{user.kerberos}}" name="signatory1" disabled="disabled"></td>
-    	</tr>
-    	<tr>
-    		<td><label for="signatory2">Resident 2</label></td>
-    		<td><input type="text" placeholder="kerberos" name="signatory2" required></td>
-    	</tr>
-    	<tr class="r3" style="display: hidden;">
-    		<td><label for="signatory3">Resident 3</label></td>
-    		<td><input type="text" placeholder="kerberos" name="signatory3"></td>
-    	</tr>
-    </table>
-    
-    <h2>Reservation Details</h2>
-    <p>To reserve multiple days, please fill out multiple reservations</p>
-    <table class="room-reserve">
-    	<tr>
-    		<td><label for="date">Date</label></td>
-    		<td>
-  				<span class="nodate"></span>
-  				<input type="date" name="date" required>
-  			</td>
-    	</tr>
-    	<tr>
-    		<td>
-    			<label for="date">Time</label></td>
-    		<td>
-    			<input id="startTime" name="start" type="text" class="time ui-timepicker-input" autocomplete="off" required> to 
-    			<input id="endTime" name="end" type="text" class="time ui-timepicker-input" autocomplete="off" required>
-    		</td>
-    	</tr>
-    </table>
-    <p>
-    	Description of Event/Activity: <br />
-        <textarea name="reason" rows="5" cols="60">
-{{#if prevParams}}{{prevParams.reason}}{{/if}}
-        </textarea>
-    </p>
-    <input type="submit" value="Submit Room Reservation Request">
-</form>
+<div class="row">
+    <div class="form-group col-lg-3 col-md-5 col-sm-6 col-xs-12">
+        <fieldset>
+            <label for="room">Room</label>
+            <select class="sel_room form-control" name="room">
+                <option value="">--</option>
+                <option value="Country Kitchen">Country Kitchen</option>
+                <option value="Conference Room">Conference Room</option>
+                <option value="TFL">TFL</option>
+                <option value="PDR">Private Dining Room (PDR)</option>
+                <option value="Courtyard">Courtyard & BBQ Pits</option>
+                <option value="TFL TV area">TFL TV Area</option>
+                <option value="Music Room">Music Room</option>
+            </select>
+        </fieldset>
+    </div>
+    <div class="form-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
+        <fieldset>
+            <label for="people">Number of People</label>
+            <select class="sel_people form-control" name="people">
+                <option value="">--</option>
+                <option value="0">&lt;10</option>
+                <option value="1">&ge;10</option>
+            </select>
+        </fieldset>
+    </div>
+</div>
 
+<!-- reservation part 2 -->
+<div class="part2" style="display: none;">
+    <h3>Signatories</h3>
+    <p>
+      <b><span class='nres'></span></b> Next House Residents are required to reserve the <b><span class='nroom'></span></b>. 
+      Please enter their <em>kerberoses</em>.
+    </p>
+
+    <div class="row">
+        <div class="form-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
+            <label>Resident 1: </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-user"></i>
+                </div>
+                <input type="text" class="form-control" placeholder="kerberos" value="{{user.kerberos}}" name="signatory1" disabled="disabled">
+            </div>
+        </div>
+        <div class="form-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
+            <label>Resident 2: </label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fa fa-user"></i>
+                </div>
+                <input type="text" class="form-control" placeholder="kerberos" name="signatory2">
+            </div>
+        </div>
+        <div class="form-group col-lg-2 col-md-4 col-sm-6 col-xs-12">
+            <label class="r3" style="display: hidden;">Resident 3: </label>
+            <div class="input-group r3" style="display: hidden;">
+                <div class="input-group-addon">
+                    <i class="fa fa-user"></i>
+                </div>
+                <input type="text" class="form-control" placeholder="kerberos" name="signatory3">
+            </div>
+        </div>
+    </div>
+
+    <h3>Reservation Details</h3>
+    <p>To reserve multiple days, please fill out multiple reservations.</p>
+        
+    <div class="row">
+        <div class="form-group col-lg-3 col-md-4 col-sm-6 col-xs-12">
+            <label for="date">Date: </label>
+            <span class="nodate"></span>
+            <div class="input-group date">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <input type="date" class="form-control pull-right" id="date" name="date" required>
+            </div>
+            <!-- /.input group -->
+        </div>
+    </div>
+
+    <div class="bootstrap-timepicker row">
+        <div class="form-group col-lg-2 col-md-4 col-xs-6">
+            <label>Start Time: </label>
+            <div class="input-group">
+                <input id="startTime" type="text" class="form-control timepicker" autocomplete="off" name="start" required>
+                <div class="input-group-addon">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+            </div>
+        </div>
+            <!-- /.input group -->
+        <div class="form-group col-lg-2 col-md-4 col-xs-6">
+            <label>End Time: </label>
+            <div class="input-group">
+                <input id="endTime" type="text" class="form-control timepicker" autocomplete="off" name="end" required>
+                <div class="input-group-addon">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+            </div>
+        </div>
+        <!-- /.form group -->
+    </div>
+
+      <div class="row">
+        <div class="col-lg-4 col-md-6 col-xs-12">
+        {{#if prevParams}}
+        <textarea class="form-control" name="reason" rows="4" cols="60" placeholder="Description of Event/Activity">{{prevParams.reason}}</textarea>
+        {{else}}
+         <textarea class="form-control" name="reason" rows="4" cols="60" placeholder="Description of Event/Activity"></textarea>
+        {{/if}}
+        </div>
+      </div>
+
+      <br />
+
+      <div class="row">
+        <div class="col-lg-4 col-md-6 col-xs-12">
+          <button type="submit" class="btn btn-success col-xs-12" value="Submit Room Reservation Request">Submit Request</button>
+        </div>
+      </div>
+
+</form>
 
 </div> <!-- closetag for part2. not ideal, I know -->
 
-<iframe class="calendarIframe" src="https://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="700" height="400" frameborder="0" scrolling="no"></iframe>
+<br>
+
+<iframe class="calendarIframe" src="http://www.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;height=400&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=87a94e6q5l0nb6bfphe3192uv8%40group.calendar.google.com&amp;color=%232952A3&amp;ctz=America%2FNew_York" style=" border-width:0 " width="100%" height="400" frameborder="0" scrolling="no"></iframe>
+
+</section>
+
+<style>
+  .room-reserve {
+
+  }
+</style>
+
 <script type="text/javascript">
 
   $('.remove_reservation').on('click', function(e) {
@@ -133,20 +210,23 @@ $(document).ready(function(){
 		$('.nodate').text('Format YYYY-MM-DD');
 	}
 
-  $('#startTime').timepicker({ 
-	'maxTime': '23:59',
-  	'forceRoundTime': true 
-  });
-  $('#startTime').on('changeTime', function() {
-	stime = $(this).val();
-	$('#endTime').timepicker('option', {'minTime': stime});
-  });
-  $('#endTime').timepicker({
-	'minTime': '2:00pm',
-	'maxTime': '12:00am',
-	'showDuration': true,
-	'forceRoundTime': true 
-  });
+  setTimeout(function() {
+    $('#startTime').timepicker({ 
+    'maxTime': '23:59',
+    'forceRoundTime': true 
+    });
+    $('#startTime').on('changeTime', function() {
+      stime = $(this).val();
+      $('#endTime').timepicker('option', {'minTime': stime});
+    });
+    $('#endTime').timepicker({
+    'minTime': '2:00pm',
+    'maxTime': '12:00am',
+    'showDuration': true,
+    'forceRoundTime': true 
+    });
+  }, 1000);
+
   $('.deny-reservation').on('click', function(e) {
       event_id = e.target.id.substring('deny-reservation-'.length);
       reason = $('#deny-reservation-reason-' + event_id).val();

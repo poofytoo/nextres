@@ -1,63 +1,113 @@
-<h1>All Residents</h1>
-<p>User controls</p>
+<style>
+th {
+    font-weight: bold;
+}
+</style>
+<section class="content-header">
+    <h1>
+        All Residents
+        <small>User controls</small>
+      </h1>
+</section>
+<section class="content">
+    {{#if permissions.CREATE_USER}}
+    <h3>Adding Users</h3>
+    <p>One kerberos per line. Adding a new user will create an account and send them an email. <br> When inputting Kerberos, <em>do not include @mit.edu</em>.</p>
+    <form method="post" action="users">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-9">
+                <textarea class="form-control" name="kerberosList"></textarea>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-6">
+                <button type="submit" class="btn btn-success" value="Create">Create</button>
+            </div>
+        </div>
+    </form>
+    <h3>Updating Resident Info</h3>
+    <p>URL to .csv file with kerberoses, resident names, and room numbers (see <a href='http://72.29.29.198/safetythird/data/fall2016-roster.csv'>example</a>)</p>
+    <form method="post" action="updateroomnumbers">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-xs-12">
+                <input type="text" class="form-control" name="url" placeholder="URL of .csv file"></input>
+            </div>
+            <div class="col-lg-3 col-md-4 col-xs-12">
+                <button type="submit" class="btn btn-success" value="Update">Update</button>
+            </div>
+        </div>
+    </form>
+    {{/if}}
+    <br>
+        <table>
+            <tr style="font-weight:bold">
+                <td>Resident Lookup:</td>
+                <td>&nbsp; Sort by:</td>
+            </tr>
+            <tr>
+                <td>
+                    <input class="form-control" type="text" placeholder="kerberos or full name" class="searchname" />
+                </td>
+                <td>
+                    &nbsp; 
+                    <input id="firstName" class="slim sort" type="button" value="First Name">
+                    <input id="lastName" class="slim sort" type="button" value="Last Name">
+                    <input id="kerberos" class="slim sort" type="button" value="Kerberos">
+                    <input id="roomNumber" class="slim sort" type="button" value="Room Number">
+                </td>
+            </tr>
+        </table>
+    </p>
+    <br>
+    <div class="row">
+        <div class="col-xs-12 col-lg-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">All Users</h3>
+                </div>
+                <div class="box-body table-responsive no-padding">
+                    <table class="displaytable table table-hover">
+                        <tr>
+                            <th>Kerberos</th>
+                            <th>Name</th>
+                            <th>Room</th>
+                            <th>Role</th>
+                            {{#if permissions.CREATE_USER}}
+                            <th>Reset Password</th>
+                            <th>Remove</th>
+                            {{/if}} {{#if permissions.FULL_PERMISSIONS_CONTROL}}
+                            <th>Login as</th>
+                            {{/if}}
+                        </tr>
+                        {{#each users}}
+                        <tr id="{{this.kerberos}}-tr">
+                            <td style="font-family:monospace">{{this.kerberos}}</td>
+                            <td>{{this.firstName}} {{this.lastName}}</td>
+                            <td>{{this.roomNumber}}</td>
+                            <td>
+                                {{#if this.changeable}}
+                                <select id="{{this.kerberos}}-changeperms">
+                                    {{#each this.changeOptions}}
+                                    <option value="{{this.value}}" {{this.selected}}>
+                                        {{this.name}}
+                                    </option>
+                                    {{/each}}
+                                </select>
+                                <span class="permissionStatus"></span> {{else}} {{this.groupName}} {{/if}}
+                            </td>
+                            {{#if ../permissions.CREATE_USER}}
+                            <td><a id="{{this.kerberos}}-pwreset" class="pwreset label label-warning">reset pass</a></td>
+                            <td><a id="{{this.kerberos}}-remove" class="remove label label-danger">X</a></td>
+                            {{/if}} {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
+                            <td><a id="{{this.kerberos}}-loginas" class="loginas label label-info">login</a></td>
+                            {{/if}}
+                        </tr>
+                        {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-{{#if permissions.CREATE_USER}}
-<h2>Adding Users</h2>
-<p>One kerberos per line. Adding a new user will create an account and send them an email. When inputting Kerberos, do not include @mit.edu.</p>
-  <form method="post" action="users">
-    <textarea name="kerberosList"></textarea>
-    <input type="submit" value="Create">
-  </form>
-</p>
-{{/if}}
-
-<h2>All Users</h2>
-<p>Below is a list of all the users</p>
-<p>
-  <table class="displaytable">
-    <tr>
-      <th>Kerberos</th>
-      <th width="240">Resident Name</th>
-      <th>Room</th>
-      <th>Role</th>
-      {{#if permissions.CREATE_USER}}
-      <th>Reset Password</th>
-      <th>Remove</th>
-      {{/if}}
-      {{#if permissions.FULL_PERMISSIONS_CONTROL}}
-      <th>Login AS</th>
-      {{/if}}
-    </tr>
-    {{#each users}}
-    <tr id="{{this.kerberos}}-tr">
-      <td>{{this.kerberos}}</td>
-      <td>{{this.firstName}} {{this.lastName}}</td>
-      <td>{{this.roomNumber}}</td>
-      <td>
-        {{#if this.changeable}}
-        <select id="{{this.kerberos}}-changeperms">
-          {{#each this.changeOptions}}
-          <option value="{{this.value}}" {{this.selected}}>
-          {{this.name}}
-          </option>
-          {{/each}}
-        </select>
-        <span class="permissionStatus"></span>
-        {{else}}
-        {{this.groupName}}
-        {{/if}}
-      </td>
-      {{#if ../permissions.CREATE_USER}}
-      <td><a id="{{this.kerberos}}-pwreset" class="pwreset">reset pass</a></td>
-      <td><a id="{{this.kerberos}}-remove" class="remove">X</a></td>
-      {{/if}}
-      {{#if ../permissions.FULL_PERMISSIONS_CONTROL}}
-      <td><a id="{{this.kerberos}}-loginas" class="loginas">login</a></td>
-      {{/if}}
-    </tr>
-    {{/each}}
-  </table>
-  </p>
 
 <script type="text/javascript">
   {{#if permissions.FULL_PERMISSIONS_CONTROL}}
@@ -74,7 +124,6 @@
   {{/if}}
 
   {{#if permissions.CREATE_USER}}
-  // removing a user
   $('.remove').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -90,7 +139,6 @@
     $(e.target).html(yes).append('&nbsp;&nbsp;').append(no);
   });
 
-  // resetting a password
   $('.pwreset').on('click', function(e) {
     var yes = $('<a>').html('yes').on('click',
       function(e2) {
@@ -108,21 +156,80 @@
   {{/if}}
   
   {{#if permissions.MAKE_USERS_DESKWORKERS}}
-  // changing a user permission
   $('select').change(function(e) {
   	var chosen = $(this).val();
     var selectId = e.target.id;
     kerberos = selectId.split('-')[0];
-  	$.post('/changepermission',{kerberos:kerberos, permission:chosen}, function(data) {
-          if (!data.error) {
-  	  	$flashmsg = $('#' + selectId).parent().find('.permissionStatus');
-  	  	$flashmsg.
-  	  		show().text('done').
-  	  		delay(1000).fadeOut(500);
-  	  } else {
-  	    $('#' + selectId).parent().find('.permissionStatus').text('error - contact nextres-dev@mit.edu');
-  	  }
+  	$.post('/changepermission', {kerberos:kerberos, permission:chosen}, function(data) {
+        if (!data.error) {
+  	  	  $flashmsg = $('#' + selectId).parent().find('.permissionStatus');
+  	  	  $flashmsg.show().text('done').delay(1000).fadeOut(500);
+  	    } else {
+  	      $('#' + selectId).parent().find('.permissionStatus').text('error - contact nextres-dev@mit.edu');
+  	    }
   	});
   });
+
+  var updateList = function(query){
+    $.get("searchusers", query)
+      .done(function(data) {
+        if (data) {
+          var users = data.users;
+          var permissions = data.permissions;
+          var html = '<tr><th>Kerberos</th><th>Resident Name</th><th>Room</th><th>Role</th>';
+          if (permissions.CREATE_USER) {
+            html += '<th>Reset Password</th><th>Remove</th>';
+          }
+          if (permissions.FULL_PERMISSIONS_CONTROL) {
+            html += "<th>Login AS</th>" ;
+          }
+          html += "</tr>";
+          for (var i in users) {
+            var user = users[i];
+            html += '<tr id="' + user.kerberos + '-tr">'
+            html += "<td>" + user.kerberos + "</td>"
+            html += "<td>" + user.firstName + " " + user.lastName + "</td>"
+            html += "<td>" + user.roomNumber + "</td>"
+            var select = '<select id="' + user.kerberos + '-changeperms">'
+            for (var j in user.changeOptions) {
+              var option = user.changeOptions[j];
+              select += '<option value="' + option.value + '" ' + option.selected + '>' + option.name + "</option>"
+
+            }
+            select += '</select><span class="permissionStatus"></span>'
+            html += "<td>" + (user.changeable ? select : user.groupName) + "</td>"
+            if (permissions.CREATE_USER) {
+              html += '<td><a id="' + user.kerberos + '-pwreset" class="pwreset">reset pass</a></td>'
+              html += '<td><a id="' + user.kerberos + '-remove" class="remove">X</a></td>'
+            }
+            if (permissions.FULL_PERMISSIONS_CONTROL) {
+              html += '<td><a id="' + user.kerberos + '-loginas" class="loginas">login</a></td>'
+            }
+            html += "</tr>"
+          }
+          $(".displaytable").html(html);
+        } else {
+          $(".displaytable").hide();
+          $('.error-msg').show();
+        }
+    }).fail(function() {
+        $('.error-msg').show();
+        $('.error-msg').html('A serious error has occured. Please contact nextres-dev@mit.edu, or refresh the page');
+    });
+  }
   {{/if}}
+
+  $('.sort').on('click', function() {
+    $('.sort').attr('class', 'slim sort');
+    $(this).attr('class', 'slim sort active');
+    sortBy = $(this).attr('id');
+    searchname = $('.searchname').val();
+    updateList({kerberosSearchPattern: searchname, sortBy: sortBy });
+  });
+
+  $('.searchname').on('input', function(){
+    searchname = $(this).val();
+    updateList({kerberosSearchPattern: searchname, sortBy: sortBy });
+  });
+
 </script>

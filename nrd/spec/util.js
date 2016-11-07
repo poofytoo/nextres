@@ -24,18 +24,18 @@ module.exports.runFunctions = function(functions) {
     });
   }
   helper(0);
-}
+};
 
 /*
  * Convenience function for asserting the verify of the specified testValue.
  */
 module.exports.test = function(testValue, message) {
   console.assert(testValue, message);
-}
+};
 
 /*
  * Convenience function for asserting the equality of two objects.
  */
 module.exports.testObj = function(testValue, expected, message) {
   console.assert(JSON.stringify(testValue) === JSON.stringify(expected), message);
-}
+};

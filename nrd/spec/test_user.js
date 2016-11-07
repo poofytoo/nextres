@@ -35,7 +35,7 @@ util.runFunctions([
             ') ENGINE=MyISAM DEFAULT CHARSET=latin1', done);
     },
     function(done) {
-      Users.getAllUsers({}, function(err, users) {
+      Users.findAll({}, function(err, users) {
         test(users.length === 0);
         done();
       });
@@ -44,7 +44,7 @@ util.runFunctions([
       Users.createUser('nonexist', done);
     },
     function(done) {
-      Users.getUser(1, function(err, user) {
+      Users.findById(1, function(err, user) {
         test(user.kerberos === 'nonexist');
         test(!user.firstName);
         test(!user.lastName);
@@ -57,7 +57,7 @@ util.runFunctions([
       Users.createUsers(['kyc2915', 'rliu42'], done);
     },
     function(done) {
-      Users.getAllUsers({sortBy: 'firstName'}, function(err, users) {
+      Users.findAll({sortBy: 'firstName'}, function(err, users) {
         test(users.length === 3);
         test(users[1].kerberos === 'kyc2915');
         test(users[1].firstName === 'Kevin');
@@ -79,12 +79,12 @@ util.runFunctions([
       });
     },
     function(done) {
-      Users.getUser(1, function(err, user) {  // nonexist
+      Users.findById(1, function(err, user) {  // nonexist
         user.updateProfile('Bobby', 'Jones', 100, done);
       });
     },
     function(done) {
-      Users.getUser(1, function(err, user) {
+      Users.findById(1, function(err, user) {
         test(user.kerberos === 'nonexist');
         test(user.firstName === 'Bobby');
         test(user.lastName === 'Jones');
@@ -93,23 +93,23 @@ util.runFunctions([
       });
     },
     function(done) {
-      Users.getUser(2, function(err, user) {  // kyc2915
+      Users.findById(2, function(err, user) {  // kyc2915
         user.editMitID(123456789, done);
       });
     },
     function(done) {
-      Users.getUser(2, function(err, user) {
+      Users.findById(2, function(err, user) {
         test(user.kerberos === 'kyc2915');
         test(user.mitID === 123456789);
         done();
       });
     },
     function(done) {
-      Users.getUser(3, function(err, user) {  // rliu42
+      Users.findById(3, function(err, user) {  // rliu42
         var origPassword = user.password;
         user.changePassword('secret', function(err) {
           test(!err);
-          Users.getUser(3, function(err, user) {
+          Users.findById(3, function(err, user) {
             test(user.kerberos === 'rliu42');
             test(user.password !== origPassword);
             done();
@@ -118,11 +118,11 @@ util.runFunctions([
       });
     },
     function(done) {
-      Users.getUserWithKerberos('nonexist', function(err, user) {
+      Users.findByKerberos('nonexist', function(err, user) {
         var origPassword = user.password;
         user.resetPassword(function(err) {
           test(!err);
-          Users.getUserWithKerberos('nonexist', function(err, user) {
+          Users.findByKerberos('nonexist', function(err, user) {
             test(user.kerberos === 'nonexist');
             test(user.password !== origPassword);
             done();
@@ -132,7 +132,7 @@ util.runFunctions([
     },
     function(done) {
       // Test searching users by kerberos
-      Users.getAllUsers({'kerberosSearchPattern': '2'}, function(err, users) {
+      Users.findAll({'kerberosSearchPattern': '2'}, function(err, users) {
         test(users.length === 2);
         test(users[0].kerberos === 'kyc2915');
         test(users[1].kerberos === 'rliu42');
@@ -140,36 +140,36 @@ util.runFunctions([
       });
     },
     function(done) {
-      Users.getUserWithKerberos('kyc2915', function(err, user) {
+      Users.findByKerberos('kyc2915', function(err, user) {
         user.changeGroup(1, done);
       });
     },
     function(done) {
-      Users.getUserWithKerberos('kyc2915', function(err, user) {
+      Users.findByKerberos('kyc2915', function(err, user) {
         test(user.kerberos === 'kyc2915');
         test(user.group === 1);
         done();
       });
     },
     function(done) {
-      Users.getUserWithKerberos('rliu42', function(err, user) {
+      Users.findByKerberos('rliu42', function(err, user) {
         user.remove(done);
       });
     },
     function(done) {
-      Users.getAllUsers({}, function(err, users) {
+      Users.findAll({}, function(err, users) {
         test(users.length === 2);
         done();
       });
     },
     function(done) {
-      Users.getUser(-1, function(err) {
+      Users.findById(-1, function(err) {
         test(err);
         done();
       });
     },
     function(done) {
-      Users.getUser('not_here', function(err) {
+      Users.findById('not_here', function(err) {
         test(err);
         done();
       });
