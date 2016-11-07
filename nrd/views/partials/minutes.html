@@ -14,7 +14,7 @@
     <ul>
     {{#each minutes}}
             <li id="remove-minutes-li-{{this.id}}">
-        <a class="file" href="minutes/{{this.id}}">{{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;{{this.name}}</a> 
+        {{this.date}}&nbsp;&nbsp;&bull;&nbsp;&nbsp;<a class="file" href="minutes/{{this.id}}">{{this.name}}</a> 
                     <a id="remove-minutes-{{this.id}}" class="remove remove-minute" href="#">remove</a>
       </li>
     {{/each}}
