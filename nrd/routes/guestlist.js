@@ -59,20 +59,20 @@ function validateGuestlist(guestlist, callback) {
   // Find invalid kerberos.
   async.filter(kerberosList, function(kerberos, done) {
     if (kerberos === '' || kerberos === null) {
-      done(false);  // empty guest fields are not invalid
+      done(null, false);  // empty guest fields are not invalid
       return;
     }
     Users.getProfile(kerberos, function(err, profile) {
       // Valid guests have a year (1, 2, 3, 4 or G)
       if (err) {
-        done(true)
+        done(null, true)
       } else if (profile) {
-        done(!profile.year);
+        done(null, !profile.year || profile.year == 'G');
       } else {
-        done(false)
+        done(null, false)
       }
     });
-  }, function(invalidKerberos) {
+  }, function(err, invalidKerberos) {
     callback(invalidKerberos && invalidKerberos.length > 0 ?
         'The following guest kerberos are invalid: ' +
         invalidKerberos.join(', ') : '');
