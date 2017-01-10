@@ -26,7 +26,7 @@
  * });
  */
 
-var mysql = require('mysql2');
+var mysql = require('mysql');
 var logger = require('./logger');
 var connect = require('connect-mysql');
 

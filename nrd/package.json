@@ -19,6 +19,7 @@
     "handlebars": "*",
     "hbs": "*",
     "jade": "*",
+    "mysql": "^2.12.0",
     "mysql2": "0.11.4",
     "node-schedule": "*",
     "nodemailer": "~0.7.1",
