@@ -104,8 +104,6 @@ function toRFC3339(datetime) {
 
 // Convert a RFC3339 formatted string to a Date object.
 function fromRFC3339(rfc3339) {
-    // Get rid of the time zone attached to the rfc3339.
-    rfc3339 = rfc3339.slice(0, -6) + 'Z';
     try {
         return time.Date(Date.parse(rfc3339));
     } catch (e) {
