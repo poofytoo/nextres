@@ -15,7 +15,7 @@
     "consolidate": "*",
     "crypto": "0.0.3",
     "express": "3.4.0",
-    "google-oauth-serviceaccount": "*",
+    "google-oauth-jwt": "^0.2.0",
     "handlebars": "*",
     "hbs": "*",
     "jade": "*",

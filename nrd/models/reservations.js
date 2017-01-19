@@ -41,7 +41,7 @@
  */
 
 var config = require("./config");
-var gaccount = require('google-oauth-serviceaccount');
+var googleAuth = require('google-oauth-jwt');
 var qs = require('qs');
 var request = require('request');
 var df = require('./dateformat');
@@ -51,6 +51,7 @@ if (!config.isWindows) {
     var time = require('time');
 }
 
+var authData = require('../oauth-config.json');
 var calendar_settings = require('./config').config_data.calendar_settings;
 
 const BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/";
@@ -178,7 +179,7 @@ function removeEvent(access_token, id, callback) {
  * now is a Javascript Date object representing the current time.
  */
 Reservations.prototype.getReservations = function(now, callback) {
-    gaccount.auth(function(err, access_token) {
+    googleAuth.authenticate(authData, function(err, access_token) {
         // Calculate today and NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE later.
         now = new Date(now);
         now.setDate(now.getDate() - 1);
@@ -241,7 +242,7 @@ Reservations.prototype.getReservationsWithUser = function(now, user, callback) {
  * Returns the Reservation with the given ID, or false if nonexistent
  */
 Reservations.prototype.getReservation = function(id, callback) {
-    gaccount.auth(function(err, access_token) {
+    googleAuth.authenticate(authData, function(err, access_token) {
         getEvent(access_token, id, function(err, res, event) {
             err = err || event.error;
             callback(err, err ? false : new Reservation(event));
@@ -273,7 +274,7 @@ Reservations.prototype.getReservation = function(id, callback) {
  */
 Reservations.prototype.reserve = function(params, callback) {
     logger.info('Reservation request made. Params: ' + JSON.stringify(params));
-    gaccount.auth(function(err, access_token) {
+    googleAuth.authenticate(authData, function(err, access_token) {
         // Construct start and end Date objects
         var startTime = new Date(params.date);
         setTime(startTime, params.start);
@@ -367,7 +368,7 @@ Reservation.prototype.getParams = function(callback) {
  */
 Reservation.prototype.confirm = function(callback) {
     var id = this.id;
-    gaccount.auth(function(err, access_token) {
+    googleAuth.authenticate(authData, function(err, access_token) {
         getEvent(access_token, id, function(err, res, event) {
             event.status = 'confirmed';
             editEvent(access_token, event, function(err, res, body) {
@@ -390,7 +391,7 @@ Reservation.prototype.deny = function(reason, callback) {
  */
 Reservation.prototype.remove = function(callback) {
     var id = this.id;
-    gaccount.auth(function(err, access_token) {
+    googleAuth.authenticate(authData, function(err, access_token) {
         removeEvent(access_token, id, callback);
     });
 };
