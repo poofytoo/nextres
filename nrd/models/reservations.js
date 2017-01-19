@@ -56,6 +56,7 @@ var calendar_settings = require('./config').config_data.calendar_settings;
 
 const BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/";
 const TIME_ZONE = 'America/New_York';
+const TIME_ZONE_SHORT = 'EST';
 const MAX_NUM_SIGNATORIES = 3;
 const NUM_DAYS_WHERE_RESERVATION_IS_VISIBLE = 60;
 
@@ -275,6 +276,9 @@ Reservations.prototype.getReservation = function(id, callback) {
 Reservations.prototype.reserve = function(params, callback) {
     logger.info('Reservation request made. Params: ' + JSON.stringify(params));
     googleAuth.authenticate(authData, function(err, access_token) {
+	// Specify the timezone on the inputted date
+	params.date += TIME_ZONE_SHORT;
+
         // Construct start and end Date objects
         var startTime = new Date(params.date);
         setTime(startTime, params.start);
