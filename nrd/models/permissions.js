@@ -33,12 +33,13 @@ var PERMISSIONS = [
         'NULL2',  // 7
         'NULL3',  // 8
         'MAKE_USERS_DESKWORKERS',  // 9
+        'EDIT_GUEST_LISTS',  // 10
         ];
 var GROUP_PERMISSIONS = [
   [],  // 0
-  [1, 2, 3, 4, 5, 6, 9],  // 1
+  [1, 2, 3, 4, 5, 6, 9, 10],  // 1
   [3, 6],  // 2
-  [1, 4, 5, 6, 9],  // 3
+  [1, 4, 5, 6, 9, 10],  // 3
   [3, 6, 9],  // 4
 ];
 var CHANGE_PERMISSIONS = [

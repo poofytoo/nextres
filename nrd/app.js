@@ -119,6 +119,8 @@ app.get('/allguests', enforce('VIEW_GUEST_LISTS'), guestlist.list);
 app.get('/searchguests', enforce('VIEW_GUEST_LISTS'), guestlist.search);
 app.get('/guestlist', guestlist.view);
 app.post('/guestlist', guestlist.edit);
+app.get('/manageguestlists', enforce('EDIT_GUEST_LISTS'), guestlist.manage);
+app.post('/manageguestlists', enforce('EDIT_GUEST_LISTS'), guestlist.editother);
 
 
 /*
@@ -141,6 +143,7 @@ app.delete('/roomreservations', reservations.remove);
 app.post('/roomreservationconfirm', enforce('EDIT_RESERVATIONS'), reservations.confirm);
 app.post('/roomreservationdeny', enforce('EDIT_RESERVATIONS'), reservations.deny);
 app.get('/managereservations', enforce('EDIT_RESERVATIONS'), reservations.manage);
+
 
 /*
  * Item Checkout functions

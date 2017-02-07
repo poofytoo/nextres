@@ -22,6 +22,15 @@ function complete(req, res, success, error, warnings) {
   });
 }
 
+function completeManage(req, res, success, error, warnings) {
+  util.render(res, 'manageguestlists', {
+    user: req.user,
+    success: success,
+    warnings: warnings,
+    error: error
+  });
+}
+
 exports.list = function(req, res) {
   GuestLists.listGuests({}, function(err, guestlists) {
     if (guestlists) {
@@ -115,3 +124,72 @@ exports.edit = function(req, res) {
     });
   });
 };
+
+// req.query = {hostKerberos: 'rliu42'}
+exports.manage = function(req, res) {
+  if (req.query.hostKerberos) {
+    util.sanitize(req.query, 'hostKerberos', /[^A-Za-z0-9\-\_ ]/g, 8);
+    Users.findByKerberos(req.query.hostKerberos, function(err, user) {
+      if (err) {
+        complete(req, res, null, err);
+      } else {
+        GuestLists.findByUserId(user.id, function(err2, guestlist) {
+          if (err2) {
+            complete(req, res, null, err2);
+          } else {
+            if (guestlist) {
+              guestlist = GuestLists.guestListToObj(guestlist);
+            }
+            util.render(res, 'manageguestlists', {
+              user: req.user,
+              host: req.query.hostKerberos,
+              guests: guestlist
+            });
+          }
+        });
+      }
+    });
+  } else {
+    util.render(res, 'manageguestlists', {
+      user: req.user
+    });
+  }
+};
+
+// req.body = {hostKerberos: 'rliu42', guest1Name: 'Becky Shi', guest1Kerberos: 'beckyshi'}
+exports.editother = function(req, res) {
+  util.sanitize(req.body, 'hostKerberos', /[^A-Za-z0-9\-\_ ]/g, 8);
+  for (var i = 1; i <= GuestLists.MAX_NUM_GUESTS; i++) {
+    util.sanitize(req.body, nameField(i), /[^A-Za-z0-9\-\_ ]/g, 30);
+    util.sanitize(req.body, kerberosField(i), /[^A-Za-z0-9\-\_ ]/g, 8);
+  }
+  Users.findByKerberos(req.body.hostKerberos, function(err, user) {
+    if (err) {
+      completeManage(req, res, null, err);
+    } else {
+      GuestLists.findByUserId(user.id, function(err2, guestlist) {
+        if (err2) {
+          completeManage(req, res, null, err);
+        } else {
+          GuestLists.findRepeatedGuests(req.body, user,
+            function(err3, repeatedGuests) {
+              var warnings = [];
+              if (!err3) {
+                for (var i = 0; i < repeatedGuests.length; i++) {
+                  warnings.push('Note: ' + repeatedGuests[i].guest +
+                    ' is already on the guestlist of ' +
+                    repeatedGuests[i].host.firstName + ' ' +
+                    repeatedGuests[i].host.lastName);
+                }
+              }
+              guestlist.updateGuests(req.body, function(err4) {
+                completeManage(req, res, req.body.hostKerberos + '\'s guest list has been updated.',
+                  err4, warnings);
+              });
+            });
+        }
+      });
+    }
+  });
+};
+

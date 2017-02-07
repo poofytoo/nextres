@@ -1,0 +1,64 @@
+<section class="content-header">
+  <h1>
+   Manage Guestlists
+  </h1>
+  <br>
+  <p>Sometimes students are not in the MIT people directory, so NextRes can't verify that they are valid students for the guestlist. You can use this page to manually add these students to their host's guestlist. These changes are not validated against the directory, so <strong>double check your spelling before submitting</strong>.</p>
+</section>
+
+<section class="content">
+
+{{#unless host}}
+<form action="manageguestlists" method="get">
+
+  <p>
+    <div class="row">
+      <div class="col-lg-3 col-xs-6"><b>Host Kerberos</b></div>
+    </div>
+  </p>
+  <p>
+    <div class="row">
+      <div class="col-lg-3 col-xs-6"><input class="form-control" type="text" name="hostKerberos" /></div>
+    </div>
+  </p>
+  <div class="row">
+    <div class="col-lg-3 col-xs-6">
+      <button class="btn btn-success btn-block" type='submit' value='Submit'>Submit</button>
+    </div>
+  </div>
+
+</form>
+{{/unless}}
+
+{{#if host}}
+<p>Editing guestlist for <strong>{{host}}</strong>:</p>
+
+<form action='manageguestlists' method='post'>
+
+<input type="hidden" name="hostKerberos" value="{{host}}">
+<p>
+  <div class="row">
+    <div class="col-lg-4 col-xs-6"><b>Guest Fullname</b></div>
+    <div class="col-lg-3 col-xs-6"><b>Guest Kerberos</b></div>
+  </div>
+</p>
+<p>
+  {{#each guests.guests}}
+  <div class="row">
+      <div class="col-lg-4 col-xs-6"><input class="form-control" type='text' name='guest{{this.index}}Name' value='{{this.name}}' /></div>
+      <div class="col-lg-3 col-xs-6"><input class="form-control" type='text' name='guest{{this.index}}Kerberos' value='{{this.kerberos}}' /></div>
+  </div>
+  {{/each}}
+</p>
+<p>
+  <div class="row">
+    <div class="col-lg-4 col-md-6 col-xs-12">
+      <button class="btn btn-success col-lg-6 col-md-6 col-xs-12" type='submit' value='Save'>Save</button>
+    </div>
+  </div>
+</p>
+
+</form>
+{{/if}}
+
+</section>
