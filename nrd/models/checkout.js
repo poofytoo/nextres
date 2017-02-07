@@ -81,7 +81,7 @@ function get(params, callback) {
  * Returns a list of all Items
  */
 Checkout.prototype.getAllItems = function(callback) {
-  get({}, callback);
+  get({sortBy: 'name'}, callback);
 };
 
 /*
@@ -134,7 +134,7 @@ Checkout.prototype.getRecentlyCheckedOutItems = function(time, callback) {
  * Returns a list of most recent Items added (returns up to [limit] rows)
  */
 Checkout.prototype.getRecentlyAddedItems = function(limit, callback) {
-  get({sortBy: 'timeBorrowed', isDesc: true, limit: limit}, callback);
+  get({sortBy: 'timeAdded', isDesc: true, limit: limit}, callback);
 };
 
 /*
