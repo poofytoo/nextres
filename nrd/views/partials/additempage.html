@@ -1,6 +1,9 @@
+<section class="content-header">
 <h1>Next Desk Item Checkout</h1>
-<p>Add items.</p>
+<p>Add new items to the desk checkout system.</p>
+</section>
 
+<section class="content">
 <div class="input-box">
     <p>Scan item barcode:</p>
     <input type="text" id="barcode">
@@ -19,14 +22,17 @@
 </div>
 <h2> Recently Added Items </h2>
 <p>
-  <table class="displaytable">
-  <tr>
-    <th>Barcode</th>
-    <th>Name</th>
-    <th>Checked out by</th>
-    <th>Days since checkout</th>
-    <th>Remove</th>
-  </tr>
+  <table class="displaytable table">
+  <thead>
+    <tr>
+      <th>Barcode</th>
+      <th>Name</th>
+      <th>Checked out by</th>
+      <th>Days since checkout</th>
+      <th>Remove</th>
+    </tr>
+  </thead>
+  <tbody>
   <script id="item-list" type="text/x-handlebars-template">
   {{!--\ before each {{}} so server-side handlebars does not compile --}}
   \{{#each itemList}}
@@ -43,8 +49,10 @@
   </tr>
   \{{/each}}
   </script>
+  </tbody>
   </table>
 </p>
+</section>
 
 <script>
     $(document).ready(function() {
