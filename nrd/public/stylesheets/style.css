@@ -1,8 +1,104 @@
+ @font-face {
+     font-family: 'Bariol';
+     src: url("/fonts/Bariol_Regular.otf") format("opentype"),
+     url("/fonts/bariol_regular.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol';
+     font-weight: bold;
+     src: url("/fonts/Bariol_Bold.otf") format("opentype"),
+     url("/fonts/bariol_bold.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol';
+     font-style: italic;
+     src: url("/fonts/Bariol_Regular_Italic.otf") format("opentype"),
+     url("/fonts/bariol_regular_italic.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol';
+     font-style: italic;
+     font-weight: bold;
+     src: url("/fonts/Bariol_Bold_Italic.otf") format("opentype"),
+     url("/fonts/bariol_bold_italic.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol Light';
+     src: url("/fonts/Bariol_Light.otf") format("opentype"),
+     url("/fonts/bariol_light.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol Light';
+     font-style: italic;
+     src: url("/fonts/Bariol_Light_Italic.otf") format("opentype"),
+     url("/fonts/bariol_light_italic.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol Thin';
+     src: url("/fonts/Bariol_Thin.otf") format("opentype"),
+     url("/fonts/bariol_thin.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Bariol Thin';
+     font-style: italic;
+     src: url("/fonts/Bariol_Thin_Italic.otf") format("opentype"),
+     url("/fonts/bariol_thin_italic.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'TofinoBook';
+     src: url("/fonts/Tofino_Book.ttf") format('truetype'),
+     url("/fonts/Tofino_Book.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'TofinoBook';
+     src: url("/fonts/Tofino_Book.ttf") format('truetype'),
+     url("/fonts/Tofino_Book.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Tofino';
+     src: url("/fonts/Tofino_Regular.ttf") format('truetype'),
+     url("/fonts/Tofino_Regular.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Tofino';
+     font-weight: bold;
+     src: url("/fonts/Tofino_Bold.ttf") format('truetype'),
+     url("/fonts/Tofino_Bold.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Tofino Bold';
+     src: url("/fonts/Tofino_Bold.ttf") format('truetype'),
+     url("/fonts/Tofino_Bold.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Tofino Thin';
+     src: url("/fonts/Tofino_Thin.ttf") format('truetype'),
+     url("/fonts/Tofino_Thin.woff") format("woff")
+ }
+
+ @font-face {
+     font-family: 'Tofino Light';
+     src: url("/fonts/Tofino_Light.ttf") format('truetype'),
+     url("/fonts/Tofino_Light.woff") format("woff")
+ }
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	font-family: 'TofinoBook', 'Open Sans', Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
-}
+h1, h2, h3 {
+	font-family: 'Bariol', 'Open Sans', sans-serif;
+}	

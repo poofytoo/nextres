@@ -18,14 +18,14 @@
         <ul class="sidebar-menu">
             <li class="header">Resident Dashboard</li>
             <li class="treeview active">
-                <a><i class="fa fa-bank"></i> <span>Front Desk</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-bank"></i> <span>Front Desk</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu menu-open" style="display:block">
                     <li><a href="/guestlist"><i class="fa fa-list"></i> View/Edit Your Guestlist</a></li>
                     <li><a href="/viewitems"><i class="fa fa-paper-plane"></i> Items for Checkout</a></li>
                 </ul>
             </li>
             <li class="treeview active">
-                <a><i class="fa fa-home"></i> <span>House</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-home"></i> <span>House</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu menu-open" style="display:block">
                     <li><a href="/roomreservations"><i class="fa fa-calendar-plus-o"></i> Room Reservations</a></li>
                     <li><a href="/emaillists"><i class="fa fa-envelope"></i> Mailing Lists</a></li>
@@ -34,7 +34,7 @@
                 </ul>
             </li>
             <li class="treeview active">
-                <a><i class="fa fa-user"></i> <span>Account</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-user"></i> <span>Account</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu menu-open" style="display:block">
                     <li><a href="/residentinfo"><i class='fa fa-info-circle'></i> Residence Info</a></li>
                     <li><a href="/password"><i class="fa fa-lock"></i> Change Password</a></li>
@@ -42,7 +42,7 @@
             </li>
             {{#if permissions.VIEW_GUEST_LISTS}}
             <li class="treeview">
-                <a><i class="fa fa-link"></i> <span>Deskworker</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-link"></i> <span>Deskworker</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
                     <li><a href="/allguests"><i class='fa fa-book'></i> Search and View Guestlists</a></li>
                     <li><a href="/checkout"><i class='fa fa-paper-plane'></i> Checkout Items</a></li>
@@ -51,7 +51,7 @@
             </li>
             {{/if}} {{#if permissions.EDIT_RESERVATIONS}}
             <li class="treeview">
-                <a><i class="fa fa-user-secret"></i> <span>Next Exec</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-user-secret"></i> <span>Next Exec</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
                     <li><a href="/users"><i class="fa fa-users"></i> Manage Users</a></li>
                     <li><a href="/managereservations"><i class='fa fa-calendar-check-o'></i> Manage Reservations</a></li>
@@ -60,7 +60,7 @@
             </li>
             {{else}} {{#if permissions.MAKE_USERS_DESKWORKERS}}
             <li class="treeview">
-                <a><i class="fa fa-user-secret"></i> <span>Desk Captain</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a role="button"><i class="fa fa-user-secret"></i> <span>Desk Captain</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
                     <li><a href="/users"><i class="fa fa-users"></i> Manage Users</a></li>
                 </ul>
