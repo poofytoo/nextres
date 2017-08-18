@@ -38,3 +38,6 @@ _testmain.go
 key.pem
 *.pem
 config.json
+
+# Uploaded meeting minutes
+nrd/public/documents/minutes/*
