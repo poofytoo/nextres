@@ -12,21 +12,21 @@
     <meta property="og:site_name" content="Next House Resident Dashboard">
     <meta property="og:title" content="Next House Resident Dashboard">
     <meta property="og:description" content="">
-    <meta property="og:url" content="http://nextres.mit.edu">
+    <meta property="og:url" content="https://nextres.mit.edu">
     <meta property="og:type" content="website">
     <!-- Twitter META -->
     <meta name="twitter:title" content="Next House Resident Dashboard">
     <meta name="twitter:description" content="">
-    <meta name="twitter:url" content="http://nextres.mit.edu">
+    <meta name="twitter:url" content="https://nextres.mit.edu">
     <title>Next House Resident Dashboard</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/reset.css">
     <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="admin-lte/bootstrap/css/bootstrap.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,300,400,700">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,300,400,700">
     <!-- Theme style -->
     <link rel="stylesheet" href="admin-lte/dist/css/AdminLTE.min.css">
     <link rel="stylesheet" href="admin-lte/dist/css/skins/_all-skins.min.css">
@@ -34,6 +34,9 @@
     <script>
     if (/nextcode/i.test(location.href)) {
         location.href = location.href.replace("nextcode", "nextres")
+    }
+    if (/http\:/i.test(location.href)) {
+        location.href = location.href.replace("http:", "https:")
     }
     </script>
     <link rel="stylesheet" href="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
@@ -43,6 +46,6 @@
     <script src="/js/jquery.scrollTo-1.4.3.1-min.js"></script>
     <script src="plugins/jonthornton/jquery.timepicker.js"></script>
     <!-- validating html5 existance -->
-    <script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.0.6-development-only.js"></script>
     <script src="bower_components/Framework7/dist/js/framework7.min.js"></script>
 </head>

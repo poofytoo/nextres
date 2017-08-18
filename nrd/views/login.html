@@ -13,28 +13,31 @@
     <meta property="og:site_name" content="Next House Resident Dashboard">
     <meta property="og:title" content="Next House Resident Dashboard">
     <meta property="og:description" content="">
-    <meta property="og:url" content="http://nextres.mit.edu">
+    <meta property="og:url" content="//nextres.mit.edu">
     <meta property="og:type" content="website">
     <!-- Twitter META -->
     <meta name="twitter:title" content="Next House Resident Dashboard">
     <meta name="twitter:description" content="">
-    <meta name="twitter:url" content="http://nextres.mit.edu">
+    <meta name="twitter:url" content="//nextres.mit.edu">
     <title>Next House Resident Dashboard</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/reset.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
     <!-- Bootstrap 3.3.6 -->
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
     <script>
     if (/nextcode/i.test(location.href)) {
         location.href = location.href.replace("nextcode", "nextres")
     }
+    if (/http\:/i.test(location.href)) {
+        location.href = location.href.replace("http:", "https:")
+    }
     </script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
      <!-- Framework 7 -->
-	<script src="bower_components/Framework7/dist/js/framework7.min.js"></script>
+	<!--<script src="bower_components/Framework7/dist/js/framework7.min.js"></script>
 	<script>
 	(function() {
 	    if (Framework7.prototype.device.android) {
@@ -50,7 +53,7 @@
 	    }
 	})();
 	</script>
-    <script src="js/nextres.js"></script>
+    <script src="js/nextres.js"></script>-->
 </head>
 <style>
 .google-badge>img {
@@ -58,7 +61,7 @@
   box-sizing:border-box;
   height:60px;
 }
-.mobile, .browser {
+.mobile {
 	display: none;
 }
 </style>
@@ -98,8 +101,8 @@
             </div>
             <p>
                 <div style="display:inline-block">
-                    <a class="google-badge" target="_blank" onclick="location.href='https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'">
-                        <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
+                    <a class="google-badge" target="_blank" onclick="location.href='//play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'">
+                        <img alt='Get it on Google Play' src='//play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
                     </a>
                 </div>
             </p>
@@ -169,7 +172,7 @@
 		location.href = "/auth/forgot"
 	});
     /*$('.google-badge').click(function() {
-        window.open("https://play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1");
+        window.open("//play.google.com/store/apps/details?id=mit.next.nextres&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1");
     })*/
 	$(".username").focus();
     var forceLower = function(s) { s.value = s.value.toLowerCase(); };

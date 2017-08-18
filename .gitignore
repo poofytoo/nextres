@@ -9,6 +9,9 @@ _test
 nrd/node_modules
 .sass-cache
 nrd/build
+nrd/bower_components
+nrd/public/.well-known
+nrd/public/bower_components
 .idea/
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -33,4 +36,5 @@ _testmain.go
 
 # Other files to ignore
 key.pem
+*.pem
 config.json

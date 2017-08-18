@@ -1,11 +1,12 @@
-
 /**
  * Module dependencies.
  */
 var express = require('express');
 var flash = require('connect-flash');
+var https = require('https');
 var http = require('http');
 var path = require('path');
+var fs = require('fs');
 var passport = require('passport');
 var hbs = require('hbs');
 var schedule = require('node-schedule');
@@ -28,24 +29,62 @@ var checkout = require('./routes/checkout');
 
 var app = express();
 
+var ssl_options = {};
+if (!!start_settings['ssl']) {
+    // SSL
+    var private_key = fs.readFileSync(path.resolve('ssl/key.pem'), 'utf8');
+    var certificate = fs.readFileSync(path.resolve('ssl/cert.pem'), 'utf8');
+    var intermediate_cert = fs.readFileSync(path.resolve('ssl/intermediate_cert.pem'), 'utf8');
+    var chained_cert = certificate + "\n" + intermediate_cert;
+    ssl_options = {
+        key: private_key,
+        cert: chained_cert,
+        secureProtocol: 'TLSv1_2_method',
+        ciphers: [
+            'ECDHE-RSA-AES128-GCM-SHA256',
+            'ECDHE-ECDSA-AES128-GCM-SHA256',
+            'ECDHE-RSA-AES256-GCM-SHA384',
+            'ECDHE-ECDSA-AES256-GCM-SHA384',
+            'DHE-RSA-AES128-GCM-SHA256',
+            'ECDHE-RSA-AES128-SHA256',
+            'DHE-RSA-AES128-SHA256',
+            'ECDHE-RSA-AES256-SHA384',
+            'DHE-RSA-AES256-SHA384',
+            'ECDHE-RSA-AES256-SHA256',
+            'DHE-RSA-AES256-SHA256',
+            'HIGH',
+            '!aNULL',
+            '!eNULL',
+            '!EXPORT',
+            '!DES',
+            '!RC4',
+            '!MD5',
+            '!PSK',
+            '!SRP',
+            '!CAMELLIA'
+        ].join(':'),
+        honorCipherOrder: true
+    };
+}
+
 // all environments
 
 app.set('port', start_settings['port']);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
 app.engine('html', require('hbs').__express);
-app.set('view options', {layout: false});
+app.set('view options', { layout: false });
 
 hbs.registerPartials(__dirname + '/views/partials');
 
-app.use(express.favicon(__dirname + '/public/images/favicon.ico')); 
+app.use(express.favicon(__dirname + '/public/images/favicon.ico'));
 app.use(express.cookieParser());
 app.use(express.logger('dev'));
 
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.session({secret: 'SECRET', store: db.store(express)}));
+app.use(express.session({ secret: 'SECRET', store: db.store(express) }));
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
@@ -60,7 +99,7 @@ passport.deserializeUser(util.deserializeUser);
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 }
 
 /*
@@ -71,10 +110,10 @@ app.get('/home', user.viewprofile);
 
 
 /*
-* Password reset
-*/
+ * Password reset
+ */
 app.get('/auth/forgot', function(req, res) {
-  res.render('reset-password');
+    res.render('reset-password');
 });
 app.post('/auth/forgot', user.forgotPassword);
 app.get('/auth/reset/:token', user.validateResetToken);
@@ -84,8 +123,7 @@ app.post('/auth/reset/:token', user.resetPassword);
  */
 app.get('/login', user.login);
 app.post('/login',
-    passport.authenticate('local',
-      {failureRedirect: '/login', failureFlash: 'Invalid login'}),
+    passport.authenticate('local', { failureRedirect: '/login', failureFlash: 'Invalid login' }),
     user.loginsuccess
 );
 app.post('/loginas', enforce('FULL_PERMISSIONS_CONTROL'), user.loginas);
@@ -159,15 +197,20 @@ app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
 app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 app.post('/usercheckoutdata', enforce('CHECKOUT_ITEMS'), checkout.getusercheckoutdata);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+http.createServer(app).listen(app.get('port'), function() {
+  console.log("HTTP server listening on port " + app.get('port'))
 });
-
-schedule.scheduleJob({hour: 0, minute: 0, second:0}, function() {
-  Checkout.getOverdueItems(function(err, overdueItems) {
-    for (var user in overdueItems) {
-      var email = user + '@mit.edu';
-      Mailer.informOverdue(email, overdueItems[user]);
-    }
+if (!!start_settings['ssl']) {
+  https.createServer(ssl_options, app).listen(443, function() {
+    console.log("HTTPS server listening on port 443");
   });
+}
+
+schedule.scheduleJob({ hour: 0, minute: 0, second: 0 }, function() {
+    Checkout.getOverdueItems(function(err, overdueItems) {
+        for (var user in overdueItems) {
+            var email = user + '@mit.edu';
+            Mailer.informOverdue(email, overdueItems[user]);
+        }
+    });
 });
