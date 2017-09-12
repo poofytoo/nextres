@@ -5,7 +5,7 @@ body {
 .header {
   text-align: center;
   padding: 18px;
-  background-image: url("/images/user.png");
+  background-color: #eee;
   background-position: 0 -80px; }
   .header .circle {
     background-color: #47A9C4;
