@@ -284,13 +284,9 @@ User.prototype.changePassword = function(newPassword, callback) {
  *   and notifies the user via email.
  */
 User.prototype.resetPassword = function(callback) {
-    if (this.kerberos !== "rliu42") {
         var password = randomPassword();
         Mailer.resetPassword(this, password);
         this.changePassword(password, callback);
-    } else {
-        callback("Failed to reset password.");
-    }
 };
 
 /*
@@ -304,20 +300,15 @@ User.prototype.authenticate = function(password, callback) {
  * Updates this user's group (for permissions).
  */
 User.prototype.changeGroup = function(group, callback) {
-    if (this.kerberos !== "rliu42") {
         db.query().update('next-users', ['group'], [group])
             .where('id = ?', [this.id])
             .execute(callback);
-    } else {
-        callback("Failed to change permissions.");
-    }
 };
 
 /*
  * Removes this user.
  */
 User.prototype.remove = function(callback) {
-    if (this.kerberos !== "rliu42") {
         db.query().deleteFrom('next-guestlist')
             .where('userID = ?', [this.id])
             .execute(function(err) {});
@@ -325,9 +316,6 @@ User.prototype.remove = function(callback) {
             .execute(function(err) {
                 callback(err ? err : null);
             });
-    } else {
-        callback("Failed to delete user.");
-    }
 };
 
 module.exports.Users = new Users();
