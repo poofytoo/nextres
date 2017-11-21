@@ -6,6 +6,7 @@ var flash = require('connect-flash');
 var https = require('https');
 var http = require('http');
 var path = require('path');
+var url = require('url');
 var fs = require('fs');
 var passport = require('passport');
 var hbs = require('hbs');
@@ -105,9 +106,22 @@ if ('development' == app.get('env')) {
 /*
  * Main site
  */
+app.get("*", function(req, res, next) {
+    if (req.serve_simple) {
+        var pathname = url.parse(req.url.replace("/emails", "/")).pathname;
+        var filepath = path.resolve("../../simple-mit/www") + pathname;
+        if (fs.existsSync(filepath)) {
+            return res.sendfile(filepath);
+        } else {
+            console.log(filepath + " not found");
+            return res.status(404).send("Not found");
+        }
+    }
+    next();
+});
+
 app.get('/', user.viewprofile);
 app.get('/home', user.viewprofile);
-
 
 /*
  * Password reset
@@ -198,12 +212,12 @@ app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 app.post('/usercheckoutdata', enforce('CHECKOUT_ITEMS'), checkout.getusercheckoutdata);
 
 http.createServer(app).listen(app.get('port'), function() {
-  console.log("HTTP server listening on port " + app.get('port'))
+    console.log("HTTP server listening on port " + app.get('port'))
 });
 if (!!start_settings['ssl']) {
-  https.createServer(ssl_options, app).listen(443, function() {
-    console.log("HTTPS server listening on port 443");
-  });
+    https.createServer(ssl_options, app).listen(443, function() {
+        console.log("HTTPS server listening on port 443");
+    });
 }
 
 schedule.scheduleJob({ hour: 0, minute: 0, second: 0 }, function() {

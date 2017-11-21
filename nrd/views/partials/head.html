@@ -35,7 +35,7 @@
     if (/nextcode/i.test(location.href)) {
         location.href = location.href.replace("nextcode", "nextres")
     }
-    if (/http\:/i.test(location.href)) {
+    if (!/localhost|file/.test(location.href) && /http\:/i.test(location.href)) {
         location.href = location.href.replace("http:", "https:")
     }
     </script>
