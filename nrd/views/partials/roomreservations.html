@@ -24,7 +24,8 @@
 
 <p><em>Please review these policies if you are unsure of how to reserve a room.</em></p>
 
-<p><b>Note:</b> only three outstanding reservations are allowed at a time. For more reservations, please contact next-exec@mit.edu.</p>
+<p><b>Note:</b> Only three outstanding reservations are allowed at a time. For more reservations, please contact next-exec@mit.edu.</p>
+<p><b>IAP Note:</b> Due to heavy use in the evenings, the Country Kitchen cannot be reserved after 5pm.</p>
 
 <form method="post">
 
@@ -60,7 +61,7 @@
 <div class="part2" style="display: none;">
     <h3>Signatories</h3>
     <p>
-      <b><span class='nres'></span></b> Next House Residents are required to reserve the <b><span class='nroom'></span></b>. 
+      <b><span class='nres'></span></b> Next House Residents are required to reserve the <b><span class='nroom'></span></b>.
       Please enter their <em>kerberoses</em>.
     </p>
 
@@ -96,7 +97,7 @@
 
     <h3>Reservation Details</h3>
     <p>To reserve multiple days, please fill out multiple reservations.</p>
-        
+
     <div class="row">
         <div class="form-group col-lg-3 col-md-4 col-sm-6 col-xs-12">
             <label for="date">Date: </label>
@@ -180,11 +181,11 @@
     );
     $(e.target).parent().html(yes);
   });
-  
+
   $('select').on('change', function(){
   	$('.part2').hide();
   	var UNSELECTED = "";
-  	
+
   	room = $('.sel_room').val();
   	if ($('.sel_people').val() == 1) {
   		$('.r3').show();
@@ -196,12 +197,12 @@
   		$('.nroom').text(room);
 
   	}
-  	
+
   	if ($('.sel_room').val() != UNSELECTED && $('.sel_people').val() != UNSELECTED){
   		$('.part2').slideDown(600);
   		window.setTimeout(function(){$.scrollTo('.part2', 600, {easing:'swing', offset: {top: -15, left: 0}})}, 400);
   	}
-  	
+
   });
 
 
@@ -211,9 +212,9 @@ $(document).ready(function(){
 	}
 
   setTimeout(function() {
-    $('#startTime').timepicker({ 
+    $('#startTime').timepicker({
     'maxTime': '23:59',
-    'forceRoundTime': true 
+    'forceRoundTime': true
     });
     $('#startTime').on('changeTime', function() {
       stime = $(this).val();
@@ -223,7 +224,7 @@ $(document).ready(function(){
     'minTime': '12:00pm',
     'maxTime': '12:00am',
     'showDuration': true,
-    'forceRoundTime': true 
+    'forceRoundTime': true
     });
   }, 1000);
 
@@ -256,5 +257,5 @@ $(document).ready(function(){
   $('[name="end"]').attr('value', '{{prevParams.end}}');
   {{/if}}
 });
-  
+
 </script>

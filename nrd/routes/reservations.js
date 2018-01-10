@@ -45,6 +45,14 @@ var validateReservation = function(reservation, user, callback) {
       kerberosList.push(reservation[signatoryField(i)]);
     }
   }
+  // IAP ONLY: Check country kitchen not reserved in illegal hours
+  if (reservation.room == 'Country Kitchen') {
+    e = reservation.end.split(':');
+    e = parseInt(e[0]) + parseInt(e[1])/60 + reservation.end.endsWith('pm')*12;
+    if (e==12 || e>17) { //midnight or past 17:00
+      callback("Can't reserve Country Kitchen past 5pm.");
+    }
+  }
   // Check for sufficient number of signatories
   if (reservation.people === '0') {  // < 10 people
     if (kerberosList.length < 1) {
@@ -169,4 +177,3 @@ exports.manage = function(req, res) {
     });
   });
 };
-
