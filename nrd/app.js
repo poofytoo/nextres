@@ -111,11 +111,14 @@ app.get("*", function(req, res, next) {
         var pathname = url.parse(req.url.replace("/emails", "/")).pathname;
         var filepath = path.resolve("../../simple-mit/www") + pathname;
         if (fs.existsSync(filepath)) {
+            if (fs.lstatSync(filepath).isDirectory() && !fs.existsSync(filepath + "/index.html")) {
+                console.log(filepath + " not found");
+                return res.redirect("/");
+            }
             return res.sendfile(filepath);
-        } else {
-            console.log(filepath + " not found");
-            return res.status(404).send("Not found");
         }
+        console.log(filepath + " not found");
+        return res.redirect("/");
     }
     next();
 });
@@ -211,9 +214,15 @@ app.post('/checkinitem', enforce('CHECKOUT_ITEMS'), checkout.checkin);
 app.post('/checkoutitem', enforce('CHECKOUT_ITEMS'), checkout.checkout);
 app.post('/usercheckoutdata', enforce('CHECKOUT_ITEMS'), checkout.getusercheckoutdata);
 
-http.createServer(app).listen(app.get('port'), function() {
+var httpServer = http.createServer(!!start_settings['ssl'] ? function(req, res) {
+    if (!/localhost|file/.test(req.headers.host)) {
+        res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
+        res.end();
+    }
+} : app).listen(app.get('port'), function() {
     console.log("HTTP server listening on port " + app.get('port'))
 });
+
 if (!!start_settings['ssl']) {
     https.createServer(ssl_options, app).listen(443, function() {
         console.log("HTTPS server listening on port 443");
