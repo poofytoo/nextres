@@ -19,9 +19,9 @@ sudo tail -n 20 /var/mail/root
 ## Manual Installation Instructions
 If all else fails, you can install certificates the old-fashioned way.
 1. Log in as next@nextres.mit.edu. Move into the `~/git/nextres/nrd/ssl` directory.
-2. Run certbot and follow the instructions on-screen (you can create the acme-challenge file in `~/git/nextres/nrd/public/.well-known/acme-challenge`:
+2. Run certbot and follow the instructions on-screen (you can create the acme-challenge file in `~/git/nextres/nrd/public/.well-known/acme-challenge`):
 ```
-sudo certbot certonly --manual -d nextres.mit.edu
+sudo certbot certonly --manual --manual-public-ip-logging-ok -d nextres.mit.edu -d nextcode.mit.edu -d simple.mit.edu
 ```
 3. This should create several files in `/etc/letsencrypt/live/nextres.mit.edu`. Copy them over like so:
 ```
