@@ -15,6 +15,10 @@ You will need the following tools to run and develop the NextRes web server on y
 
 2. [Node.js/NPM](https://nodejs.org/en/)
 
+3. finger - user information lookup program, used for guest lists
+- This may not be installed by default. If not, run `sudo apt-get install finger`
+
+
 ## Node and NPM installation guide
 
 Suggested methods of installing Node.js/NPM for your OS:
