@@ -75,7 +75,7 @@ Mailer.prototype.newUser = function(user, rawPassword) {
     "Your Next resident dashboard account has been created! " +
     "The Next resident dashboard is where you can edit your guest list, " +
     "reserve rooms, and view items available for check out at desk. " +
-    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "Please visit <a href='res.nextie.us'>res.nextie.us</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     "<b>" + rawPassword + "</b>. Once you have logged in, " +
     "please change your password." +
@@ -88,7 +88,7 @@ Mailer.prototype.newUser = function(user, rawPassword) {
     "Your Next resident dashboard account has been created! " +
     "The Next resident dashboard is where you can edit your guest list, " +
     "reserve rooms, and view items available for check out at desk. " +
-    "Please visit <a href='nextres.mit.edu'>nextres.mit.edu</a>, " +
+    "Please visit <a href='res.nextie.us'>res.nextie.us</a>, " +
     "and login with your kerberos ID and the following temporary password: " +
     rawPassword + ". Once you have logged in, please change your password. " +
     "If you have any questions, feel free to contact nextres@mit.edu. " +
@@ -100,7 +100,7 @@ Mailer.prototype.resetPassword = function(user, rawPassword) {
   var to = [user.email];
   var cc = ["nextres-test@mit.edu"];
   var subject = "Password Reset";
-  var html = "Hello,<br /><br />" + 
+  var html = "Hello,<br /><br />" +
       "The password to your Next resident dashboard account has been reset. "+
       "Login with your kerberos ID and the following password: <b>" +
       rawPassword +
@@ -122,7 +122,7 @@ Mailer.prototype.approveApplication = function(email, firstName) {
   var to = [email];
   var cc = []
 ;  var subject = "Request for Project Funding Approved";
-  var html = "Hello " + firstName + ", <br /><br />" + 
+  var html = "Hello " + firstName + ", <br /><br />" +
     "NextExec has approved your application for the small group project " +
     "funding!<br /><br />"+
     "If you have any questions, feel free to contact nextres@mit.edu." +
@@ -139,7 +139,7 @@ Mailer.prototype.denyApplication = function(email, firstName) {
   var to = [email];
   var cc = [];
   var subject = "Result of Application for Project Funding";
-  var html = "Hello " + firstName+ ", <br /><br />" + 
+  var html = "Hello " + firstName+ ", <br /><br />" +
     "NextExec has denied your application for the following reason(s): " +
     "<br />" + reason + ".<br /><br />" +
     "You have the option to reapply and submit another funding proposal. " +
@@ -165,7 +165,7 @@ Mailer.prototype.reserveRoom = function(reserveParams, attendees) {
   for (var i = 0; i < attendees.length; i++) {
     cc.push(attendees[i].email);
   }
-  var subject = "[NextRes] " + reserveParams.room + " reserved by " + 
+  var subject = "[NextRes] " + reserveParams.room + " reserved by " +
     reserveParams.signatory1;
   var html = "Hello Next Exec, <br />" +
     "<br />" +
@@ -174,13 +174,13 @@ Mailer.prototype.reserveRoom = function(reserveParams, attendees) {
     reserveParams.signatory2 + (reserveParams.signatory3 ?
         ", " + reserveParams.signatory3 : "") + "<br />" +
     "<b>Room</b>: " + reserveParams.room + "<br />" +
-    "<b>Date</b>: " + reserveParams.date + "<br />" + 
+    "<b>Date</b>: " + reserveParams.date + "<br />" +
     "<b>Time</b>: " + reserveParams.start + " to " + reserveParams.end +
-    "<br />" + 
+    "<br />" +
     "<b>Description</b>: " + reserveParams.reason + "<br /><br />" +
-    "If this looks ok, feel free to ignore this email. " + 
+    "If this looks ok, feel free to ignore this email. " +
     "If not, please go to " +
-    "<a href='http://nextres.mit.edu/managereservations'>NextRes</a> " +
+    "<a href='http://res.nextie.us/managereservations'>NextRes</a> " +
     "to view/deny.<br />" +
     "<br />" +
     "Cheers, <br />" +
@@ -221,8 +221,8 @@ Mailer.prototype.informOverdue = function(email, itemList) {
 
   var overdueItemString = '';
   for (var i = 0; i < itemList.length; ++i) {
-    overdueItemString += 
-      'Item Name: ' + itemList[i].name + '<br />' + 
+    overdueItemString +=
+      'Item Name: ' + itemList[i].name + '<br />' +
       'Barcode: ' + itemList[i].barcode + '<br />' +
       'Days Overdue: ' + itemList[i].daydiff + '<br /><br />';
   }
@@ -249,7 +249,7 @@ Mailer.prototype.resetPasswordToken = function(kerberos, url, callback) {
              "<p>You have requested the password to your NextRes Dashboard account be reset.</p>" +
              "<p>Please visit this url to reset your password:</p>" +
              "<p>" + url + "</p>" +
-             "<strong>If you didn't make this request, you can ignore this email.</strong><br /><br />" + 
+             "<strong>If you didn't make this request, you can ignore this email.</strong><br /><br />" +
              "<p>Cheers, <br />the NextRes Dev team</p>";
   var text = html;
   console.log(html);
@@ -270,7 +270,7 @@ Mailer.prototype.confirmResetPassword = function(kerberos, callback) {
   var subject = "[NextRes] Password Reset Confirmation";
   var html = "Hello " + kerberos + ", <br />" +
              "<p>This is a confirmation that the password for your NextRes account has just been changed.</p> <br />" +
-             "<strong>If you didn't make this request, then please contact nextres@mit.edu immediately.</strong><br /><br />" + 
+             "<strong>If you didn't make this request, then please contact nextres@mit.edu immediately.</strong><br /><br />" +
              "<p>Cheers, <br />the NextRes Dev team</p>";
   var text = html;
   this.mail({to:to, cc:cc, subject:subject, html:html, text:text}, function(err) {

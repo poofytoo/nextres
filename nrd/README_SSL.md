@@ -1,11 +1,11 @@
 Let's Make NextRes Secure Again
 ===============================
-Why is nextres.mit.edu insecure?! Probably because the SSL certificate expired.
+Why is res.nextie.us insecure?! Probably because the SSL certificate expired.
 
 The first thing you should try running is `certbot renew`. This might work, maybe not, but I have no idea. If it doesn't do the following process to totally regenerate those keys:
 
 ## Create keys from scratch
-1. Log in as next@nextres.mit.edu. Move into the `~/nextres/nrd/ssl` directory.
+1. Log in as root@res.nextie.us. Move into the `~/nextres/nrd/ssl` directory.
 2. Run certbot and follow the instructions on-screen (you can create the acme-challenge file in `~/nextres/nrd/public/.well-known/acme-challenge`):
 ```
 sudo certbot certonly --manual --manual-public-ip-logging-ok -d res.nextie.us
